@@ -1,0 +1,533 @@
+\documentclass[pdftex,a4paper,titlepage,11pt]{article}
+
+% Les packages de base pour le support du français
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% La bonne police, sans serif, helvetica
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault}
+% \usepackage{palatino} % Palatino font
+% \usepackage{lucidabr}
+
+% Pour les liens/urls
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,filecolor=black]{hyperref}
+
+% Le reste
+\usepackage{verbatim}
+\usepackage{graphicx}
+
+% Pour ne pas avoir à mettre images/ devant les noms d'images...
+\graphicspath{{images/}}
+\usepackage{fullpage}
+\usepackage{array}
+\usepackage[absolute]{textpos}
+\usepackage{framed}
+
+% Pour les entêtes et les pieds de page
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{fancybox}
+
+\usepackage{lastpage}
+\usepackage{datetime}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{eso-pic}
+\usepackage{color}
+\usepackage{sectsty}
+
+\addtolength{\voffset}{-20pt}
+\addtolength{\topmargin}{-6pt}
+\addtolength{\headsep}{+12pt}
+\addtolength{\footskip}{-4pt}
+\addtolength{\textheight}{-23pt}
+% \usepackage[top=1.5cm, bottom=5.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Pour le glossaire
+% \usepackage[xindy, toc]{glossaries}
+\usepackage[french]{nomencl}
+
+
+%%Redefinition de commandes et autres utilitaires
+
+%Ecart entre les colonnes
+% \setlength{\columnseprule}{0.5pt}
+
+% Définition des couleurs de l'ENSIB
+\definecolor{darkBlueENSIB}{RGB}{0,52,120}
+\definecolor{lightBlueENSIB}{RGB}{0,152,195}
+
+\definecolor{fushiaENSIB}{RGB}{203,0,68}
+\definecolor{orangeENSIB}{RGB}{255,109,34}
+
+%Changement des couleurs des titres
+\partfont{\color{darkBlueENSIB}{}}
+\chapterfont{\color{darkBlueENSIB}{}}
+\sectionfont{\color{darkBlueENSIB}{}\huge}
+\subsectionfont{\color{darkBlueENSIB}{}\Large}
+\subsubsectionfont{\color{darkBlueENSIB}{}\large}
+
+\makeindex
+% \makeglossaries
+\makenomenclature
+
+%Derniere page avec queue du poisson
+\newcommand{\lastPage}{
+	\newpage
+	\strut
+	\fancyhf{}
+	\renewcommand{\headrulewidth}{0pt}
+	\addtocounter{page}{-1}
+% 	\AddToShipoutPicture*{\BackgroundPic{atos-logo-light.png}}
+	\AddToShipoutPicture*{\BackgroundPic{Tux_n&b_half_1.png}}
+	\newpage
+}
+
+% Modification du nom de la table des matières
+% Ne semble pas fonctionner
+% \renewcommand{\contentsname}{Sommaire}
+% Titre pour le Glossaire/Index des noms
+\renewcommand{\nomname}{Glossaire}
+%Separateur des dates
+\renewcommand{\dateseparator}{-}
+
+\renewcommand{\title}[1]{
+	\vspace*{2cm}
+	\begin{center}
+		\Huge\textbf{{#1}}
+	\end{center}
+	\vspace{1cm}
+}
+
+\renewcommand{\author}[2]{
+	\begin{center}
+		\textbf{\Large{#1}}\\
+		\normalsize{#2}
+	\end{center}
+	\vspace{0.3cm}
+}
+
+\newcommand{\school}[1]{
+	\begin{center}
+		\large{#1}
+	\end{center}
+	\vspace{1.0cm}
+}
+
+
+\newcommand{\supervisor}[4]{
+	\begin{center}
+		\begin{normalsize}
+			{\bf#1}\\
+			#2\\
+			#3\\
+			#4
+		\end{normalsize}
+	\end{center}
+}
+
+\newcommand{\clearemptydoublepage}{
+	\newpage{
+		\pagestyle{empty}
+		\cleardoublepage
+	}
+}
+
+\newcommand\BackgroundPic[1]{
+	\put(0,-100){
+		\parbox[b][\paperheight]{\paperwidth}{
+			\vfill
+			\centering
+			\includegraphics[width=\paperwidth, height=\paperheight, keepaspectratio=true]{#1}
+			\vfill
+		}
+	}
+}
+
+%%
+%% Redefinition des en-tetes et pieds de pages
+%%
+\fancyhf{}
+\fancypagestyle{plain}
+
+%%En tete
+\lhead{\hspace{0.8cm}\large \textbf{Intégration de PIGA-MAC dans le noyau Linux\\}}
+
+% \chead{
+% \begin{center}
+% 	\large \textbf{Intégration de PIGA-MAC dans le noyau Linux\\}%\\[4pt]
+% 	\scriptsize\rightmark
+% 	\vspace{-0.5cm}
+% \end{center}
+% }
+
+\rhead{\includegraphics[height=2.1cm, keepaspectratio=true]{Logo_ENSIB.png}}
+
+%%Pied de page
+\lfoot{}%\small Réf: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+
+\cfoot{\vspace{-0.8cm}\rule[0pt]{\textwidth}{0.1mm}\small \ovalbox{\thepage/\pageref{LastPage}}}
+
+\rfoot{\ddmmyyyydate \today}
+
+%%
+%% DOCUMENT
+%%
+
+\begin{document}
+
+\begin{titlepage}
+%%
+%% Page de couverture
+%%
+
+% \AddToShipoutPicture*{\BackgroundPic{atos-logo-light.png}}
+\AddToShipoutPicture*{\BackgroundPic{Tux_n&b_half.png}}
+
+\begin{center}
+% 	\begin{tabular}[t b]{l r}
+		\includegraphics[width=5cm, keepaspectratio=true]{Logo_ENSIB.png}
+% \hspace{4cm} & \includegraphics[width=6cm, keepaspectratio=true]{AtoS_logo_RGB.png}
+% 	\end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+	\fontsize{30}{30}\selectfont Intégration de PIGA-MAC dans le noyau Linux\\
+% 	\Huge Contribution aux outils de la méthode QSOS\\
+	\vspace{2cm}
+	\huge Projet recherche de 3$^{e}$ année STI\\[20pt]
+% 	\Large Filière Sécurité et Technologies Informatique\\
+% 	\Large 6 juin au 12 août 2011
+\end{center}
+
+\vspace{4.5cm}
+
+\begin{center}
+	\begin{tabular}{rl}
+		\hspace{7cm}
+% 		\Large Maître de stage : & \Large Philippe-Arnaud Haranger\\[7pt]
+		\Large Enseignant : & \Large Jérémy Briffaut\\[4pt]
+		\Large \'Elève : & \Large Timothée Ravier
+	\end{tabular}
+\end{center}
+
+\end{titlepage}
+
+% \begin{center}
+%   \includegraphics[scale=2]{osc_libre_logo.jpg}
+% \end{center}
+
+% \begin{changemargin}{-3cm}{-3cm}
+% \begin{tabular}{cc}
+% &Code-Titre du document\\
+% &\\
+% \multirow{9}{*}{\includegraphics[width=8cm]{osc_libre_logo.jpg}}&Support à
+% l'usage des Logiciels Libres\\
+% &\\
+% &Ministere\\
+% &Ministere\\
+% &\\
+% &\\
+% &Ref\\
+% &Version\\
+% &Date\\
+% \end{tabular}
+% \end{changemargin}
+
+\newpage
+
+~\thispagestyle{fancy}
+
+\newpage
+
+~
+
+\vspace{1cm}
+\addtocounter{page}{-1}
+
+\section*{Remerciements}
+
+~
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\listoffigures
+
+\newpage
+
+\section*{Introduction} \addcontentsline{toc}{section}{Introduction}
+
+FIXME
+% Ce rapport présente l'activité réalisée lors du stage chez Atos, à l'Open Source Center pendant l'été 2011.
+%
+% ~
+%
+% J'ai choisi ce stage parce qu'il me permettait de travailler dans un environnement centré sur les logiciels libres. J'ai aussi été intéressé par la méthode QSOS que je ne connaissais pas.
+%
+% ~
+%
+% Après une présentation globale de l'offre d'Atos et de l'Open Source Center, je détaillerai le contenu de mon stage orienté autour de la méthode QSOS. Je préciserai le contexte ainsi que les différentes contributions que j'ai apportées aux outils et à la méthode pendant mon stage.
+
+\newpage
+
+\section{\'Etat de l'art}
+
+Ce projet de deuxième année s'inscrit dans le contexte de la sécurité d'un système d'exploitation. La majeur partie des systèmes d'exploitation actuels ont intégré une forme de contrôle d'accès pour assurer un minimum de sécurité et de contrôle sur les activités des utilisateurs, dans le but de limiter les effets d'une attaque sur un système. Dans les faits, ce contrôle n'est pas suffisant et ne peut empêcher, par exemple, la compromission d'un système par l'intermédiaire d'un service possédant les droits d'administrateur \cite{TIOF}, ou l'échange d'informations par flux indirects, comme des fichiers temporaires.
+
+Plus généralement, c'est dans l'absence de mécanisme de sécurité global imposé à un système que réside les manques des modèles de sécurité classique. Plus que simplement le noyau et les applications, ce sont l'ensemble des intéractions entre tous ces éléments qui doivent être contrôlées. Nous allons détailler les différents objectifs à atteindre avant de poursuivre sur les modèles théoriques et leur implémentation dans les systèmes d'exploitation modernes.
+
+%  Nous allons détailler les objectifs à atteindre avant de présenter les différentes solutions disponibles.
+% Il existe différents mécanismes qui permettent d'apporter des couches de sécurité à un tel système. Nous détaillerons donc les principes fondateurs de la sécurité pour enchaîner sur les solutions disponibles.
+
+Nous allons réduire les concepts d'utilisateurs et d'applications aux ``simples'' processus qui sont la base de toute interaction avec un système. De même, les fichiers, sockets, les IPC sont autant d'éléments sur lesquels un processus peut agir et nous les regrouperons sous le terme d'objet.
+
+\subsection{Définition et vocabulaire}
+
+\subsubsection{Les objectifs de sécurité}
+
+La sécurité d'un système d'information et plus particulièrement la sécurité des systèmes d'exploitation réside dans l'application de mesures visant à atteindre les objectifs suivants :
+
+\textbf{Confidentialité :}
+Les informations ne doivent être accessibles qu'aux utilisateurs qui en ont besoin et qui disposent des privilèges correspondant. Il ne doit notamment pas être possible de transmettre de l'information confidentielle à un niveau inférieur.
+
+\textbf{Intégrité :}
+Le système reste dans un état cohérent. Les informations importantes comme les mots de passe, les binaires installés, les fichiers de configuration ne peuvent être modifiés par des utilisateurs non privilégiés.
+
+\textbf{Disponibilité :}
+Le système doit être réactif, stable et utilisable. Les programmes doivent pouvoir fonctionner correctement. Les contrôles de sécurité supplémentaires instaurés ne doivent pas limiter les capacités légitimes du système et des applications.
+
+\textbf{Authenticité :}
+Il est possible de savoir qui a effectué quelle action critique sur un système.
+
+\textbf{Non-répudiation :}
+L'origine et le contenu de certaines informations ne peut être mis en doute. Cela permet par exemple de s'assurer de l'enregistrement des comportements suspects sur une machine, ou de valider l'origine de certaines données.
+
+\subsubsection{Le principe de séparation des privilèges}
+
+Une des techniques utilisées pour tenter d'atteindre ces objectifs consiste à appliquer le principe de séparation des privilèges ou principe de moindre privilège. Il stipule qu'un programme (contrôlé ou non par l'utilisateur) ne doit disposer que des droits strictement nécessaires à son bon fonctionnement. Par exemple, il semble évident qu'un logiciel de traitement de texte n'a pas besoin d'avoir accès aux informations sensibles du système comme la liste des utilisateurs ou la liste des mots de passe.
+
+L'application la plus courante de ce principe est la séparation entre les différents comptes sur un système. Une application lancée par un utilisateur ne bénéficie que des droits accordés à cet utilisateur.
+
+\subsubsection{A qui faire confiance ?}
+
+Il est possible d'employer différentes approches pour s'assurer de la sécurité d'un système d'exploitation, mais chacune d'entre elles repose à un moment ou un autre sur la confiance que l'on a dans l'un des éléments qui la constitue. On peut citer plusieurs cas de figures \cite{WCS}:
+
+\begin{itemize}
+  \item Faire confiance à tous les logiciels à propos du respect de la politique de sécurité, tout en étant conscient que les logiciels ne sont pas de confiance.% Trust all the software to abide by a security policy but the software is not trustworthy (this is computer insecurity).
+  \item Faire confiance à tous les logiciels à propos du respect de la politique de sécurité et s'assurer que le logiciel est validé et fiable (analyse complète et exhaustive de tous les cas d'utilisations, de toutes les branches du code).% Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example).
+  \item Ne faire confiance à aucun programme, mais imposer une politique de sécurité même si la fiabilité de cette politique et son moyen d'application ne sont pas complétement assurés.% enforce a security policy with mechanisms that are not trustworthy (again this is computer insecurity).
+  \item Ne faire confiance à aucun programme, mais s'assurer qu'une politique de sécurité est appliquée par des mécanismes matériels de confiance.% trustworthy hardware mechanisms.
+\end{itemize}
+
+Les modèles de sécurité standard se situent tous dans la première catégrie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés critères communs, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
+
+\subsection{Les différentes méthodes de contrôle d'accès}
+
+Pour atteindre les objectifs détaillés précédemment et assurer la séparation des privilèges, nous allons présenter dans cette partie plusieurs méthodes de contrôle d'accès.
+
+\subsubsection{Contrôle d'accès discrétionnaire (DAC)}
+
+Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un utilisateur peut ainsi compromettre un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède. Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
+
+\subsubsection{Contrôle d'accès mandataire (MAC)}
+
+Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur l'application d'une politique de sécurité plus ou moins fiable.
+
+% \begin{figure}[h]
+% 	\centering
+% 	\includegraphics[scale=0.70]{attachements/techrefresh-info-txtfull.png}
+% 	\caption{Intel Trusted Execution Technology}
+% \end{figure}
+
+\subsubsection{Sécurité multiniveau et multi catégorie (MLS et MCS)}
+
+Le modèle de sécurité multiniveau permet d'atteindre certains des buts fixés comme l'intégrité ou la confidentialité. Il repose sur la séparation des objets/sujets en plusieurs domaines, imposant des règles limitant les interactions entre ces mêmes domaines.
+
+\textbf{Bell-LaPaluda :} Ce modèle préserve la confidentialité de l'information en n'autorisant un sujet à écrire uniquement dans un niveau de confidentialité supérieur ou égal, et à ne lire que dans un niveau de sécurité inférieur ou égal. Ce modèle présente plusieurs inconvénients majeurs parce qu'il ne permet pas d'imposer des contraintes d'intégrité et ne permet pas de faire de distinctions précises entre deux personnes possédant le même niveau d'accréditation.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{bell-lp}
+	\caption{Le modèle Bell-LaPadula}
+\end{figure}
+
+\textbf{Biba :} A contrario du modèle précédent, c'est l'intégrité qui est préservée, car seules les modifications dans un niveau de sécurité inférieur sont autorisées, et la lecture ne peut se faire que sur un niveau d'intégrité supérieur.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{biba}
+	\caption{Le modèle Biba}
+\end{figure}
+
+Ces deux modèles ne permettent pas d'atteindre plus d'un ou deux objectifs à la fois, et posent le problème de la sur-classification des données (toutes les données devenues confidentielles). Ceci conduit à l'introduction d'une méthode de dé-classification, compromettant l'ensemble du modèle.
+
+\subsubsection{Contrôle d'accès basé sur des rôles (RBAC)}
+
+Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permettant de simplifier le travail de l'administrateur d'un système utilisant un contrôle mandataire. Le principe du contrôle d'accès mandataire consiste à attribuer des rôles à chaque utilisateur de la machine. Ces rôles donnent ainsi accès à différents éléments du système. Par exemple, les rôles d'utilisateur, d'administrateur et de webmestre peuvent être définis et un utilisateur classique pourra se voir attribuer le rôle de webmestre lui autorisant de modifier les pages disponibles sur un serveur sans avoir besoin de donner un accès administrateur complet à cette personne.
+
+\subsubsection{Politiques de securité appliquées sur des types (Type Enforcement)}
+
+Ce principe repose sur l'association d'un contexte de sécurité à chaque objet et processus. L'accès à un object par un processus doit correspondre à une règle de la politique de sécurité pour être autorisé. Ce modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du système, y compris les fichiers présents sur les supports de stockage.
+
+\subsection{Solutions disponibles pour appliquer un contrôle d'accès mandataire}
+
+Nous allons détailler les implémentations de ces modèles de sécurité dans certains systèmes d'exploitation, notamment les systèmes ``libres'', pour lesquels nous pouvons avoir accès au code source : Linux et la famille des BSD.
+
+\subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
+
+\subsubsection{TOMOYO Linux}
+
+\subsubsection{Application Armor (AppArmor)}
+
+\subsubsection{Security Enhanced Linux (SELinux)}
+
+SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire basé sur le ``type enforcement'', de niveaux de sécurité/confidentialité non prédéfinis, et d'un contrôle d'accès basé sur les rôles. SELinux a été développé par la National Security Agency (NSA) et a été intégrée au noyau Linux une fois que l'architecture des Linux Security Modules fut mise en place. SELinux permet de contrôler pour chaque appel système la validité de l'interaction par rapport aux définitions d'une politique. On associe à chaque objets et processus un context de sécurité. L'accès à un object par un processus doit correspondre à une règle de la politique SELinux pour être autorisé. Il faut noter que chaque décision est prise indépendamment des précédentes : SELinux n'as pas de mémoire des transitions effectuées sur un système. C'est cette limitation et la possibilité d'utiliser les flux d'informations indirects, donc non contrôlés par SELinux, qui ont poussé la création de PIGA.
+\begin{list}{}{}
+ \item \textbf{Contrainte pour l'administrateur :} Il faut décrire la totalité des interactions possibles pour chaque programme présent sur un système. Il faut s'assurer du bon fonctionnement de ces politiques. Il n'existe pas d'outils pour valider les politiques SELinux. Seuls certains systèmes de fichiers supportent les attributs étendus nécessaires à la labelisation des fichiers présents sur les supports de stockage.
+ \item \textbf{Avantages :} Séparation fine des privilèges et des rôles, intégrée dans le noyau. Des politiques ont déjà été écrites. Il existe une distribution facilitant le déploiement de ce type de protection : Fedora.
+\end{list}
+
+\subsubsection{Policy Graph Interaction Analysis - Mandatory Access Control (PIGA-MAC)}
+
+L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de définir et imposer des propriétés de sécurité à l'échelle du système en plus des contrôles au niveau des interactions effectués par SELinux. Il apporte une ``mémoire'' à SELinux. Un tel résultat est obtenu après génération du graphe complet des interactions possibles et autorisées par une politique SELinux, recherche de chemins interdits, et consignation de ces chemins. Cette solution permet un contrôle plus avancé sur les flux d'informations dans un système, qu'ils soient directs ou indirects.
+\begin{list}{}{}
+ \item \textbf{Contrainte pour l'administrateur :} Connaissance du langage de définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis matériels pour la ``compilation'' des politiques.
+ \item \textbf{Avantages :} Un contrôle très fin sur les interactions dans un système, restriction (statique) des privilèges maximale.
+\end{list}
+
+Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche (ANR) \cite{PIGA}\cite{PIGA2}.
+
+\subsubsection{PaX \& grsecurity}
+
+\textsc{grsecurity} est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à \textsc{grsecurity}, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
+\begin{list}{}{}
+ \item \textbf{Contrainte pour l'administrateur :} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
+ \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable, ...), fonctionnement un peu plus simple que SELinux
+\end{list}
+
+\subsubsection{TrustedBSD}
+
+Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité telles que les attributs étendus pour le système de fichier UFS2, les listes de contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes de contrôles d'accès mandataire.
+
+\subsubsection{PIGA-SYSTRANS ou contextd}
+
+Contextd est un démon chargé de coordonner différents mécanismes de sécurité sur un système Linux. En effet, dans toutes les solutions décrites précédemment, les programmes se voyaient attribuer les droits dont ils avaient besoin, pour toujours. Une application utilisant ponctuellement le réseau se voyait attribuée le droit définitif d'utiliser un port. Contextd introduit la notion de domaine (web, impôts, ...) lié à une activité particulière de l'utilisateur. Les programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans le domaine courant.
+\begin{list}{}{}
+ \item \textbf{Contrainte pour l'administrateur :} Maîtrise de SELinux, PIGA. Rédaction et test des règles exhaustives pour faire fonctionner les programmes avec contextd. Certains programmes nécessitent des modifications, surtout lorsque ceux-ci ont un comportement inter-domaine.
+ \item \textbf{Avantages :} Presque la plus fine implémentation du principe de moindre privilèges.
+\end{list}
+
+% Pax = sécurité automatique
+% SELinux, GrSec = MAC qui contrôle les accès directs
+% PIGA = contrôle les accès indirects
+% iptables contrôle le trafic réseau
+%
+% contextd = chef d'orchestre + changement dynamique des règles des autres  mécanismes de protection pour adapter les permissions au domaine d'utilisation.
+%
+% Chercher tous les systèmes de MAC/DAC/RBAC,...
+%
+% Classer les MAC en fonction du travail à faire par l'administrateur ? en fonction d'où ils agissent ? par rapport à la logique interne (stateless ou statefull) ?
+
+\newpage
+
+\section{Environnement de développement et de test}
+
+\subsection{Gentoo, Qemu-KVM, Virt-manager}
+
+La première partie de mon projet fut de créer un environnement me permettant d'essayer toutes les solutions disponibles.
+
+J'ai exploité les possibilités offertes par Qemu-KVM et Virt-manager (utilisation d'un noyau compilé sur la machine host, gestion simplifiée des machines virtuelles) pour déployer très rapidement ces environnements.
+
+J'ai pour cela choisit la distribution Gentoo qui m'obligeait à comprendre chacune des étapes de la contruction de ces solutions.
+
+\subsection{Tests effectués}
+
+J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les scénarios d'attaques et la réponse que pouvez apporter un administrateur à ces scénarios.
+
+Violation d'intégrité :
+
+Violation de confidentialité :
+
+\subsection{Résultats}
+
+Tableau comparatif avec le DAC.
+
+\newpage
+
+\section{PIGA-Linux}
+
+\subsection{Architecture}
+
+\subsection{Mise en oeuvre}
+
+\subsection{Code !}
+
+\newpage
+
+%TODO
+
+% \section{Ajouts à systemd}
+
+% \newpage
+
+\section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}
+
+FIXME
+% Le principal objectif de ce stage, qui consistait à mettre à jour l'éditeur pour la sortie de QSOS 2.0, est atteint. Les améliorations apportées à O3S simplifieront la tâche de mise à jour de l'application web. De plus, en attendant, la version 1.1 apporte un confort et des corrections de bugs non négligeables par rapport aux versions précédentes.
+%
+% ~
+%
+% J'ai ainsi consolidé mes connaissances en JavaScript, XUL, PHP et j'ai découvert les outils autour du format XML (XPath, XSLT, DTD, XSD), et la procédure pour réaliser une extension Firefox de bout en bout.
+%
+% ~
+%
+% La participation aux discussions visant à élaborer le format des fiches QSOS 2.0 et de l'Open Source Cartouche ont été particulièrement intéressantes. Mes deux encadrants ont en effet une réelle expérience autour des veilles sur les logiciels et j'ai beacoup appris sur ce sujet.
+%
+% ~
+%
+% La très bonne ambiance et l'entraide au sein des membres de l'Open Source Center sont aussi deux facteurs qui ont contribués à la réussite de ce stage.
+
+\newpage
+
+\addcontentsline{toc}{section}{Références}
+
+\begin{thebibliography}{40}
+
+\bibitem{THESEBRIFFAUT} Thèse de Jérémy Briffaut, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+
+\end{thebibliography}
+
+\newpage
+
+% \printglossary
+% \section*{Glossaire}
+\addcontentsline{toc}{section}{Glossaire}
+
+\nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
+\nomenclature{TOMOYO Linux}{}
+\nomenclature{SELinux}{Security Enhanced Linux}
+\nomenclature{AppArmor}{Application Armor}
+
+
+\printnomenclature[3cm]
+
+\newpage
+
+\section*{Annexes} \addcontentsline{toc}{section}{Annexes}
+
+\subsubsection*{Notes concernant le logo Tux présent sur la première et quatrième de couverture}
+Originally drewn by Larry Ewing (\href{http://www.isc.tamu.edu/~lewing/}{http://www.isc.tamu.edu/~lewing/}) (with the GIMP) the Linux Logo has been vectorized by me (Simon Budig, \href{http://www.home.unix-ag.org/simon/}{http://www.home.unix-ag.org/simon/}).
+
+These drawings are copyrighted by Larry Ewing and Simon Budig, redistribution is free but has to include this README/Copyright notice.
+
+\lastPage
+
+\end{document}

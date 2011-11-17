@@ -4,12 +4,12 @@
 \usepackage[english,francais]{babel}
 \usepackage{listings}
 \usepackage{setspace}
-\usepackage{color} 
+\usepackage{color}
 
-\definecolor{darkgreen}{rgb}{0.3,0.7,0.3} 
-\definecolor{blue}{rgb}{0,0,1} 
-\definecolor{red}{rgb}{0.9,0.2,0.4} 
-\definecolor{gris}{rgb}{0.95,0.95,0.95} 
+\definecolor{darkgreen}{rgb}{0.3,0.7,0.3}
+\definecolor{blue}{rgb}{0,0,1}
+\definecolor{red}{rgb}{0.9,0.2,0.4}
+\definecolor{gris}{rgb}{0.95,0.95,0.95}
 
 \lstset{keywordstyle=\color{blue},commentstyle=\color{darkgreen},stringstyle=\color{red},captionpos=b,tabsize=3,frame=single,numbers=left,numbersep=5pt,breaklines=true,showstringspaces=false,basicstyle=\footnotesize,emph={label}}
 
@@ -219,7 +219,7 @@ Nous avons donc dû étudier également le fonctionnement du démon contextd. Il
 		\item le chemin complet du fichier
 		\item le context de sécurité SELinux~\\
 	\end{itemize}
-	
+
 \textit{\textsl{\textbf{Nota bene :}}} Pour les activités réseaux, contextd à besoin de non seulement du FQDN mais aussi de la page et/ou des sous-domaines associés. Bien qu'il puisse utiliser des adresses IP, ce comportement n'est pas souhaitable pour des raisons évidentes liées au fonctionnement d'Internet. En revanche, le noyau n'a conscience que de l'adresse IP associée à une connexion. Il faut donc pouvoir retrouver à partir de l'IP le FQDN. Après une tentative, grâce à la fonction \textit{getnamebyaddr}, nous n'avons pas pu retrouver un FQDN exploitable. En effet, nous avons tenté une connexion vers www.google.fr afin de voir, si à partir de l'adresse IP résolue, nous pouvions retrouver google. Force est de constater que le résultat, wy-in-f104.1e100.net, bien qu'il redirige vers google, n'est pas exploitable par contextd.
 
 Maintenant que ces informations sont localisées, il faut pouvoir les extraire de l'espace noyau (kernel space) pour les acheminer dans l'espace utilisateur (userspace) là où opère contextd.
@@ -350,7 +350,7 @@ La description des différentes lignes ci-dessus :
  Pour que ce dossier soit pris en compte lors de la compilation, il faut rajouter les lignes suivantes dans \textit{{kernel\_src}/security/Makefile} :
 
 \begin{lstlisting}[language=make]
-subdir-$(CONFIG_SECURITY_AUDITSEC)  += auditsec	
+subdir-$(CONFIG_SECURITY_AUDITSEC)  += auditsec
 obj-$(CONFIG_SECURITY_AUDITSEC)     += auditsec/built-in.o
 \end{lstlisting}
 
@@ -358,13 +358,13 @@ Puis, il faut ajouter un Makefile dans notre dossier \textit{{kernel\_src}/secur
 
 \begin{lstlisting}[language=make]
 obj-$(CONFIG_SECURITY_AUDITSEC) := audit_security.o
- 
+
 audit_security-y := hooks.o share.o syscall.o
 
 EXTRA_CFLAGS += -Isecurity/auditsec/include
 $\end{lstlisting}
 
-Ceci fait, tout est désormais prêt pour la compilation. Maintenant, passons à la création d'un module LSM. L'implémentation de ce module a été faite dans le fichier \textit{{kernel\_src}/security/auditsec/hook.c}. 
+Ceci fait, tout est désormais prêt pour la compilation. Maintenant, passons à la création d'un module LSM. L'implémentation de ce module a été faite dans le fichier \textit{{kernel\_src}/security/auditsec/hook.c}.
 
 \subsection{Création des éléments nécessaires au module}
 
@@ -372,7 +372,7 @@ La particularité d'un module LSM est l'utilisation d'une structure spéciale qu
 
 \begin{lstlisting}[language=C]
 static struct security_operations audit_ops = {
-	.name =             "audit_ops", // nom 
+	.name =             "audit_ops", // nom
 	.inode_mkdir =                  auditsec_inode_mkdir,
 	.file_permission =              auditsec_file_permission,
 	.socket_bind =                  auditsec_socket_bind,
@@ -382,7 +382,7 @@ static struct security_operations audit_ops = {
  };
 \end{lstlisting}
 
-Il faut donc ajouter le code de ces six hooks. Pour connaître la signature de ces fonctions, il faut aller voir dans \textit{{kernel\_src}/security/security.c}. 
+Il faut donc ajouter le code de ces six hooks. Pour connaître la signature de ces fonctions, il faut aller voir dans \textit{{kernel\_src}/security/security.c}.
 
 Par exemple, voici le code de la fonction auditsec\_file\_permission:
 
@@ -396,7 +396,7 @@ int auditsec_file_permission(struct file *file, int mask)
 		file_path(file, fullpath);
 		if(*daemon_launched()){  // On teste si contextd est lance
 			if(down_timeout(auditsec_hook_lock(), 30 * HZ) != 0){...}
-			
+
 			// On remplit la structure
 			get_task_comm(k_auditsec_info()->execname, current);
 			k_auditsec_info()->pid = current_pid;
@@ -404,14 +404,14 @@ int auditsec_file_permission(struct file *file, int mask)
 			strncpy(k_auditsec_info()->auditsec_struct.file.fullpath, fullpath, PATH_MAX + 1);
 			strncpy(k_auditsec_info()->auditsec_struct.file.name, file->f_path.dentry->d_name.name, NAME_MAX + 1);
 			k_auditsec_info()->auditsec_struct.file.mask = mask;
-			
+
 			// La structure est prete, on leve le verrou pour que contextd puisse la recuperer
 			up(auditsec_question_lock());
-			
+
 			// On attend la reponse
 			if(down_timeout(auditsec_answer_lock(), 30 * HZ) != 0){...}
-			
-			// On a eu la reponse			
+
+			// On a eu la reponse
 			answer = (*auditsec_answer() == 0);
 			up(auditsec_hook_lock());
 
@@ -442,7 +442,7 @@ Puis nous déclarons la liste des programmes en utilisant une des implémentatio
 \textit{{kernel\_src}/security/auditsec/share.c} :
 \begin{lstlisting}[language=C]
 static LIST_HEAD(prog_list);
-\end{lstlisting} 
+\end{lstlisting}
 
 Maintenant, pour tester si une application appartient à cette liste, nous faisons appel à la fonction suivante :
 
@@ -462,7 +462,7 @@ int prog_is_monitored()
 	}
 	return 0;
 }
-\end{lstlisting} 
+\end{lstlisting}
 
 Enfin, il faut pouvoir ajouter ou supprimer des éléments de cette liste. Nous avons implémenté pour cela les fonctions suivantes :
 
@@ -513,7 +513,7 @@ int unregister_prog(char * prog_name)
 
 	return -1;
 }
-\end{lstlisting} 
+\end{lstlisting}
 
 \subsubsection{Structure transmise}
 
@@ -531,14 +531,14 @@ struct auditsec_info {
     //FIXME Add SELinux context to this struct
     enum        auditsec_type type;
     union
-    {  
+    {
         struct auditsec_file file;
         struct auditsec_socket socket;
         struct auditsec_dir dir;
         struct auditsec_msg msg;
     } auditsec_struct;
 };
-\end{lstlisting} 
+\end{lstlisting}
 
 Ainsi seule "auditsec\_struct" variera suivant les "hooks" qui la rempliront. Nous avons donc créé différentes structures pour chaque type de "hook".
 
@@ -551,9 +551,9 @@ struct auditsec_file {
     char        fullpath[PATH_MAX + 1];
     int         mask;
 };
-\end{lstlisting} 
+\end{lstlisting}
 
-Concernant les dossiers : 
+Concernant les dossiers :
 
 \textit{{kernel\_src}/security/auditsec/struct.c} :
 \begin{lstlisting} [language=C]
@@ -562,9 +562,9 @@ struct auditsec_dir {
     char        fullpath[PATH_MAX + 1];
     int         mode;
 };
-\end{lstlisting} 
+\end{lstlisting}
 
-Concernant les sockets : 
+Concernant les sockets :
 
 \textit{{kernel\_src}/security/auditsec/struct.c} :
 \begin{lstlisting} [language=C]
@@ -583,7 +583,7 @@ struct auditsec_msg {
     struct msghdr msg;
     int size;
 };
-\end{lstlisting} 
+\end{lstlisting}
 
 \subsubsection{Création du module}
 
@@ -670,7 +670,7 @@ int auditsec_proc_programs_read(char *buffer, char **buffer_location,  off_t off
 {
 	int result = 0;
 	char * tmp = NULL;
-	
+
 	if (offset > 0) {
 		/* we have finished to read, return 0 */
 		result  = 0;
@@ -694,7 +694,7 @@ Concernant ce proc file, il faut deux fonctions car il est accessible en lecture
 int auditsec_proc_status_read(char *buffer, char **buffer_location,  off_t offset, int buffer_length, int *eof, void *data)
 {
 	int result;
-	
+
 	if (offset > 0) {
 		/* we have finished to read, return 0 */
 		result  = 0;
@@ -712,7 +712,7 @@ int auditsec_proc_status_write(struct file *file, const char *buffer, unsigned l
 	char tmp[count + 1];
 	char ** tmp2 = NULL;
 
-	if(copy_from_user(tmp, buffer, count)){ 
+	if(copy_from_user(tmp, buffer, count)){
 		return -EFAULT;
 	}
 
@@ -917,7 +917,7 @@ Nous nous sommes inspiré de la classe ``DBusContext'' pour créer la classe abs
 
 De plus, pour partager la liste de clients (les applications surveillées et enregistrées), nous avons déclaré cette liste en tant qu'attribut de cette classe abstraite. Voici le code produit :
 
-\textit{abstractcontext.h} : 
+\textit{abstractcontext.h} :
 \begin{lstlisting}[language=C++]
 class AbstractContext : public QObject
 {
@@ -950,7 +950,7 @@ signals:
 };
 \end{lstlisting}
 
-\textit{abstractcontext.cpp} : 
+\textit{abstractcontext.cpp} :
 \begin{lstlisting}[language=C++]
 QMap< pid_t, ContextClient > AbstractContext::clients;
 
@@ -979,7 +979,7 @@ void AbstractContext::onEvent(ContextdPluginEvent* event)
 
 Compte tenu que la précédente liste de client était indexée par le dbus\_id, et que les programmes dont l'enregistrement se fait via le noyau ne dispose pas d'un tel identifiant, il a fallut modifier les méthodes de cette case. La modification est très succincte : il a juste fallu ajouter ces quelques lignes dans les méthodes et de modifier dbus\_id en pid.
 
-\textit{dbus-context.cpp} : 
+\textit{dbus-context.cpp} :
 \begin{lstlisting}[language=C++]
 	//Get the pid
 	QDBusReply<uint> res = QDBusConnection::systemBus().interface()->servicePid(dbus_id);
@@ -1043,7 +1043,7 @@ void KThread::run()
 			case AUDITSEC_DIR:
 				...
 				break;
-			
+
 			case AUDITSEC_SOCKET:
 				...
 				break;
@@ -1181,9 +1181,9 @@ Les éléments suivant restent à réaliser avant d'envisager l'intégration de 
 \newpage
 
 % \section{Résultats et benchmarks}
-% 
+%
 % Benchmark : Sans le module LSM, Avec le module mais pas lancé, Avec le module et lancé
-% 
+%
 % \newpage
 
 \section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}

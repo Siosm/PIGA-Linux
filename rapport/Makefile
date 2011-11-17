@@ -1,7 +1,7 @@
 all: buildmute
 
 clean:
-	rm *~  2> /dev/null || echo ""
+	rm -f *~  2> /dev/null
 
 build:
 	pdflatex document.tex
@@ -16,7 +16,10 @@ svg2pdf:
 glossary:
 	makeindex document.nlo  -s nomencl.ist -o document.nls
 
-final: clean svg2pdf
+final:
+	rm -f *~  2> /dev/null
+	inkscape -z -D --file=images/bell-lp.svg --export-pdf=images/bell-lp.pdf --export-width=100
+	inkscape -z -D --file=images/biba.svg --export-pdf=images/biba.pdf --export-width=100
 	pdflatex document.tex > /dev/null
 	pdflatex document.tex > /dev/null
 	pdflatex document.tex > /dev/null

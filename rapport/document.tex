@@ -3,7 +3,7 @@
 % Les packages de base pour le support du français
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english,french]{babel}
 
 % La bonne police, sans serif, helvetica
 \usepackage[scaled]{helvet}
@@ -153,20 +153,14 @@
 \fancypagestyle{plain}
 
 %%En tete
-\lhead{\hspace{0.8cm}\large \textbf{Intégration de PIGA-MAC dans le noyau Linux\\}}
+\lhead{\hspace{2.3cm}\large \textbf{Integrating PIGA-MAC into the Linux kernel\\}}
 
-% \chead{
-% \begin{center}
-% 	\large \textbf{Intégration de PIGA-MAC dans le noyau Linux\\}%\\[4pt]
-% 	\scriptsize\rightmark
-% 	\vspace{-0.5cm}
-% \end{center}
-% }
+% \chead{\large \textbf{Integrating PIGA-MAC into the Linux kernel\\}}
 
 \rhead{\includegraphics[height=2.1cm, keepaspectratio=true]{Logo_ENSIB.png}}
 
 %%Pied de page
-\lfoot{}%\small Réf: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+\lfoot{}
 
 \cfoot{\vspace{-0.8cm}\rule[0pt]{\textwidth}{0.1mm}\small \ovalbox{\thepage/\pageref{LastPage}}}
 
@@ -183,25 +177,19 @@
 %% Page de couverture
 %%
 
-% \AddToShipoutPicture*{\BackgroundPic{atos-logo-light.png}}
 \AddToShipoutPicture*{\BackgroundPic{Tux_n&b_half.png}}
 
 \begin{center}
-% 	\begin{tabular}[t b]{l r}
-		\includegraphics[width=5cm, keepaspectratio=true]{Logo_ENSIB.png}
-% \hspace{4cm} & \includegraphics[width=6cm, keepaspectratio=true]{AtoS_logo_RGB.png}
-% 	\end{tabular}
+	\includegraphics[width=5cm, keepaspectratio=true]{Logo_ENSIB.png}
 \end{center}
 
 \vspace{0.5cm}
 
 \begin{center}
-	\fontsize{30}{30}\selectfont Intégration de PIGA-MAC dans le noyau Linux\\
-% 	\Huge Contribution aux outils de la méthode QSOS\\
+	\fontsize{30}{30}\selectfont Integrating PIGA-MAC into the Linux kernel\\
 	\vspace{2cm}
-	\huge Projet recherche de 3$^{e}$ année STI\\[20pt]
+	\huge 3rd year STI research project\\[20pt] % Projet recherche de 3$^{e}$ année STI
 % 	\Large Filière Sécurité et Technologies Informatique\\
-% 	\Large 6 juin au 12 août 2011
 \end{center}
 
 \vspace{4.5cm}
@@ -209,34 +197,12 @@
 \begin{center}
 	\begin{tabular}{rl}
 		\hspace{7cm}
-% 		\Large Maître de stage : & \Large Philippe-Arnaud Haranger\\[7pt]
-		\Large Enseignant : & \Large Jérémy Briffaut\\[4pt]
-		\Large \'Elève : & \Large Timothée Ravier
+		\Large Teacher : & \Large Jérémy Briffaut\\[4pt]
+		\Large Student : & \Large Timothée Ravier
 	\end{tabular}
 \end{center}
 
 \end{titlepage}
-
-% \begin{center}
-%   \includegraphics[scale=2]{osc_libre_logo.jpg}
-% \end{center}
-
-% \begin{changemargin}{-3cm}{-3cm}
-% \begin{tabular}{cc}
-% &Code-Titre du document\\
-% &\\
-% \multirow{9}{*}{\includegraphics[width=8cm]{osc_libre_logo.jpg}}&Support à
-% l'usage des Logiciels Libres\\
-% &\\
-% &Ministere\\
-% &Ministere\\
-% &\\
-% &\\
-% &Ref\\
-% &Version\\
-% &Date\\
-% \end{tabular}
-% \end{changemargin}
 
 \newpage
 
@@ -249,7 +215,7 @@
 \vspace{1cm}
 \addtocounter{page}{-1}
 
-\section*{Remerciements}
+\section*{Acknowledgments}
 
 ~
 
@@ -265,11 +231,10 @@
 
 \section*{Introduction} \addcontentsline{toc}{section}{Introduction}
 
+This project is an integral part of my formation at the ENSI de Bourges, a computer science and security french engineering school.
+
 FIXME
-% Ce rapport présente l'activité réalisée lors du stage chez Atos, à l'Open Source Center pendant l'été 2011.
-%
-% ~
-%
+
 % J'ai choisi ce stage parce qu'il me permettait de travailler dans un environnement centré sur les logiciels libres. J'ai aussi été intéressé par la méthode QSOS que je ne connaissais pas.
 %
 % ~
@@ -278,68 +243,95 @@ FIXME
 
 \newpage
 
-\section{\'Etat de l'art}
+\section{State of the art}
 
-Ce projet de deuxième année s'inscrit dans le contexte de la sécurité d'un système d'exploitation. La majeur partie des systèmes d'exploitation actuels ont intégré une forme de contrôle d'accès pour assurer un minimum de sécurité et de contrôle sur les activités des utilisateurs, dans le but de limiter les effets d'une attaque sur un système. Dans les faits, ce contrôle n'est pas suffisant et ne peut empêcher, par exemple, la compromission d'un système par l'intermédiaire d'un service possédant les droits d'administrateur \cite{TIOF}, ou l'échange d'informations par flux indirects, comme des fichiers temporaires.
+\subsection{Context and study limits}
 
-Plus généralement, c'est dans l'absence de mécanisme de sécurité global imposé à un système que réside les manques des modèles de sécurité classique. Plus que simplement le noyau et les applications, ce sont l'ensemble des intéractions entre tous ces éléments qui doivent être contrôlées. Nous allons détailler les différents objectifs à atteindre avant de poursuivre sur les modèles théoriques et leur implémentation dans les systèmes d'exploitation modernes.
+Ce projet de troisième année s'inscrit dans le contexte de la sécurité d'un système d'exploitation.
+
+Objectifs, rectrictions :
+\begin{itemize}
+	\item restriction au système même, ne prends pas en comtpe les intéractions extérieures au système ;
+	\item indépendant le plus possible du matériel (vise à être multiplatforme) ;
+	\item les failles entièrement matérielles ne sont pas prises en compte (carte réseau defectueuse...) ;
+% TODO Trouver un endroit où mettre ça
+% 	\item contrainte liée à la disponibilité du code source : utilisation du noyau Linux ;
+% 	\item contrainte liée aux parts de marché / utilisation actuelle et future / quasi absence de MAC (TrustedBSD ?) : pas de FreeBSD, OpenBSD, NetBSD ;
+\end{itemize}
+
+% La majeur partie des systèmes d'exploitation actuels ont intégré une forme de contrôle d'accès pour assurer un minimum de sécurité et de contrôle sur les activités des utilisateurs, dans le but de limiter les effets d'une attaque sur un système. Dans les faits, ce contrôle n'est pas suffisant et ne peut empêcher, par exemple, la compromission d'un système par l'intermédiaire d'un service possédant les droits d'administrateur \cite{TIOF}, ou l'échange d'informations par flux indirects, comme des fichiers temporaires.
+
+% Plus généralement, c'est dans l'absence de mécanisme de sécurité global imposé à un système que réside les manques des modèles de sécurité classique. Plus que simplement le noyau et les applications, ce sont l'ensemble des intéractions entre tous ces éléments qui doivent être contrôlées. Nous allons détailler les différents objectifs à atteindre avant de poursuivre sur les modèles théoriques et leur implémentation dans les systèmes d'exploitation modernes.
 
 %  Nous allons détailler les objectifs à atteindre avant de présenter les différentes solutions disponibles.
 % Il existe différents mécanismes qui permettent d'apporter des couches de sécurité à un tel système. Nous détaillerons donc les principes fondateurs de la sécurité pour enchaîner sur les solutions disponibles.
 
-Nous allons réduire les concepts d'utilisateurs et d'applications aux ``simples'' processus qui sont la base de toute interaction avec un système. De même, les fichiers, sockets, les IPC sont autant d'éléments sur lesquels un processus peut agir et nous les regrouperons sous le terme d'objet.
+Réduction au concept de sujet et objets. (mode de représentation sur les systèmes actuels)
+% FIXME Nous allons réduire les concepts d'utilisateurs et d'applications aux ``simples'' processus qui sont la base de toute interaction avec un système. De même, les fichiers, sockets, les IPC sont autant d'éléments sur lesquels un processus peut agir et nous les regrouperons sous le terme d'objet.
 
-\subsection{Définition et vocabulaire}
+\subsection{Generality}
 
-\subsubsection{Les objectifs de sécurité}
+\subsubsection{Security objectives}
 
 La sécurité d'un système d'information et plus particulièrement la sécurité des systèmes d'exploitation réside dans l'application de mesures visant à atteindre les objectifs suivants :
 
 \textbf{Confidentialité :}
-Les informations ne doivent être accessibles qu'aux utilisateurs qui en ont besoin et qui disposent des privilèges correspondant. Il ne doit notamment pas être possible de transmettre de l'information confidentielle à un niveau inférieur.
+Les informations ne doivent être accessibles qu'aux utilisateurs qui en ont besoin et qui disposent des privilèges correspondant. Exemple : Il ne doit notamment pas être possible de divulguer des informations confidentielles à un niveau de confiance inférieur.
 
 \textbf{Intégrité :}
-Le système reste dans un état cohérent. Les informations importantes comme les mots de passe, les binaires installés, les fichiers de configuration ne peuvent être modifiés par des utilisateurs non privilégiés.
+Le système doit rester dans un état cohérent. Exemple : Les informations importantes comme les mots de passe, les programmes installés, les fichiers de configuration ne peuvent être modifiés par des utilisateurs non privilégiés.
 
 \textbf{Disponibilité :}
 Le système doit être réactif, stable et utilisable. Les programmes doivent pouvoir fonctionner correctement. Les contrôles de sécurité supplémentaires instaurés ne doivent pas limiter les capacités légitimes du système et des applications.
 
-\textbf{Authenticité :}
-Il est possible de savoir qui a effectué quelle action critique sur un système.
+~
 
-\textbf{Non-répudiation :}
-L'origine et le contenu de certaines informations ne peut être mis en doute. Cela permet par exemple de s'assurer de l'enregistrement des comportements suspects sur une machine, ou de valider l'origine de certaines données.
-
-\subsubsection{Le principe de séparation des privilèges}
-
-Une des techniques utilisées pour tenter d'atteindre ces objectifs consiste à appliquer le principe de séparation des privilèges ou principe de moindre privilège. Il stipule qu'un programme (contrôlé ou non par l'utilisateur) ne doit disposer que des droits strictement nécessaires à son bon fonctionnement. Par exemple, il semble évident qu'un logiciel de traitement de texte n'a pas besoin d'avoir accès aux informations sensibles du système comme la liste des utilisateurs ou la liste des mots de passe.
-
-L'application la plus courante de ce principe est la séparation entre les différents comptes sur un système. Une application lancée par un utilisateur ne bénéficie que des droits accordés à cet utilisateur.
-
-\subsubsection{A qui faire confiance ?}
-
-Il est possible d'employer différentes approches pour s'assurer de la sécurité d'un système d'exploitation, mais chacune d'entre elles repose à un moment ou un autre sur la confiance que l'on a dans l'un des éléments qui la constitue. On peut citer plusieurs cas de figures \cite{WCS}:
-
+Toutes les autres propriétés (non répudiation, authenticité...) peuvent être exprimées comme combinaison des objectifs ci-dessus. Exemples :
 \begin{itemize}
-  \item Faire confiance à tous les logiciels à propos du respect de la politique de sécurité, tout en étant conscient que les logiciels ne sont pas de confiance.% Trust all the software to abide by a security policy but the software is not trustworthy (this is computer insecurity).
-  \item Faire confiance à tous les logiciels à propos du respect de la politique de sécurité et s'assurer que le logiciel est validé et fiable (analyse complète et exhaustive de tous les cas d'utilisations, de toutes les branches du code).% Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example).
-  \item Ne faire confiance à aucun programme, mais imposer une politique de sécurité même si la fiabilité de cette politique et son moyen d'application ne sont pas complétement assurés.% enforce a security policy with mechanisms that are not trustworthy (again this is computer insecurity).
-  \item Ne faire confiance à aucun programme, mais s'assurer qu'une politique de sécurité est appliquée par des mécanismes matériels de confiance.% trustworthy hardware mechanisms.
+	\item abus de privilèges :
+	\item ...
 \end{itemize}
 
-Les modèles de sécurité standard se situent tous dans la première catégrie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés critères communs, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
+~
+
+Nous avons choisit de nous concentrer sur les deux premières propriétés que sont la confidentialité et l'intégrité. Les scnarios de type dénis de service (Denial of Service) ne sont donc pas pris en compte par exemple, car ils visent à réduire / supprimer la disponibilité d'un système. Les références futures aux objectifs de sécurité en concernerons donc que ceux deux premiers.
+
+En revanche, une solution de sécurité ne doit pas rendre impacter de façon trop importante ou rendre inutilisable un système. Ainsi nous essaierons de limiter l'impact sur les performances de la solution utilisée.
+
+\subsubsection{Principle of least privilege}
+
+Une des techniques les plus couramment utilisées pour tenter d'atteindre ces objectifs consiste à appliquer le principe de séparation des privilèges ou principe de moindre privilège. Il stipule qu'un programme (contrôlé ou non par l'utilisateur) ne doit disposer que des droits strictement nécessaires à son bon fonctionnement.
+
+Par exemple, un logiciel de traitement de texte n'a pas besoin d'avoir accès aux informations sensibles du système comme la liste des utilisateurs ou la liste des mots de passe.
+
+Tous les principaux systèmes d'exploitation actuels disposent maintenant de mécanismes mettant en place la séparation des privilèges. L'application la plus courante de ce principe est la séparation entre les différents comptes sur un système. Une application lancée par un utilisateur ne bénéficie que des droits accordés à cet utilisateur.
+
+Il faut cependant noter que ce principe ne constitue pas une démarche exhaustive permettant d'assurer des objectifs de sécurité.
+
+\subsubsection{Who do I need to trust?}
+
+Il est possible d'employer différentes approches pour s'assurer de la sécurité d'un système d'exploitation, mais chacune d'entre elles repose à un moment ou un autre sur la confiance que l'on a dans l'un des éléments qui la constitue. On distingue ainsi plusieurs situations \cite{WCS}:
+
+\begin{itemize}
+  \item faire confiance à tous les logiciels à propos du respect de la politique de sécurité, tout en étant conscient que les logiciels ne sont pas de confiance ;% Trust all the software to abide by a security policy but the software is not trustworthy (this is computer insecurity).
+  \item faire confiance à tous les logiciels à propos du respect de la politique de sécurité et s'assurer que le logiciel est validé et fiable (analyse complète et exhaustive de tous les cas d'utilisations, de toutes les branches du code) ;% Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example).
+  \item ne faire confiance à aucun programme, mais imposer une politique de sécurité même si la fiabilité de cette politique et son moyen d'application ne sont pas complétement assurés ;% enforce a security policy with mechanisms that are not trustworthy (again this is computer insecurity).
+  \item ne faire confiance à aucun programme, mais s'assurer qu'une politique de sécurité est appliquée par des mécanismes matériels de confiance.% trustworthy hardware mechanisms.
+\end{itemize}
+
+Les modèles de sécurité standard se situent tous dans la première catégorie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés Critères Communs \cite{CCCERT}, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
 
 \subsection{Les différentes méthodes de contrôle d'accès}
 
-Pour atteindre les objectifs détaillés précédemment et assurer la séparation des privilèges, nous allons présenter dans cette partie plusieurs méthodes de contrôle d'accès.
+Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et la minimisation des privilèges, les systèmes d'exploitations actuels ont implenté différentes méthodes de contrôle d'accès. Nous allons donc les présenter dans cette partie.
 
-\subsubsection{Contrôle d'accès discrétionnaire (DAC)}
+\subsubsection{Discretionary Access Control (DAC)}
 
-Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un utilisateur peut ainsi compromettre un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède. Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
+Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits bien superieurs à ces besoins (Firefox a par exemple accès à la liste des comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi compromettre la confidentialité d'un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède. Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
 
-\subsubsection{Contrôle d'accès mandataire (MAC)}
+\subsubsection{Mandatory Access Control (MAC)}
 
-Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur l'application d'une politique de sécurité plus ou moins fiable.
+Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur la mise en \oe{}uvre d'une politique de sécurité plus ou moins fiable.
 
 % \begin{figure}[h]
 % 	\centering
@@ -347,7 +339,7 @@ Le contrôle d'accès mandataire repose sur la séparation entre les application
 % 	\caption{Intel Trusted Execution Technology}
 % \end{figure}
 
-\subsubsection{Sécurité multiniveau et multi catégorie (MLS et MCS)}
+\subsubsection{Multilevel Security and Multi Categories Security (MLS \& MCS)}
 
 Le modèle de sécurité multiniveau permet d'atteindre certains des buts fixés comme l'intégrité ou la confidentialité. Il repose sur la séparation des objets/sujets en plusieurs domaines, imposant des règles limitant les interactions entre ces mêmes domaines.
 
@@ -367,17 +359,18 @@ Le modèle de sécurité multiniveau permet d'atteindre certains des buts fixés
 	\caption{Le modèle Biba}
 \end{figure}
 
-Ces deux modèles ne permettent pas d'atteindre plus d'un ou deux objectifs à la fois, et posent le problème de la sur-classification des données (toutes les données devenues confidentielles). Ceci conduit à l'introduction d'une méthode de dé-classification, compromettant l'ensemble du modèle.
+Les modèles suivant ne peuvent donc se suffirent à eux-mêmes car ils ne permettent pas d'atteindre plus d'un ou deux objectifs à la fois. Ils posent aussi le problème de la sur-classification des données (toutes les données devenues confidentielles), conduisant à l'introduction d'une méthode de dé-classification de l'information, compromettant l'ensemble du modèle.
+En pratique, ces modèles peuvent être utilisés sur des ensembles restreints comme nous le verrons par la suite.
 
-\subsubsection{Contrôle d'accès basé sur des rôles (RBAC)}
+\subsubsection{Role Based Access Control (RBAC)}
 
 Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permettant de simplifier le travail de l'administrateur d'un système utilisant un contrôle mandataire. Le principe du contrôle d'accès mandataire consiste à attribuer des rôles à chaque utilisateur de la machine. Ces rôles donnent ainsi accès à différents éléments du système. Par exemple, les rôles d'utilisateur, d'administrateur et de webmestre peuvent être définis et un utilisateur classique pourra se voir attribuer le rôle de webmestre lui autorisant de modifier les pages disponibles sur un serveur sans avoir besoin de donner un accès administrateur complet à cette personne.
 
-\subsubsection{Politiques de securité appliquées sur des types (Type Enforcement)}
+\subsubsection{Type Enforcement}
 
-Ce principe repose sur l'association d'un contexte de sécurité à chaque objet et processus. L'accès à un object par un processus doit correspondre à une règle de la politique de sécurité pour être autorisé. Ce modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du système, y compris les fichiers présents sur les supports de stockage.
+Ce principe repose sur l'association d'un contexte de sécurité à chaque sujet et objet (pocessus, socket, fichier...). L'accès à un object par un sujet doit correspondre à une règle de la politique de sécurité pour être autorisé. Ce modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du système, y compris les fichiers présents sur les supports de stockage.
 
-\subsection{Solutions disponibles pour appliquer un contrôle d'accès mandataire}
+\subsection{Solutions pour appliquer un contrôle d'accès mandataire}
 
 Nous allons détailler les implémentations de ces modèles de sécurité dans certains systèmes d'exploitation, notamment les systèmes ``libres'', pour lesquels nous pouvons avoir accès au code source : Linux et la famille des BSD.
 
@@ -403,7 +396,7 @@ L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jéré
  \item \textbf{Avantages :} Un contrôle très fin sur les interactions dans un système, restriction (statique) des privilèges maximale.
 \end{list}
 
-Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche (ANR) \cite{PIGA}\cite{PIGA2}.
+Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche (ANR) \cite{PIGASAINTMALO}\cite{PIGAPROP}.
 
 \subsubsection{PaX \& grsecurity}
 
@@ -413,17 +406,19 @@ Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a 
  \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable, ...), fonctionnement un peu plus simple que SELinux
 \end{list}
 
-\subsubsection{TrustedBSD}
+\subsubsection{W\^{}X \& TrustedBSD}
+
+Présentation de W\^{}X.
 
 Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité telles que les attributs étendus pour le système de fichier UFS2, les listes de contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes de contrôles d'accès mandataire.
 
-\subsubsection{PIGA-SYSTRANS ou contextd}
-
-Contextd est un démon chargé de coordonner différents mécanismes de sécurité sur un système Linux. En effet, dans toutes les solutions décrites précédemment, les programmes se voyaient attribuer les droits dont ils avaient besoin, pour toujours. Une application utilisant ponctuellement le réseau se voyait attribuée le droit définitif d'utiliser un port. Contextd introduit la notion de domaine (web, impôts, ...) lié à une activité particulière de l'utilisateur. Les programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans le domaine courant.
-\begin{list}{}{}
- \item \textbf{Contrainte pour l'administrateur :} Maîtrise de SELinux, PIGA. Rédaction et test des règles exhaustives pour faire fonctionner les programmes avec contextd. Certains programmes nécessitent des modifications, surtout lorsque ceux-ci ont un comportement inter-domaine.
- \item \textbf{Avantages :} Presque la plus fine implémentation du principe de moindre privilèges.
-\end{list}
+% \subsubsection{PIGA-SYSTRANS ou contextd}
+%
+% Contextd est un démon chargé de coordonner différents mécanismes de sécurité sur un système Linux. En effet, dans toutes les solutions décrites précédemment, les programmes se voyaient attribuer les droits dont ils avaient besoin, pour toujours. Une application utilisant ponctuellement le réseau se voyait attribuée le droit définitif d'utiliser un port. Contextd introduit la notion de domaine (web, impôts, ...) lié à une activité particulière de l'utilisateur. Les programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans le domaine courant.
+% \begin{list}{}{}
+%  \item \textbf{Contrainte pour l'administrateur :} Maîtrise de SELinux, PIGA. Rédaction et test des règles exhaustives pour faire fonctionner les programmes avec contextd. Certains programmes nécessitent des modifications, surtout lorsque ceux-ci ont un comportement inter-domaine.
+%  \item \textbf{Avantages :} Presque la plus fine implémentation du principe de moindre privilèges.
+% \end{list}
 
 % Pax = sécurité automatique
 % SELinux, GrSec = MAC qui contrôle les accès directs
@@ -438,9 +433,20 @@ Contextd est un démon chargé de coordonner différents mécanismes de sécurit
 
 \newpage
 
-\section{Environnement de développement et de test}
+\section{Development and test environment}
 
-\subsection{Gentoo, Qemu-KVM, Virt-manager}
+Le fonctionnement de PIGA est intrinséquement lié à SELinux. Le choix des environnements de développement fut donc limité. Les principales distributions GNU/Linux supportant SELinux sont Red Hat Enterprise Linux \cite{RHEL}, Fedora \cite{FEDORA}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL} et enfin Gentoo \cite{GENTOO}, avec le projet Gentoo Hardened \cite{GENTOOH}. PIGA-OS étant basé sur le projet Gentoo Hardened, j'ai préféré continuer sur ces bases.
+
+\subsection{Gentoo Hardened}
+
+Le projet Gentoo Hardened a pour but de construire un système d'exploitation sécurisé. Pour atteindre ce but, plusieurs particularités ont été retenues :
+\begin{itemize}
+	\item un noyau Linux avec le patch PaX et grsecurity
+	\item une configuration et des options de compilation restrictives
+	\item une politique SELinux modulaire
+\end{itemize}
+
+La première étape de ce projet fut donc de mettre en place un environnement Gentoo Hardened. Pour me simplifier la tache de
 
 La première partie de mon projet fut de créer un environnement me permettant d'essayer toutes les solutions disponibles.
 
@@ -448,35 +454,104 @@ J'ai exploité les possibilités offertes par Qemu-KVM et Virt-manager (utilisat
 
 J'ai pour cela choisit la distribution Gentoo qui m'obligeait à comprendre chacune des étapes de la contruction de ces solutions.
 
-\subsection{Tests effectués}
+\subsection{QEMU, KVM and the Virtual Machine Manager}
 
-J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les scénarios d'attaques et la réponse que pouvez apporter un administrateur à ces scénarios.
+In order to ease the development process, I used some KVM and QEMU special features. QEMU enabled me to use an externaly (as in: not in a virtual machine) compiled kernel. I saved a lot of time compiling kernels on the host system instead of the virtual one. I would then be able to use this kernel into a Gentoo virtual machine.
 
-Violation d'intégrité :
+% \subsection{Tests effectués}
 
-Violation de confidentialité :
+% J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les scénarios d'attaques et la réponse que pouvait apporter un administrateur à ces scénarios.
 
-\subsection{Résultats}
+% Violation d'intégrité :
 
-Tableau comparatif avec le DAC.
+% Violation de confidentialité :
+
+% \subsection{Résultats}
+
+% Tableau comparatif avec le DAC...
 
 \newpage
 
 \section{PIGA-Linux}
 
+\subsection{Objectives}
+
+The following objectives (and implementation order) were layed out with Jérémy Briffaut at the begining of the project :
+
+\begin{enumerate}
+	\item Implement a basic decision making algorithm in the kernel
+	\item Create userspace tools to load a PIGA policy into the kernel
+	\item Optimize the policy storage into the kernel to handle large policy (more than three hundred thousand signatures) in order to make this usefull in the real world
+	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal policy, rule learning...)
+\end{enumerate}
+
 \subsection{Architecture}
 
-\subsection{Mise en oeuvre}
+PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard'' PIGA tools.
+
+\subsubsection{Linux kernel implementation}
+
+As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
+It is also as least intrusive as possible as only two major files need modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
+We also benefit from the fact that we can keep the SELinux auditing interface to audit PIGA denials.
+
+\subsubsection{Piga Policy Parser}
+
+The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures were previously generated with PIGA related tools from a set of PIGA rules and an SELinux policy.
+
+The PPP currently offers very basic features and options :
+\begin{itemize}
+	\item -h: prints the help
+	\item -v: turns verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
+	\item -s: display some statistics from the PIGA policy, such as the count of each security context...
+\end{itemize}
+
+\smallskip
+
+In order to load a policy into the kernel, you need to give a policy file to the tool standard input :
+\begin{verbatim}
+$ ppp -s < piga_policy.pol
+[+] PPP: Beggining PIGA policy parsing and loading...
+[+] PPP: Policy successfully parsed. Setting up in the kernel...
+[+] PPP: PIGA policy loadded :
+[+]     4 signatures have been loaded
+[+]     0 signatures have been ignored
+[+] Policy stats : '<name> (<uint>): <count>'
+[+]     SID stats :
+[+]             root:object_r:user_tmp_t (114): 2
+[+]             root:sysadm_r:sysadm_t (167): 3
+[+]             sysadm_u:sysadm_r:dhcpc_t (219): 2
+[+]             sysadm_u:sysadm_r:groupadd_t (215): 2
+[+]             sysadm_u:sysadm_r:nscd_t (216): 3
+[+]             sysadm_u:sysadm_r:sysadm_t (214): 4
+[+]             sysadm_u:sysadm_r:useradd_t (218): 2
+[+]             system_u:object_r:locale_t (86): 1
+[+]             system_u:system_r:init_t (47): 3
+[+]             system_u:system_r:initrc_t (56): 2
+[+]             system_u:system_r:sulogin_t (217): 2
+[+]     tclass stats :
+[+]             file (6): 3
+[+]             process (2): 10
+[+]     requested stats :
+[+]             read: 2
+[+]             transition: 10
+[+]             write: 1
+\end{verbatim}
+
+In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded. The uint (unsigned int) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose.
+
+
+% Outils pour charger les listes de signatures générées par analyse de graphe de politique de sécurité SELinux (PIGA).
+
+\subsubsection{Interface between the kernel and userspace}
+
+
+\subsubsection{PIGA tools}
+
 
 \subsection{Code !}
 
 \newpage
-
-%TODO
-
-% \section{Ajouts à systemd}
-
-% \newpage
 
 \section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}
 
@@ -501,21 +576,47 @@ FIXME
 
 \begin{thebibliography}{40}
 
+% Thèses
 \bibitem{THESEBRIFFAUT} Thèse de Jérémy Briffaut, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+
+% Articles
+\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris, Greg Kroah-Hartman, \textit{Linux Security Modules : General Security Support for the Linux Kernel}, \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=pdf}
+\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer, Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of Failure : The Flawed Assumption of Security in Modern Computing Environments. In Proceedings of the 21st National Information Systems Security Conference, pages 303–314, Arlington, Virginia, USA, October 1998
+\bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle, \textit{PIGA-OS : Retour sur le système d'exploitation vainqueur du défi sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
+\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard, \textit{Formalization os security properties : enforcement for mac operating systems and verification of dynamic mac policies}, International journal on advances in security, 2:325-343, 2009
+
+% Livres
+\bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition}, Pearson Education, Inc.
+\bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan, \textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall, Première édition, 6 août 2006
+
+% Présentations
+\bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat Enterprise Linux 5}, \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
+
+% Sites web
+\bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
+\bibitem{WCS} Wikipedia : Computer Security, \url{http://en.wikipedia.org/wiki/Computer_security}
+\bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
+\bibitem{CCCERT} Certification Critères Commums, \url{http://www.commoncriteriaportal.org}
+\bibitem{ITXT} Intel Trusted Execution Technology (TXT), \url{http://www.intel.com/technology/malwarereduction/index.htm}
+
+% Sites distributions GNU/Linux
+\bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
+\bibitem{FEDORA} Fedora, \url{http://fedoraproject.org}
+\bibitem{CENTOS} CentOS, \url{http://www.centos.org}
+\bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
+\bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
+\bibitem{GENTOOH} Gentoo Hardened Project, \url{http://www.gentoo.org/proj/en/hardened}
 
 \end{thebibliography}
 
 \newpage
 
-% \printglossary
-% \section*{Glossaire}
 \addcontentsline{toc}{section}{Glossaire}
 
 \nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
 \nomenclature{TOMOYO Linux}{}
 \nomenclature{SELinux}{Security Enhanced Linux}
 \nomenclature{AppArmor}{Application Armor}
-
 
 \printnomenclature[3cm]
 

@@ -38,6 +38,34 @@
 \usepackage{color}
 \usepackage{sectsty}
 
+% Pour avoir de beau listings
+\usepackage{listings}
+\usepackage{color}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{1,1,1}
+\lstset{
+	backgroundcolor=\color{lbcolor},
+	tabsize=4,
+	rulecolor=,
+% 	language=bash,
+	upquote=true,
+	aboveskip={1.5\baselineskip},
+	columns=fixed,
+	showstringspaces=false,
+	extendedchars=true,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	frame=single,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	identifierstyle=\ttfamily,
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+
 \addtolength{\voffset}{-20pt}
 \addtolength{\topmargin}{-6pt}
 \addtolength{\headsep}{+12pt}
@@ -89,7 +117,7 @@
 % Ne semble pas fonctionner
 % \renewcommand{\contentsname}{Sommaire}
 % Titre pour le Glossaire/Index des noms
-\renewcommand{\nomname}{Glossaire}
+\renewcommand{\nomname}{Glossary}
 %Separateur des dates
 \renewcommand{\dateseparator}{-}
 
@@ -493,7 +521,7 @@ PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard''
 
 As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
 It is also as least intrusive as possible as only two major files need modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
-We also benefit from the fact that we can keep the SELinux auditing interface to audit PIGA denials.
+As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
 
 \subsubsection{Piga Policy Parser}
 
@@ -509,7 +537,7 @@ The PPP currently offers very basic features and options :
 \smallskip
 
 In order to load a policy into the kernel, you need to give a policy file to the tool standard input :
-\begin{verbatim}
+\begin{lstlisting}
 $ ppp -s < piga_policy.pol
 [+] PPP: Beggining PIGA policy parsing and loading...
 [+] PPP: Policy successfully parsed. Setting up in the kernel...
@@ -536,7 +564,7 @@ $ ppp -s < piga_policy.pol
 [+]             read: 2
 [+]             transition: 10
 [+]             write: 1
-\end{verbatim}
+\end{lstlisting}
 
 In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded. The uint (unsigned int) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose.
 
@@ -545,6 +573,36 @@ In this example, we used the statistics flag to dispaly some informations about 
 
 \subsubsection{Interface between the kernel and userspace}
 
+For now, the PPP tool is using a custom system call which enables it to quickly load the policy.
+
+\begin{lstlisting}
+/** Userspace code:
+ *  s_len: the number of 'struct sequence' in the 's' vector
+ *  l_len: the number of 'struct link' in the 'l' vector
+ *  s: the 'struct sequence' vector
+ *  l: the 'struct link' vector
+**/
+
+#ifdef __x86_64
+#define __NR_sys_piga_add_sequence 307
+#endif /* __x86_64 */
+
+syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
+\end{lstlisting}
+
+As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interface like sockets...).
+
+PIGA control is also a work in progress. Currently, you have to use the /proc/piga folder and send commands to the kernel using availables files. This should also be removed in favor of a more generic and ``approuved'' design such as the /sys/kernel interface.
+\begin{lstlisting}
+$ ls /proc/piga
+status mode
+$ cat /proc/piga/status /proc/piga/mode
+Disabled
+Disabled: Full check
+$ echo 1 > /proc/piga/status
+$ cat /proc/piga/status
+Enabled
+\end{lstlisting}
 
 \subsubsection{PIGA tools}
 
@@ -555,7 +613,8 @@ In this example, we used the statistics flag to dispaly some informations about 
 
 \section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}
 
-FIXME
+Thanks to this project and the helpful supervision of Jérémy Briffaut, I was able to learn a lot about the SELinux implementation in the Linux kernel, the current PIGA implementation and all of it's features.
+
 % Le principal objectif de ce stage, qui consistait à mettre à jour l'éditeur pour la sortie de QSOS 2.0, est atteint. Les améliorations apportées à O3S simplifieront la tâche de mise à jour de l'application web. De plus, en attendant, la version 1.1 apporte un confort et des corrections de bugs non négligeables par rapport aux versions précédentes.
 %
 % ~
@@ -611,7 +670,7 @@ FIXME
 
 \newpage
 
-\addcontentsline{toc}{section}{Glossaire}
+\addcontentsline{toc}{section}{Glossary}
 
 \nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
 \nomenclature{TOMOYO Linux}{}
@@ -622,9 +681,9 @@ FIXME
 
 \newpage
 
-\section*{Annexes} \addcontentsline{toc}{section}{Annexes}
+\section*{Appendix} \addcontentsline{toc}{section}{Appendix}
 
-\subsubsection*{Notes concernant le logo Tux présent sur la première et quatrième de couverture}
+\subsubsection*{Notice about the Tux logo displayed on the first and last page}
 Originally drewn by Larry Ewing (\href{http://www.isc.tamu.edu/~lewing/}{http://www.isc.tamu.edu/~lewing/}) (with the GIMP) the Linux Logo has been vectorized by me (Simon Budig, \href{http://www.home.unix-ag.org/simon/}{http://www.home.unix-ag.org/simon/}).
 
 These drawings are copyrighted by Larry Ewing and Simon Budig, redistribution is free but has to include this README/Copyright notice.

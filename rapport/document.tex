@@ -3,7 +3,7 @@
 % Les packages de base pour le support du français
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english,french]{babel}
+\usepackage[english]{babel}
 
 % La bonne police, sans serif, helvetica
 \usepackage[scaled]{helvet}
@@ -247,6 +247,14 @@
 
 ~
 
+I would like to particularly thank Jérémy Briffaut, as this project is mostly based on his thesis and last years work.
+
+~
+
+I would like to thank Martin Peres for introducing me to the PIGA concept and kernel development.
+
+~
+
 \newpage
 
 \tableofcontents
@@ -261,7 +269,9 @@
 
 This project is an integral part of my formation at the ENSI de Bourges, a computer science and security french engineering school.
 
-FIXME
+The current PIGA design faced unexpected problems related to the fact that the decision making part was located in userspace. That's the main difficulty that we're trying to address with this kernel port. Among the other problems that I will have to solve are multi-core and multi-processor related issues. I'll also try to improve performance and ease of use if I succeed in porting the complet PIGA feature set.
+
+% FIXME
 
 % J'ai choisi ce stage parce qu'il me permettait de travailler dans un environnement centré sur les logiciels libres. J'ai aussi été intéressé par la méthode QSOS que je ne connaissais pas.
 %
@@ -428,7 +438,7 @@ Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a 
 
 \subsubsection{PaX \& grsecurity}
 
-\textsc{grsecurity} est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à \textsc{grsecurity}, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
+grsecurity est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à \textsc{grsecurity}, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
 \begin{list}{}{}
  \item \textbf{Contrainte pour l'administrateur :} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
  \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable, ...), fonctionnement un peu plus simple que SELinux
@@ -515,7 +525,12 @@ The following objectives (and implementation order) were layed out with Jérémy
 
 \subsection{Architecture}
 
-PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard'' PIGA tools.
+PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard'' PIGA tools. This project focused only on the kernel patch and the policy loader tool. The ``standard'' tools functionnality will be briefly explained here for convenience.
+
+\subsubsection{PIGA tools}
+
+%FIXME
+Tools to generate graphs and policy files from SELinux policy files. IDS and IPS Java stuff. Original kernel patch.
 
 \subsubsection{Linux kernel implementation}
 
@@ -592,7 +607,8 @@ syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 
 As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interface like sockets...).
 
-PIGA control is also a work in progress. Currently, you have to use the /proc/piga folder and send commands to the kernel using availables files. This should also be removed in favor of a more generic and ``approuved'' design such as the /sys/kernel interface.
+PIGA control from userspace is also a work in progress. Currently, you have to use the /proc/piga folder and send commands to the kernel using availables files. This should also be removed in favor of a more generic and ``approuved'' design such as the /sys/kernel interface.
+
 \begin{lstlisting}
 $ ls /proc/piga
 status mode
@@ -604,16 +620,13 @@ $ cat /proc/piga/status
 Enabled
 \end{lstlisting}
 
-\subsubsection{PIGA tools}
-
-
-\subsection{Code !}
-
 \newpage
 
 \section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}
 
 Thanks to this project and the helpful supervision of Jérémy Briffaut, I was able to learn a lot about the SELinux implementation in the Linux kernel, the current PIGA implementation and all of it's features.
+
+% FIXME
 
 % Le principal objectif de ce stage, qui consistait à mettre à jour l'éditeur pour la sortie de QSOS 2.0, est atteint. Les améliorations apportées à O3S simplifieront la tâche de mise à jour de l'application web. De plus, en attendant, la version 1.1 apporte un confort et des corrections de bugs non négligeables par rapport aux versions précédentes.
 %
@@ -631,12 +644,13 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 
 \newpage
 
-\addcontentsline{toc}{section}{Références}
+% FIXME
+\addcontentsline{toc}{section}{References}
 
 \begin{thebibliography}{40}
 
 % Thèses
-\bibitem{THESEBRIFFAUT} Thèse de Jérémy Briffaut, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+\bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
 
 % Articles
 \bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris, Greg Kroah-Hartman, \textit{Linux Security Modules : General Security Support for the Linux Kernel}, \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=pdf}

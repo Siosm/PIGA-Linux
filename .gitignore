@@ -1,3 +1,16 @@
 .kdev4
 *.kdev4
 
+*~
+*.o
+
+seqtest/seqtest
+
+ppp/build
+ppp/ppp
+ppp/ppp.lex.c
+ppp/ppp.yacc.c
+ppp/ppp.yacc.h
+
+*.kate-swp
+

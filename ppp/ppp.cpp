@@ -36,6 +36,8 @@
 
 extern int verbose;
 
+int error_count = 0;
+
 
 namespace PPP
 {
@@ -134,6 +136,11 @@ unsigned int PPP::string_to_sid(std::string sid)
 		} else {
 			std::cerr << "PPP: Can't open file /proc/piga/getsid to write the sid " << sid << std::endl;
 			set_invalid_context(true);
+			++error_count;
+			if(error_count > 10) {
+				std::cerr << "[+] PPP: Too many errors. Exiting" << std::endl;
+				exit(EXIT_FAILURE);
+			}
 			return -1;
 		}
 
@@ -146,6 +153,11 @@ unsigned int PPP::string_to_sid(std::string sid)
 		} else {
 			std::cerr << "PPP: Can't open file /proc/piga/getsid to read the answer for " << sid << std::endl;
 			set_invalid_context(true);
+			++error_count;
+			if(error_count > 10) {
+				std::cerr << "[+] PPP: Too many errors. Exiting" << std::endl;
+				exit(EXIT_FAILURE);
+			}
 			return -1;
 		}
 

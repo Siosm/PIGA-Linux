@@ -99,7 +99,7 @@ int main(int argc, char ** argv)
 	res = PPP::set_sequence(curr_seq, curr_link, s, l);
 
 	if(res == 0) {
-		std::cout << "[+] PPP: PIGA policy loadded :" << std::endl;
+		std::cout << "[+] PPP: PIGA policy loadded:" << std::endl;
 		std::cout << "[+] \t" << PPP::get_loaded() << " signatures have been loaded" << std::endl;
 		std::cout << "[+] \t" << PPP::get_ignored() << " signatures have been ignored" << std::endl;
 	} else {

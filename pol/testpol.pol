@@ -1,0 +1,7 @@
+WARN - 0$4026 : system_u:system_r:init_t -( process { transition } )-> sysadm_u:sysadm_r:sysadm_t ; sysadm_u:sysadm_r:sysadm_t -( process { transition } )-> sysadm_u:sysadm_r:groupadd_t ; sysadm_u:sysadm_r:groupadd_t -( process { transition } )-> sysadm_u:sysadm_r:nscd_t
+WARN - 0$4029 : system_u:system_r:init_t -( process { transition } )-> system_u:system_r:sulogin_t ; system_u:system_r:sulogin_t -( process { transition } )-> sysadm_u:sysadm_r:sysadm_t ; sysadm_u:sysadm_r:sysadm_t -( process { transition } )-> sysadm_u:sysadm_r:useradd_t ; sysadm_u:sysadm_r:useradd_t -( process { transition } )-> sysadm_u:sysadm_r:nscd_t
+WARN - 0$4028 : system_u:system_r:init_t -( process { transition } )-> system_u:system_r:initrc_t ; system_u:system_r:initrc_t -( process { transition } )-> sysadm_u:sysadm_r:dhcpc_t ; sysadm_u:sysadm_r:dhcpc_t -( process { transition } )-> sysadm_u:sysadm_r:nscd_t
+
+####
+
+WARN - 0$4028 : root:sysadm_r:sysadm_t -( file { read } )-> system_u:object_r:locale_t ; root:sysadm_r:sysadm_t -( file { write } )-> root:object_r:user_tmp_t ; root:sysadm_r:sysadm_t -( file { read } )-> root:object_r:user_tmp_t

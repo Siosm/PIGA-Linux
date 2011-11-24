@@ -90,6 +90,10 @@
 #include "netlabel.h"
 #include "audit.h"
 
+#ifdef CONFIG_SECURITY_PIGA
+#include "piga/include/piga.h"
+#endif /* CONFIG_SECURITY_PIGA */
+
 #define NUM_SEL_MNT_OPTS 5
 
 extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
@@ -5659,6 +5663,10 @@ static __init int selinux_init(void)
 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
 	else
 		printk(KERN_DEBUG "SELinux:  Starting in permissive mode\n");
+
+#ifdef CONFIG_SECURITY_PIGA
+	init_piga();
+#endif /* CONFIG_SECURITY_PIGA */
 
 	return 0;
 }

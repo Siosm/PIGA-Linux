@@ -64,6 +64,9 @@ struct old_linux_dirent;
 struct perf_event_attr;
 struct file_handle;
 
+struct sequence;
+struct link;
+
 #include <linux/types.h>
 #include <linux/aio_abi.h>
 #include <linux/capability.h>
@@ -844,4 +847,5 @@ asmlinkage long sys_name_to_handle_at(int dfd, const char __user *name,
 asmlinkage long sys_open_by_handle_at(int mountdirfd,
 				      struct file_handle __user *handle,
 				      int flags);
+asmlinkage long sys_piga_add_sequence(unsigned int s_len, unsigned int l_len, struct sequence __user * s, struct link __user * l);
 #endif

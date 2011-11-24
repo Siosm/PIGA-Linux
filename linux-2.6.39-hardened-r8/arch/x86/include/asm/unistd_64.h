@@ -678,6 +678,9 @@ __SYSCALL(__NR_clock_adjtime, sys_clock_adjtime)
 #define __NR_syncfs                             306
 __SYSCALL(__NR_syncfs, sys_syncfs)
 
+#define __NR_piga_add_sequence			307
+__SYSCALL(__NR_piga_add_sequence, sys_piga_add_sequence)
+
 #ifndef __NO_STUBS
 #define __ARCH_WANT_OLD_READDIR
 #define __ARCH_WANT_OLD_STAT

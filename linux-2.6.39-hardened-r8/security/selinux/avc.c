@@ -47,6 +47,10 @@ do {								\
 #define avc_cache_stats_incr(field)	do {} while (0)
 #endif
 
+#ifdef CONFIG_SECURITY_PIGA
+#include "piga/include/piga.h"
+#endif
+
 struct avc_entry {
 	u32			ssid;
 	u32			tsid;
@@ -562,7 +566,7 @@ int avc_audit(u32 ssid, u32 tsid,
  * @perms: permissions
  *
  * Register a callback function for events in the set @events
- * related to the SID pair (@ssid, @tsid) 
+ * related to the SID pair (@ssid, @tsid)
  * and the permissions @perms, interpreting
  * @perms based on @tclass.  Returns %0 on success or
  * -%ENOMEM if insufficient memory exists to add the callback.
@@ -833,6 +837,13 @@ int avc_has_perm_flags(u32 ssid, u32 tsid, u16 tclass,
 
 	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, 0, &avd);
 
+	// FIXME CHECK THIS!
+#ifdef CONFIG_SECURITY_PIGA
+	if (rc != -EACCES) {
+		rc = piga_has_perm(ssid, tsid, tclass, requested, auditdata, rc,
+				   &avd);
+	}
+#endif
 	rc2 = avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata,
 			flags);
 	if (rc2)

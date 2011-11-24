@@ -1,0 +1,10 @@
+config SECURITY_PIGA
+	bool "PIGA MAC Support"
+	depends on AUDIT && NET && INET && SECURITY_NETWORK && SECURITY_SELINUX
+	select NETWORK_SECMARK
+	default n
+	help
+		This selects PIGA Mandatory Access Control support.
+		You will alse need a set of rules, userspace tools and a fully working SELinux environnemnt.
+
+		If you are unsure how to answer this question, answer N.

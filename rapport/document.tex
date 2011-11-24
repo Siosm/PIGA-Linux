@@ -247,7 +247,7 @@
 
 ~
 
-I would like to particularly thank Jérémy Briffaut, as this project is mostly based on his thesis and last years work.
+I would like to particularly thank Jérémy Briffaut for his advice. This project is mostly based on his thesis and last years work.
 
 ~
 
@@ -269,15 +269,13 @@ I would like to thank Martin Peres for introducing me to the PIGA concept and ke
 
 This project is an integral part of my formation at the ENSI de Bourges, a computer science and security french engineering school.
 
+PIGA (Policy Interaction Graph Analysis) is an advanced Mandatory Access Control mechanism designed to enforce security policy on a system. Just like SELinux, PIGA does not directly prevent vulnerability exploitation, but prevents any further action an attacker might attempt to perform on the system.
+
 The current PIGA design faced unexpected problems related to the fact that the decision making part was located in userspace. That's the main difficulty that we're trying to address with this kernel port. Among the other problems that I will have to solve are multi-core and multi-processor related issues. I'll also try to improve performance and ease of use if I succeed in porting the complet PIGA feature set.
 
-% FIXME
+I will begin with a short description of all currently available protections for the main open source operating systems such as Linux distributions and some from the BSD family. Then I will proceed to some PIGA reminders, kernel/userspace implementation design. Finally I will compare PIGA-Linux performance to kernel with either nothing, PaX, SELinux, ``classic'' PIGA enabled.
 
-% J'ai choisi ce stage parce qu'il me permettait de travailler dans un environnement centré sur les logiciels libres. J'ai aussi été intéressé par la méthode QSOS que je ne connaissais pas.
-%
-% ~
-%
-% Après une présentation globale de l'offre d'Atos et de l'Open Source Center, je détaillerai le contenu de mon stage orienté autour de la méthode QSOS. Je préciserai le contexte ainsi que les différentes contributions que j'ai apportées aux outils et à la méthode pendant mon stage.
+% FIXME
 
 \newpage
 
@@ -359,6 +357,14 @@ Il est possible d'employer différentes approches pour s'assurer de la sécurit�
 
 Les modèles de sécurité standard se situent tous dans la première catégorie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés Critères Communs \cite{CCCERT}, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
 
+% An example of hardware based integrity control
+
+% \begin{figure}[h]
+% 	\centering
+% 	\includegraphics[scale=0.70]{attachements/techrefresh-info-txtfull.png}
+% 	\caption{Intel Trusted Execution Technology}
+% \end{figure}
+
 \subsection{Les différentes méthodes de contrôle d'accès}
 
 Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et la minimisation des privilèges, les systèmes d'exploitations actuels ont implenté différentes méthodes de contrôle d'accès. Nous allons donc les présenter dans cette partie.
@@ -370,12 +376,6 @@ Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'ut
 \subsubsection{Mandatory Access Control (MAC)}
 
 Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur la mise en \oe{}uvre d'une politique de sécurité plus ou moins fiable.
-
-% \begin{figure}[h]
-% 	\centering
-% 	\includegraphics[scale=0.70]{attachements/techrefresh-info-txtfull.png}
-% 	\caption{Intel Trusted Execution Technology}
-% \end{figure}
 
 \subsubsection{Multilevel Security and Multi Categories Security (MLS \& MCS)}
 
@@ -408,7 +408,7 @@ Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permett
 
 Ce principe repose sur l'association d'un contexte de sécurité à chaque sujet et objet (pocessus, socket, fichier...). L'accès à un object par un sujet doit correspondre à une règle de la politique de sécurité pour être autorisé. Ce modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du système, y compris les fichiers présents sur les supports de stockage.
 
-\subsection{Solutions pour appliquer un contrôle d'accès mandataire}
+\subsection{Available solutions to enforce Mandatory Access Control}
 
 Nous allons détailler les implémentations de ces modèles de sécurité dans certains systèmes d'exploitation, notamment les systèmes ``libres'', pour lesquels nous pouvons avoir accès au code source : Linux et la famille des BSD.
 
@@ -473,39 +473,39 @@ Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurit�
 
 \section{Development and test environment}
 
-Le fonctionnement de PIGA est intrinséquement lié à SELinux. Le choix des environnements de développement fut donc limité. Les principales distributions GNU/Linux supportant SELinux sont Red Hat Enterprise Linux \cite{RHEL}, Fedora \cite{FEDORA}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL} et enfin Gentoo \cite{GENTOO}, avec le projet Gentoo Hardened \cite{GENTOOH}. PIGA-OS étant basé sur le projet Gentoo Hardened, j'ai préféré continuer sur ces bases.
-
-\subsection{Gentoo Hardened}
-
-Le projet Gentoo Hardened a pour but de construire un système d'exploitation sécurisé. Pour atteindre ce but, plusieurs particularités ont été retenues :
+PIGA features are intrinsically link to SELinux features so the choice of development environment was limited. The main GNU/Linux distributions supporting SELinux are :
 \begin{itemize}
-	\item un noyau Linux avec le patch PaX et grsecurity
-	\item une configuration et des options de compilation restrictives
-	\item une politique SELinux modulaire
+	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}
+	\item Fedora \cite{FEDORA}
+	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}
+\end{itemize}
+As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution.
+
+\subsection{Hardened Gentoo}
+
+The Hardened Gentoo Project has taken upon the goal of building a completly secure operating system from the ground up. To achieve this goal, several particularities have been selected :
+\begin{itemize}
+	\item a linux kernel with the PaX \& grsecurity patch
+	\item a carefully crafted une configuration and several restrictive compilation options
+	\item a modular SELinux policy
 \end{itemize}
 
-La première étape de ce projet fut donc de mettre en place un environnement Gentoo Hardened. Pour me simplifier la tache de
+The first step of this project was to setup a virtual Hardened Gentoo development environment.
 
-La première partie de mon projet fut de créer un environnement me permettant d'essayer toutes les solutions disponibles.
-
-J'ai exploité les possibilités offertes par Qemu-KVM et Virt-manager (utilisation d'un noyau compilé sur la machine host, gestion simplifiée des machines virtuelles) pour déployer très rapidement ces environnements.
-
-J'ai pour cela choisit la distribution Gentoo qui m'obligeait à comprendre chacune des étapes de la contruction de ces solutions.
+The Gentoo choice was also driven by the fact that I had to understand most of the building process in order to make it work properly. This constrain was actualy a benefit.
 
 \subsection{QEMU, KVM and the Virtual Machine Manager}
 
-In order to ease the development process, I used some KVM and QEMU special features. QEMU enabled me to use an externaly (as in: not in a virtual machine) compiled kernel. I saved a lot of time compiling kernels on the host system instead of the virtual one. I would then be able to use this kernel into a Gentoo virtual machine.
+In order to ease the development process, I used some KVM and QEMU special features. QEMU enabled me to use an externaly (as in: not on a virtual drive) compiled kernel. I saved a lot of time compiling kernels on the host system instead of the virtual one. As the host and the virtual machine architecture matchs (x86\_64, no cross-compilation involved) I was able to use this kernel into a Gentoo virtual machine.
 
-% \subsection{Tests effectués}
+% FIXME
+% \subsection{Related tests}
 
+% This virtual environment allowed me to test several of the available solutions (SMACK, TOMOYO...).
 % J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les scénarios d'attaques et la réponse que pouvait apporter un administrateur à ces scénarios.
-
 % Violation d'intégrité :
-
 % Violation de confidentialité :
-
 % \subsection{Résultats}
-
 % Tableau comparatif avec le DAC...
 
 \newpage
@@ -520,7 +520,7 @@ The following objectives (and implementation order) were layed out with Jérémy
 	\item Implement a basic decision making algorithm in the kernel
 	\item Create userspace tools to load a PIGA policy into the kernel
 	\item Optimize the policy storage into the kernel to handle large policy (more than three hundred thousand signatures) in order to make this usefull in the real world
-	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal policy, rule learning...)
+	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal policy, process based signatures, better audit features, rule learning, state save and restore...)
 \end{enumerate}
 
 \subsection{Architecture}
@@ -530,28 +530,33 @@ PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard''
 \subsubsection{PIGA tools}
 
 %FIXME
-Tools to generate graphs and policy files from SELinux policy files. IDS and IPS Java stuff. Original kernel patch.
+Tools to generate graphs and policy files from SELinux policy files. IDS and IPS Java stuff. Original kernel patch description.
 
 \subsubsection{Linux kernel implementation}
 
 As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
-It is also as least intrusive as possible as only two major files need modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
+
+It is also as least intrusive as possible as only two major files need minor modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
 As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
+
+% Séparer les lectures des écritures d'états des signatures pour faire avancer les signutures.
 
 \subsubsection{Piga Policy Parser}
 
-The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures were previously generated with PIGA related tools from a set of PIGA rules and an SELinux policy.
+The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures were previously generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
 
 The PPP currently offers very basic features and options :
 \begin{itemize}
 	\item -h: prints the help
 	\item -v: turns verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
-	\item -s: display some statistics from the PIGA policy, such as the count of each security context...
+	\item -s: display some statistics from the PIGA policy, such as the count of each security context
+	\item NOT IMPLEMENTED YET -c: enable conditionnal signatures (PIGA feature not yet available)
+	\item NOT IMPLEMENTED YET -w: enable warning mode (PIGA feature not yet available)
 \end{itemize}
 
 \smallskip
 
-In order to load a policy into the kernel, you need to give a policy file to the tool standard input :
+In order to load a policy into the kernel, you need to give a policy file to the tool standard input (classic input from a file as an argument will be implemented: ppp [-shvcw] PIGA\_policy.pol) :
 \begin{lstlisting}
 $ ppp -s < piga_policy.pol
 [+] PPP: Beggining PIGA policy parsing and loading...
@@ -581,37 +586,49 @@ $ ppp -s < piga_policy.pol
 [+]             write: 1
 \end{lstlisting}
 
-In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded. The uint (unsigned int) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose.
-
-
-% Outils pour charger les listes de signatures générées par analyse de graphe de politique de sécurité SELinux (PIGA).
+In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded as none has been ignored. The uint (unsigned int) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose. The sid/uint are retreived throught the kernel interface described in the next section.
 
 \subsubsection{Interface between the kernel and userspace}
 
 For now, the PPP tool is using a custom system call which enables it to quickly load the policy.
 
 \begin{lstlisting}
-/** Userspace code:
- *  s_len: the number of 'struct sequence' in the 's' vector
- *  l_len: the number of 'struct link' in the 'l' vector
- *  s: the 'struct sequence' vector
- *  l: the 'struct link' vector
-**/
+/** Userspace code **/
 
 #ifdef __x86_64
 #define __NR_sys_piga_add_sequence 307
 #endif /* __x86_64 */
 
+struct sequence {
+	unsigned int length;
+	unsigned int current_position;
+	unsigned int link_offset;
+	char * seq_string;
+};
+
+struct link {
+	unsigned int cs;
+	unsigned int cc;
+	unsigned short tclass;
+	unsigned int requested;
+};
+
+/**
+ *  s_len: the number of 'struct sequence' in the 's' vector
+ *  l_len: the number of 'struct link' in the 'l' vector
+ *  s: the 'struct sequence' vector
+ *  l: the 'struct link' vector
+**/
 syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 \end{lstlisting}
 
-As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interface like sockets...).
+As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interfaces like sockets...).
 
 PIGA control from userspace is also a work in progress. Currently, you have to use the /proc/piga folder and send commands to the kernel using availables files. This should also be removed in favor of a more generic and ``approuved'' design such as the /sys/kernel interface.
 
 \begin{lstlisting}
 $ ls /proc/piga
-status mode
+getsid  mode  status
 $ cat /proc/piga/status /proc/piga/mode
 Disabled
 Disabled: Full check
@@ -619,6 +636,40 @@ $ echo 1 > /proc/piga/status
 $ cat /proc/piga/status
 Enabled
 \end{lstlisting}
+
+The getsid entry allows the PPP to quickly retrieve the unsigned int corresponding to a SID. This should also be moved to a more secure and accepted design (at least a syscall) :
+
+\begin{lstlisting}
+$ cat /proc/piga/getsid
+0
+$ echo "root:sysadm_r:sysadm_t" > /proc/piga/getsid
+$ cat /proc/piga/getsid
+166
+$ cat /proc/piga/getsid
+0
+\end{lstlisting}
+
+\newpage
+
+\section{Results and thoughts}
+
+\subsection{Performance}
+
+Even in this crude form,PIGA-Linus isn't performing so bad. It takes notably longer to complete syscalls (4 seconds for a simple ``ls'') but the system is still working.
+
+% FIXME Proper tests
+
+\subsection{Design and implementation security}
+
+\subsection{Missing and expected features}
+
+\begin{itemize}
+	\item conditionnal policy
+	\item process based signatures
+	\item better audit features
+	\item rule learning (grsecurity feature)
+	\item current signature state save and restore
+\end{itemize}
 
 \newpage
 

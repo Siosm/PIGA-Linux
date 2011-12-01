@@ -31,6 +31,7 @@
 
 #ifdef __x86_64
 #define __NR_sys_piga_add_sequence 307
+#define __NR_sys_piga_get_sid 308
 #endif /* __x86_64 */
 
 
@@ -124,93 +125,65 @@ void PPP::stat_perm(std::string tclass, std::string requested)
 }
 
 
-unsigned int PPP::string_to_sid(std::string sid)
+unsigned int PPP::string_to_sid(std::string scontext)
 {
-	unsigned int res;
+	int ret;
+	unsigned int sid;
 
-	if(sid_map.find(sid) == sid_map.end()) {
-		std::ofstream getsid_file_w("/proc/piga/getsid");
-		if (getsid_file_w.is_open()) {
-			getsid_file_w << sid << std::endl;
-			getsid_file_w.close();
-		} else {
-			std::cerr << "PPP: Can't open file /proc/piga/getsid to write the sid " << sid << std::endl;
+	if(sid_map.find(scontext) == sid_map.end()) {
+		ret = syscall(__NR_sys_piga_get_sid, scontext.c_str(), scontext.length(), &sid);
+		if (ret != 0) {
+			std::cerr << "PPP: Error in get_sid syscall, with scontext: " << scontext << std::endl;
 			set_invalid_context(true);
 			++error_count;
 			if(error_count > 10) {
 				std::cerr << "[+] PPP: Too many errors. Exiting" << std::endl;
 				exit(EXIT_FAILURE);
 			}
-			return -1;
+			return 0;
 		}
-
-		std::string line;
-		std::ifstream getsid_file_r("/proc/piga/getsid");
-		if (getsid_file_r.is_open()) {
-			getline (getsid_file_r, line);
-// 			std::cout << "PPP: answer:" << line << std::endl;
-			getsid_file_r.close();
-		} else {
-			std::cerr << "PPP: Can't open file /proc/piga/getsid to read the answer for " << sid << std::endl;
-			set_invalid_context(true);
-			++error_count;
-			if(error_count > 10) {
-				std::cerr << "[+] PPP: Too many errors. Exiting" << std::endl;
-				exit(EXIT_FAILURE);
-			}
-			return -1;
-		}
-
-		res  = strtoul(line.c_str(), NULL, 10);
-		sid_map[sid] = res;
-		stat_sid_map[sid] = 1;
+		sid_map[scontext] = sid;
+		stat_sid_map[scontext] = 1;
 	} else {
-		res = sid_map[sid];
-		stat_sid_map[sid]++;
+		sid = sid_map[scontext];
+		stat_sid_map[scontext]++;
 	}
 
-	if(res == 0) {
+	if(sid == 0) {
 		// FIXME Add a #define for this, and a runtime option if defined
 		if(verbose) {
-			std::cerr << "PPP: This sid is 0, so there is an error. Maybe the context you've used isn't available with the currently loaded policy: " << sid << std::endl;
+			std::cerr << "PPP: Error: This scontext corresponding sid is 0. Maybe the context used isn't available in the currently loaded SELinux policy: " << scontext << std::endl;
 		}
 		set_invalid_context(true);
 	}
 
-	return res;
+	return sid;
 }
 
 
 int PPP::set_sequence(unsigned int s_len, unsigned int l_len, struct sequence * s, struct link * l)
 {
-// 	unsigned int i = 0;
+	unsigned int i = 0, j = 0, off = 0, link_list_len = 0;
 // 	printf("len: %d, ", s->length);
 // 	for(i = 0; i < s->length; ++i) {
 // 		printf("%d -(%d %d)-> %d ; ",
 // 		       s->link_list[i].cs, s->link_list[i].tclass,
 // 		       s->link_list[i].requested, s->link_list[i].cc);
 // 	}
-// 	printf("\n");
-        return syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
-// 	return 0;
 
-// 	unsigned long p;
-// 	std::ofstream load_s("/proc/piga/load_sequence");
-// 	if (load_s.is_open()) {
-// 		p = (unsigned long) s;
-// 		load_s << p << std::endl;
-// 		load_s.close();
-// 	} else {
-// 		std::cerr << "PPP: Can't open file /proc/piga/load_sequence to write the s pointer." << std::endl;
-// 		return;
-// 	}
-// 	std::ofstream load_l("/proc/piga/load_link");
-// 	if (load_l.is_open()) {
-// 		p = (unsigned long) l;
-// 		load_l << p << std::endl;
-// 		load_l.close();
-// 	} else {
-// 		std::cerr << "PPP: Can't open file /proc/piga/load_link to write the l pointer." << std::endl;
-// 		return;
-// 	}
+	if (verbose) {
+		for(i = 0; i < s_len; ++i) {
+			printf("len: %u, pos: %u", s[i].length, s[i].current_position);
+			off = s[i].link_offset;
+			link_list_len = s[i].length;
+			for(j = 0; j < link_list_len; ++j) {
+				printf(" ; %u-(%u,%u)->%u",
+				l[off + j].cs, l[off + j].tclass,
+				l[off + j].requested, l[off + j].cc);
+			}
+			printf("\n");
+		}
+	}
+
+        return syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 }

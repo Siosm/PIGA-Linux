@@ -10,8 +10,8 @@ struct sequence {
 	unsigned int length;
 	unsigned int current_position;
 	unsigned int link_offset;
-// 	struct link * link_list;
 	char * seq_string;
+// 	struct link * link_list;
 };
 
 

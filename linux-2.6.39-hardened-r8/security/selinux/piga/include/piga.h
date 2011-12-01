@@ -13,7 +13,7 @@ struct sequence {
 	unsigned int length;
 	unsigned int current_position;
 	unsigned int link_offset;
-// 	char * seq_string;
+	char * seq_string;
 // 	struct list_head list;
 };
 

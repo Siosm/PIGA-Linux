@@ -5,7 +5,7 @@
 
 # for release, use :
 LEX = /usr/bin/flex -f
-CFLAGS = -O2 -Wall -Wextra
+CFLAGS = -O2 -Wall -Wextra -Wpacked -Wpacked
 YACC = /usr/bin/yacc -d
 
 CC = /usr/bin/gcc

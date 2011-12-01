@@ -111,11 +111,11 @@ int main(int argc, char ** argv)
 		std::map< std::string, unsigned int > map;
 		std::map< std::string, unsigned int > sid_map;
 
-		std::cout << "[+] Policy stats : '<name> (<uint>): <count>'" << std::endl;
+		std::cout << "[+] Policy stats : '<name> (<sid>): <count>'" << std::endl;
 		std::map< std::string, unsigned int>::const_iterator itr;
 		map = PPP::get_stat_sid();
 		sid_map = PPP::get_sid_map();
-		std::cout << "[+] \tSID stats :" << std::endl;
+		std::cout << "[+] \tSecurity context stats :" << std::endl;
 		for (itr = map.begin(); itr != map.end(); itr++) {
 			std::cout << "[+] \t\t"<< (*itr).first << " (" << sid_map[(*itr).first] << "): " << (*itr).second << std::endl;
 		}

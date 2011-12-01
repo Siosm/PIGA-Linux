@@ -680,6 +680,8 @@ __SYSCALL(__NR_syncfs, sys_syncfs)
 
 #define __NR_piga_add_sequence			307
 __SYSCALL(__NR_piga_add_sequence, sys_piga_add_sequence)
+#define __NR_piga_get_sid			308
+__SYSCALL(__NR_piga_get_sid, sys_piga_get_sid)
 
 #ifndef __NO_STUBS
 #define __ARCH_WANT_OLD_READDIR

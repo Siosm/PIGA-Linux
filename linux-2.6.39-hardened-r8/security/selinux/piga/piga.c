@@ -15,6 +15,7 @@
 #define PIGA_ALLOW 0
 #define PIGA_DENY -EACCES
 
+
 // static int MAX_SID = 1000; // FIXME : 65536 ?
 
 // static struct link *** links; // link[tclass][ssid][tsid]
@@ -24,11 +25,17 @@
 // static struct sequence ** sequences = NULL;
 // static unsigned int sequences_size = 0;
 // static unsigned int sequence_max = 0;
+
+
 static unsigned int s_len = 0;
 static unsigned int l_len = 0;
-
 static struct sequence * seq = NULL;
 static struct link * link = NULL;
+
+
+static int piga_status_enabled = 0;
+static int piga_audit_only_mode = 0;
+
 
 u32 piga_seq_get_cs(struct sequence * s)
 {
@@ -36,8 +43,10 @@ u32 piga_seq_get_cs(struct sequence * s)
 		return link[s->link_offset + s->current_position].cs;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_get_cs: s is NULL");
+
 	return 0;
 }
+
 
 u32 piga_seq_get_cc(struct sequence * s)
 {
@@ -45,8 +54,10 @@ u32 piga_seq_get_cc(struct sequence * s)
 		return link[s->link_offset + s->current_position].cc;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_get_cc: s is NULL");
+
 	return 0;
 }
+
 
 u16 piga_seq_get_tclass(struct sequence * s)
 {
@@ -54,8 +65,10 @@ u16 piga_seq_get_tclass(struct sequence * s)
 		return link[s->link_offset + s->current_position].tclass;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_get_tclass: s is NULL");
+
 	return 0;
 }
+
 
 u32 piga_seq_get_requested(struct sequence * s)
 {
@@ -63,8 +76,10 @@ u32 piga_seq_get_requested(struct sequence * s)
 		return link[s->link_offset + s->current_position].requested;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_get_requested: s is NULL");
+
 	return 0;
 }
+
 
 bool piga_seq_end(struct sequence * s)
 {
@@ -72,10 +87,12 @@ bool piga_seq_end(struct sequence * s)
 		return s->current_position + 1 == s->length;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_end: s is NULL");
+
 	return 0;
 }
 
-// TODO This should move the struct sequence too !
+
+// TODO Fix locks, concurrency ...
 bool piga_seq_next(struct sequence * s)
 {
 	printk(KERN_ERR "PIGA: piga_seq_next: called!");
@@ -88,27 +105,22 @@ bool piga_seq_next(struct sequence * s)
 		return true;
 	}
 	printk(KERN_ERR "PIGA: piga_seq_next: s is NULL");
+
 	return false;
 }
+
 
 struct sequence * piga_get_sequence_at(u32 ssid, u32 tsid, u16 tclass)
 {
 	return seq;
 }
 
-bool piga_remove_sequence(char * s)
-{
-	if (s != NULL) {
-		return true;
-	}
-	printk(KERN_ERR "PIGA: piga_remove_sequence: s is NULL");
-	return false;
-}
 
 bool piga_move_sequence(u32 ssid, u32 tsid, u16 tclass, u32 ssid2, u32 tsid2, u16 tclass2)
 {
 	return true;
 }
+
 
 void piga_list_sequence(void)
 {
@@ -310,20 +322,19 @@ int piga_compare(u16 tclass1, u32 requested1, u16 tclass2, u32 requested2)
 	} else if(requested1 != requested2) {
 		return requested1 - requested2;
 	}
+
 	return 0;
 }
 
 
-bool * piga_status()
+int * piga_status(void)
 {
-	static bool piga_status_enabled = false;
 	return &piga_status_enabled;
 }
 
 
-bool * piga_audit_only_mode(void)
+int * piga_audit(void)
 {
-	static bool piga_audit_only_mode = false;
 	return &piga_audit_only_mode;
 }
 
@@ -386,16 +397,12 @@ void print_vector(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 
 int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_audit_data *auditdata, int rc, struct av_decision * avd)
 {
-// 	int link;
 	struct sequence * seqs = NULL;
 	struct sequence * s = NULL;
 	unsigned int i = 0;
 	u32 denied = 0, audited = 0;
-// 	struct list_head * seq_list;
-	int ret = 0;
-	u32 tmp = 0;
 
-	if (*piga_status() == true) {
+	if (piga_status_enabled) {
 		/**
 		 * Resolve if SELinux decided to allow or deny or log the syscall.
 		 *
@@ -406,7 +413,7 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 		**/
 		if (avd) {
 			denied = requested & ~avd->allowed;
-			if (*piga_audit_only_mode() == true) {
+			if (piga_audit_only_mode) {
 				if (denied) {
 					audited = denied;
 					if (!(audited & avd->auditdeny))
@@ -419,31 +426,17 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 			}
 		}
 
-// 		printk(KERN_INFO "PIGA: looking into sequences");
 		rc = PIGA_ALLOW;
 		seqs = piga_get_sequence_at(ssid, tsid, tclass);
 		for (i = 0; i < s_len; ++i) {
 			s = seqs + i;
-// 			ret = security_context_to_sid("system_u:object_r:locale_t", 26, &tmp);
-// 			if (tmp == ssid || tmp == tsid) {
-// 				print_vector(ssid, tsid, tclass, requested, auditdata, rc, avd);
-// 			}
-// 			ret = security_context_to_sid("root:object_r:user_tmp_t", 24, &tmp);
-// 			if (tmp == ssid || tmp == tsid) {
-// 				print_vector(ssid, tsid, tclass, requested, auditdata, rc, avd);
-// 			}
-
 			if (piga_seq_get_cs(s) == ssid
 				&& piga_seq_get_cc(s) == tsid
-				// FIXME enable tclass and check it
-				// FIXME also check requested :
-				// is it a xor, nor, or, and nand ?
 				&& piga_seq_get_tclass(s) == tclass
 				&& (piga_seq_get_requested(s) & requested) > 0) {
 				print_vector(ssid, tsid, tclass, requested, auditdata, rc, avd);
-// 				printk(KERN_INFO "PIGA: looking into seq: %s\n", s->seq_string);
 				if (piga_seq_end(s) == true) {
-					printk(KERN_INFO "PIGA: DENIED\n"); //seq: %s\n", s->seq_string);
+					printk(KERN_INFO "PIGA: End of sequence. Access denied\n");
 					rc = PIGA_DENY;
 				} else {
 					piga_seq_next(s);
@@ -454,28 +447,10 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 
 	return rc;
 }
-// 		seq_list = sequences[ssid];
-// 		if (seq_list != NULL) {
-// 			list_for_each_entry(s, seq_list, list){
-				// TODO Should display the sequence for debug
 
 
 int init_piga()
 {
-// 	int try = 10;
-
-	init_piga_procfs();
-
-// 	sequences_size = 400000;
-
-// 	while ((sequences == NULL) && (try > 0)) {
-// 		sequences = vmalloc(sizeof(struct sequence *) * sequences_size);
-// 		--try;
-// 	}
-
-// 	if (try == 0) {
-// 		printk(KERN_ERR "PIGA: Can't get memory for sequences");
-// 	}
-
+	printk(KERN_DEBUG "PIGA:  Starting in permissive mode\n");
 	return 0;
 }

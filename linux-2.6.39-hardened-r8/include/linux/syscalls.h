@@ -848,4 +848,5 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
 				      struct file_handle __user *handle,
 				      int flags);
 asmlinkage long sys_piga_add_sequence(unsigned int s_len, unsigned int l_len, struct sequence __user * s, struct link __user * l);
+asmlinkage long sys_piga_get_sid(char __user * scontext, unsigned int __user len, unsigned int __user * sid);
 #endif

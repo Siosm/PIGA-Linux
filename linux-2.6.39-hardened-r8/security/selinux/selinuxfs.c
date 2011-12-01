@@ -39,6 +39,10 @@
 #include "objsec.h"
 #include "conditional.h"
 
+#ifdef CONFIG_SECURITY_PIGA
+#include "piga/include/piga.h"
+#endif /* CONFIG_SECURITY_PIGA */
+
 /* Policy capability filenames */
 static char *policycap_names[] = {
 	"network_peer_controls",
@@ -1914,6 +1918,10 @@ static int __init init_sel_fs(void)
 		err = PTR_ERR(selinuxfs_mount);
 		selinuxfs_mount = NULL;
 	}
+
+#ifdef CONFIG_SECURITY_PIGA
+	init_piga_fs();
+#endif /* CONFIG_SECURITY_PIGA */
 
 	return err;
 }

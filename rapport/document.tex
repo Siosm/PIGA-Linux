@@ -344,7 +344,7 @@ Tous les principaux systèmes d'exploitation actuels disposent maintenant de mé
 
 Il faut cependant noter que ce principe ne constitue pas une démarche exhaustive permettant d'assurer des objectifs de sécurité.
 
-\subsubsection{Who do I need to trust?}
+\subsubsection{Who/what do I need to trust?}
 
 Il est possible d'employer différentes approches pour s'assurer de la sécurité d'un système d'exploitation, mais chacune d'entre elles repose à un moment ou un autre sur la confiance que l'on a dans l'un des éléments qui la constitue. On distingue ainsi plusieurs situations \cite{WCS}:
 
@@ -475,8 +475,7 @@ Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurit�
 
 PIGA features are intrinsically link to SELinux features so the choice of development environment was limited. The main GNU/Linux distributions supporting SELinux are :
 \begin{itemize}
-	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}
-	\item Fedora \cite{FEDORA}
+	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}, Fedora \cite{FEDORA}
 	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}
 \end{itemize}
 As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution.
@@ -536,6 +535,8 @@ Tools to generate graphs and policy files from SELinux policy files. IDS and IPS
 
 As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
 
+% Implementation details
+
 It is also as least intrusive as possible as only two major files need minor modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
 As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
 
@@ -548,15 +549,22 @@ The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the 
 The PPP currently offers very basic features and options :
 \begin{itemize}
 	\item -h: prints the help
-	\item -v: turns verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
+	\item -v: turn verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
 	\item -s: display some statistics from the PIGA policy, such as the count of each security context
-	\item NOT IMPLEMENTED YET -c: enable conditionnal signatures (PIGA feature not yet available)
-	\item NOT IMPLEMENTED YET -w: enable warning mode (PIGA feature not yet available)
+	\item NOT IMPLEMENTED YET :
+	\item -e: enable PIGA once if the policy loaded successfully
+	\item -n: do not enable PIGA after loading the policy (default)
+	\item -l: load the given SELinux module before loading the PIGA policy
+	\item -f: use full check mode for PIGA
+	\item -a: use SELinux audit mode for PIGA (requires a custom SELinux module which can be loaded with -l)
+	\item -r: restore previous PIGA state using designated file
+	\item -c: enable conditionnal signatures (PIGA feature not yet available)
+	\item -w: enable warning mode (PIGA feature not yet available)
 \end{itemize}
 
 \smallskip
 
-In order to load a policy into the kernel, you need to give a policy file to the tool standard input (classic input from a file as an argument will be implemented: ppp [-shvcw] PIGA\_policy.pol) :
+In order to load a policy into the kernel, you need to give a policy file to the tool standard input (classic input from a file as an argument will be implemented: ppp [-hvsenfacw] [-l selinux\_module] < PIGA\_policy.pol) :
 \begin{lstlisting}
 $ ppp -s < piga_policy.pol
 [+] PPP: Beggining PIGA policy parsing and loading...
@@ -564,8 +572,8 @@ $ ppp -s < piga_policy.pol
 [+] PPP: PIGA policy loadded :
 [+]     4 signatures have been loaded
 [+]     0 signatures have been ignored
-[+] Policy stats : '<name> (<uint>): <count>'
-[+]     SID stats :
+[+] Policy stats : '<name> (<sid>): <count>'
+[+]     Security context stats :
 [+]             root:object_r:user_tmp_t (114): 2
 [+]             root:sysadm_r:sysadm_t (167): 3
 [+]             sysadm_u:sysadm_r:dhcpc_t (219): 2
@@ -590,20 +598,13 @@ In this example, we used the statistics flag to dispaly some informations about 
 
 \subsubsection{Interface between the kernel and userspace}
 
-For now, the PPP tool is using a custom system call which enables it to quickly load the policy.
+The PIGA policy is stored in a basic array of struct sequence in the kernel. % FIXME
 
 \begin{lstlisting}
-/** Userspace code **/
-
-#ifdef __x86_64
-#define __NR_sys_piga_add_sequence 307
-#endif /* __x86_64 */
-
 struct sequence {
 	unsigned int length;
 	unsigned int current_position;
 	unsigned int link_offset;
-	char * seq_string;
 };
 
 struct link {
@@ -612,6 +613,16 @@ struct link {
 	unsigned short tclass;
 	unsigned int requested;
 };
+\end{lstlisting}
+
+For now, the PPP tool is using a custom system call which enables it to quickly load the policy.
+
+\begin{lstlisting}
+/** Userspace code **/
+
+#ifdef __x86_64
+#define __NR_sys_piga_add_sequence 307
+#endif /* __x86_64 */
 
 /**
  *  s_len: the number of 'struct sequence' in the 's' vector
@@ -622,32 +633,50 @@ struct link {
 syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 \end{lstlisting}
 
+I also added an other one as I need to get the corresponding SID for each SELinux security context in order to do as much parsing as possible in userspace.
+
+\begin{lstlisting}
+/** Userspace code **/
+
+#ifdef __x86_64
+#define __NR_sys_piga_get_sid 308
+#endif /* __x86_64 */
+
+/**
+ * scontext: the security context
+ * len: security context string length
+ * sid: the corresponding sid returned by the kernel
+**/
+syscall(__NR_sys_piga_add_sequence, scontext, len, sid);
+\end{lstlisting}
+
 As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interfaces like sockets...).
 
-PIGA control from userspace is also a work in progress. Currently, you have to use the /proc/piga folder and send commands to the kernel using availables files. This should also be removed in favor of a more generic and ``approuved'' design such as the /sys/kernel interface.
+PIGA control from userspace is also a work in progress, but is correctly implemented. In order to be consistent with the recent move of the SELinux filesystem to /sys/fs/selinux, I created a directory alongside for piga. There are three pseudo files available in /sys/fs/piga: % FIXME
 
 \begin{lstlisting}
-$ ls /proc/piga
-getsid  mode  status
-$ cat /proc/piga/status /proc/piga/mode
-Disabled
-Disabled: Full check
-$ echo 1 > /proc/piga/status
-$ cat /proc/piga/status
-Enabled
+$ ls /sys/fs/piga/
+mode  status
 \end{lstlisting}
 
-The getsid entry allows the PPP to quickly retrieve the unsigned int corresponding to a SID. This should also be moved to a more secure and accepted design (at least a syscall) :
-
-\begin{lstlisting}
-$ cat /proc/piga/getsid
-0
-$ echo "root:sysadm_r:sysadm_t" > /proc/piga/getsid
-$ cat /proc/piga/getsid
-166
-$ cat /proc/piga/getsid
-0
-\end{lstlisting}
+\begin{itemize}
+	\item mode: This controls the mode in witch PIGA is running. If disabled, PIGA runs in full check mode, checking every SELinux interaction. If enabled, PIGA checks only selinux audited interactions, thus improving performance.
+	\begin{lstlisting}
+	$ cat /sys/fs/piga/mode
+	Disabled: Full check
+	$ echo 1 > /sys/fs/piga/mode
+	$ cat /proc/piga/mode
+	Enabled: SELinux audited interactions only
+	\end{lstlisting}
+	\item status: The current status of PIGA-Linux, either enabled or disabled.
+	\begin{lstlisting}
+	$ cat /sys/fs/piga/status
+	Disabled
+	$ echo 1 > /sys/fs/piga/status
+	$ cat /proc/piga/status
+	Enabled
+	\end{lstlisting}
+\end{itemize}
 
 \newpage
 
@@ -655,11 +684,19 @@ $ cat /proc/piga/getsid
 
 \subsection{Performance}
 
-Even in this crude form,PIGA-Linus isn't performing so bad. It takes notably longer to complete syscalls (4 seconds for a simple ``ls'') but the system is still working.
+Even in this crude form, PIGA-Linux isn't performing so bad. It takes notably longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with ten files) but the system is still working. The audit only mode might also improve performance a lot.
 
 % FIXME Proper tests
 
 \subsection{Design and implementation security}
+
+True start and end times of sequence checking can only be achieved with other LSM hooks. Else, a blocking read syscall, waiting for content from a pipe from example, could escape PIGA sequence checking.
+
+We do not need ``exit hooks'', but precise hooks, place right after blocking sate.
+
+Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root\_u with the classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t.
+
+The policy loader syscall is not controled at all.
 
 \subsection{Missing and expected features}
 

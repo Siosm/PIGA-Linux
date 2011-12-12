@@ -361,48 +361,68 @@ Other properties (authenticity...) can be defined as derivatives, as explained i
 
 \smallskip
 
-I will focus on the first two properties, which are confidentiality and integrity. Attack scenario such as Denial of Service will therefore not be taken into account as their goal is to limit a system disponibility. Futur references to security objectives will include only those two.
+I will focus on the first two properties, which are confidentiality and integrity. Attack scenario such as Denial of Service will therefore not be taken into account as their goal is to limit a system disponibility. Future references to security objectives will include only those two.
 
 \bigskip
 
-However, a security solution should not turn a working system to an unsable one and thus can not have a high footprint on ressources. I'll try to limit the impact on performance of the chosen solution.
+However, a security solution should not turn a working system to an unsable one and thus it can not have a high ressource footprint. I'll try to limit the impact on performance of the chosen solution.
 
 \subsubsection{The principle of least privilege}
 
-Une des techniques les plus couramment utilisées pour tenter d'atteindre ces objectifs consiste à appliquer le principe de séparation des privilèges ou principe de moindre privilège. Il stipule qu'un programme (contrôlé ou non par l'utilisateur) ne doit disposer que des droits strictement nécessaires à son bon fonctionnement.
+The process to make the first step toward the previously discussed objectives is based on the principle of least privilege. It involves two steps :
+\begin{enumerate}
+	\item make sure each major program functionnality is divided into smaller program (generally depending on their ressource needs) ;
+	\item restrict the rights of each program to the smallest set of permissions needed for it to function well.
+\end{enumerate}
+
+\smallskip
+
+The most common examples are the postfix and qmail mailer daemon. They are divided in several programs and communicate using files or SystemV IPC. There is a network facing program, a user facing program and the code running under a priviledge user is therefore severely limited, which, as a side effect, improves it's auditability. This way a vulnerability will only impact one program which has a limited permission set. It would require several flaws in each different part to gain enough priviledge to affect the system.
 
 \bigskip
 
-Par exemple, un logiciel de traitement de texte n'a pas besoin d'avoir accès aux informations sensibles du système comme la liste des utilisateurs ou la liste des mots de passe.
+Generally speaking, a program should not have acces to a ressource if it doesn't use it, even if it isn't a confidential ressource.
 
 \bigskip
 
-Tous les principaux systèmes d'exploitation actuels disposent maintenant de mécanismes mettant en place la séparation des privilèges. L'application la plus courante de ce principe est la séparation entre les différents comptes sur un système. Une application lancée par un utilisateur ne bénéficie que des droits accordés à cet utilisateur.
+On modern operating system, this separation is often enforced using different user accounts with different capabilities. There is an administrator which has all rights on the system, several unpriviledged account for regular users, network enabled one for services such as the web server.
 
 \bigskip
 
-Il faut cependant noter que ce principe ne constitue pas une démarche exhaustive permettant d'assurer des objectifs de sécurité.
+However, few programs are well design enough to benefit from this rule. It also doesn't provide a solution in case of program compromission so this isn't enough to enforce security objectives.
+
+%Il faut cependant noter que ce principe ne constitue pas une démarche exhaustive permettant d'assurer des objectifs de sécurité.
 
 \subsubsection{Who/what do I need to trust?}
 
-Il est possible d'employer différentes approches pour s'assurer de la sécurité d'un système d'exploitation, mais chacune d'entre elles repose à un moment ou un autre sur la confiance que l'on a dans l'un des éléments qui la constitue. On distingue ainsi plusieurs situations \cite{WCS}:
+Every design made to secure an operating system has to rely, at some point, on one of it's components (either a hardware one, a software one, or both). This component is trusted to be safe and hardened against attacks. Based on \cite{WCS}, we can establish this list:
 
+% FIXME Pas de copier coller !!
 \begin{itemize}
-  \item faire confiance à tous les logiciels à propos du respect de la politique de sécurité, tout en étant conscient que les logiciels ne sont pas de confiance ;% Trust all the software to abide by a security policy but the software is not trustworthy (this is computer insecurity).
-  \item faire confiance à tous les logiciels à propos du respect de la politique de sécurité et s'assurer que le logiciel est validé et fiable (analyse complète et exhaustive de tous les cas d'utilisations, de toutes les branches du code) ;% Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example).
-  \item ne faire confiance à aucun programme, mais imposer une politique de sécurité même si la fiabilité de cette politique et son moyen d'application ne sont pas complétement assurés ;% enforce a security policy with mechanisms that are not trustworthy (again this is computer insecurity).
-  \item ne faire confiance à aucun programme, mais s'assurer qu'une politique de sécurité est appliquée par des mécanismes matériels de confiance.% trustworthy hardware mechanisms.
+	\item Trust all the software to abide by a security policy while being aware that the software is not trustworthy ;
+
+	\item Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example) ;
+
+	\item Trust no software but enforce a security policy with mechanisms that are not trustworthy ;
+
+	\item Trust no software but enforce a security policy with trustworthy hardware mechanisms.
 \end{itemize}
 
-Les modèles de sécurité standard se situent tous dans la première catégorie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés Critères Communs \cite{CCCERT}, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
+\smallskip
 
-% An example of hardware based integrity control
+Standard security models ...
 
-% \begin{figure}[h]
-% 	\centering
-% 	\includegraphics[scale=0.70]{attachements/techrefresh-info-txtfull.png}
-% 	\caption{Intel Trusted Execution Technology}
-% \end{figure}
+%Les modèles de sécurité standard se situent tous dans la première catégorie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés Critères Communs \cite{CCCERT}, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
+
+\bigskip
+
+An example of hardware based integrity control, further expanded with intel VT-d technology:
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.70]{techrefresh-info-txtfull.png}
+	\caption{Intel Trusted Execution Technology}
+\end{figure}
 
 \subsection{Les différentes méthodes de contrôle d'accès}
 
@@ -413,6 +433,12 @@ Pour atteindre les objectifs détaillés précédemment et obtenir la séparatio
 Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits bien superieurs à ces besoins (Firefox a par exemple accès à la liste des comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi compromettre la confidentialité d'un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède. Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
 
 \subsubsection{Mandatory Access Control (MAC)}
+
+The reasons behind the use of Mandatory Access Control are fully described in \cite{NSATIOF}. They can be summarized in this example: Browers (and related plugins) are considered as the most used attack vector for conventionnal desktop computers. With classic DAC, a user's Firefox process would have the same priviledge as any other program ran by this user. So Firefox would be able to read the user's private ssh keys generally stored in their base directory and send it to a remote attacker.
+
+The MAC philosophy is to enforce the principle of least priviledge to every program on an operating system. Firefox would then not have the required permissions to acces those keys, as only the ssh daemon would be able to do so.
+
+%Removing the choice from the user, which can easily makes mistakes, 
 
 Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur la mise en \oe{}uvre d'une politique de sécurité plus ou moins fiable.
 
@@ -485,16 +511,16 @@ Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a 
 
 \subsubsection{PaX \& grsecurity}
 
-grsecurity est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à \textsc{grsecurity}, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
+grsecurity \cite{GRSEC} est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
 
 \begin{list}{}{}
  \item \textbf{Contrainte pour l'administrateur :} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
- \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable, ...), fonctionnement un peu plus simple que SELinux
+ \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
 
-Présentation de W\^{}X.
+Présentation de W\^{}X \cite{TRUSTEDBSD}.
 
 Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité telles que les attributs étendus pour le système de fichier UFS2, les listes de contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes de contrôles d'accès mandataire.
 
@@ -528,7 +554,9 @@ PIGA features are intrinsically link to SELinux features so the choice of develo
 	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}
 \end{itemize}
 
-As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution.
+\smallskip
+
+As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution as the primary development environment.
 
 \subsection{Hardened Gentoo}
 
@@ -536,16 +564,28 @@ The Hardened Gentoo Project has taken upon the goal of building a completly secu
 \begin{itemize}
 	\item a linux kernel with the PaX \& grsecurity patch
 	\item a carefully crafted une configuration and several restrictive compilation options
-	\item a modular SELinux policy
+	\item a modular SELinux policy based on the reference policy.
 \end{itemize}
 
-The first step of this project was to setup a virtual Hardened Gentoo development environment.
+\smallskip
+
+The first step of this project was to setup a virtual Hardened Gentoo development environment. I used the well written Gentoo SELinux Handbook available at \cite{GSELH}.
+
+\bigskip
 
 The Gentoo choice was also driven by the fact that I had to understand most of the building process in order to make it work properly. This constrain was actualy a benefit.
 
 \subsection{QEMU, KVM and the Virtual Machine Manager}
 
-In order to ease the development process, I used some KVM and QEMU special features. QEMU enabled me to use an externaly (as in: not on a virtual drive) compiled kernel. I saved a lot of time compiling kernels on the host system instead of the virtual one. As the host and the virtual machine architecture matchs (x86\_64, no cross-compilation involved) I was able to use this kernel into a Gentoo virtual machine.
+In order to ease the development process, I used some KVM and QEMU special features.
+
+\bigskip
+
+QEMU enabled me to use an externaly (as in: not on a virtual drive) compiled kernel. It saved me a lot of time in kernel compilation as I was able to do it on the host system instead of the virtual one. As the host and the virtual machine architecture matchs (x86\_64), there was no cross-compilation involved and I simply used this kernel into the Gentoo virtual machine.
+
+\bigskip
+
+The Virtual Machine Manager provided me with all the tools required to deploy QEMU/KVM virtual machines.
 
 % FIXME
 % \subsection{Related tests}
@@ -560,6 +600,8 @@ In order to ease the development process, I used some KVM and QEMU special featu
 \newpage
 
 \section{PIGA-Linux}
+
+\subsection{What does PIGA do ?}
 
 \subsection{Objectives}
 
@@ -808,7 +850,9 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat Enterprise Linux 5}, \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
 
 % Sites web
+\bibitem{GSELH} Gentoo SELinux Handbook,  \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
 \bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
+\bibitem{TRUSTEDBSD}, The TrustedBSD Project, \url{http://www.trustedbsd.org/}
 \bibitem{WCS} Wikipedia : Computer Security, \url{http://en.wikipedia.org/wiki/Computer_security}
 \bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
 \bibitem{CCCERT} Certification Critères Commums, \url{http://www.commoncriteriaportal.org}

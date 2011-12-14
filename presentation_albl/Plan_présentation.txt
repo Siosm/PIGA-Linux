@@ -1,0 +1,15 @@
+
+Rappels SELinux & PIGA
+
+Principe d'une protection système avancée + image
+> propriétés de sécurité évoluées
+> base de signatures
+> controle de ces activités
+
+PIGA avant, PIGA après.
+
+
+
+Présentations de l'exemple
+
+Démonstration

@@ -64,11 +64,11 @@
 }
 
 %%% TITRE DE PAGE
-\title{Contextd Capture}
-\subtitle{Capture d'activité système pour PIGA-SYSTRANS}
-\author{Dimitri~Gressin \and Timothée~Ravier}
+\title{Intégration de PIGA dans le noyau Linux}
+\subtitle{~ ~}
+\author{Timothée~Ravier}
 \institute{ENSI de Bourges}
-\date{27 mai 2011}
+\date{16 décembre 2011}
 
 %%% POUR AVOIR UN PLAN QUI S'AFFICHE QUAND ON CHANGE DE SOUS-SECTION
 \AtBeginSection[ ]
@@ -92,25 +92,20 @@
 	\end{frame}
 }
 
-\section{Introduction}
-\begin{frame}{context\{e|d\}}
+\section{SELinux et PIGA}
+\begin{frame}{SELinux et PIGA}
+	Principe d'une protection système avancée
 	\begin{itemize}
-		\item Contrôler les différents éléments accédés par les applications.
-		\item Autoriser les actions en suivant une politique bien déterminée.
-	\end{itemize}
-	~\\
-	Jusqu'à présent : ~\\
-	~\\
-	\begin{itemize}
-		\item Plugin développé pour chaque application.
-		\item Contextd.
+		\item Propriétés de sécurité évoluées
+		\item Base de signatures
+		\item Contrôle de ces activités
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Schéma de fonctionnement initial}
 	\begin{center}
 			%\includesvg{attachements/contextd_dbus}{1}
-			\includesvg{attachements/contextd_dbus}{.45}
+% 			\includesvg{attachements/contextd_dbus}{.45}
 	\end{center}
 \end{frame}
 
@@ -119,7 +114,7 @@
 		\textbf{Remplacer l'utilisation de plugin pour la plupart des applications.}
 	\end{block}
 	~\\
-	Organisation du projet en quatre étapes : 
+	Organisation du projet en quatre étapes :
 	\begin{itemize}
 		\item[-] Intercepter les appels système
 		\item[-] Récupérer des informations au niveau du noyau
@@ -135,14 +130,14 @@
 		\item Ils permettent de "hooker" les appels système
 		\item Ils permettent d'interdire dynamiquement des appels système
 	\end{itemize}
-~\\	
+~\\
 \textbf{Les modules LSM répondent tout à fait à notre problématique}
 \end{frame}
 
 \begin{frame}
 \frametitle{Schéma}
 \begin{center}
-	\includegraphics[scale=0.30]{attachements/lsm1.png}
+% 	\includegraphics[scale=0.30]{attachements/lsm1.png}
 \end{center}
 \end{frame}
 
@@ -164,7 +159,7 @@
 			\item socket\_recvmsg
 		\end{itemize}
 % 		\item Mise en place de verrou
-	\end{itemize}	
+	\end{itemize}
 	\item Ajout dans le mode de configuration standard du noyau
 		\begin{itemize}
 			\item Makefiles
@@ -196,7 +191,7 @@
 
 \begin{frame}{Diagramme de séquence}
 	\begin{center}
-		\includepic{attachements/sequence_diagram}{.6}
+% 		\includepic{attachements/sequence_diagram}{.6}
 	\end{center}
 \end{frame}
 
@@ -259,7 +254,7 @@
 \begin{itemize}
 	\item[+] Objectifs globalement atteints
 	\item[+] Partie système pleinement opérationnelle
-\end{itemize} 
+\end{itemize}
 ~\\
 \begin{itemize}
 	\item[-] L'intégration à SELinux
@@ -273,7 +268,7 @@
 	\frametitle{Démonstration}
 	\pause
 	\centering
-	\includesvg{attachements/schema_general}{.7}
+% 	\includesvg{attachements/schema_general}{.7}
 \end{frame}
 
 \end{document}

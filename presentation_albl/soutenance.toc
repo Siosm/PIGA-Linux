@@ -1,0 +1,5 @@
+\beamer@endinputifotherversion {3.12pt}
+\select@language {french}
+\beamer@sectionintoc {1}{SELinux et PIGA}{2}{0}{1}
+\beamer@sectionintoc {2}{Int\IeC {\'e}gration dans le noyau}{4}{0}{2}
+\beamer@sectionintoc {3}{D\IeC {\'e}monstration}{6}{0}{3}

@@ -22,14 +22,26 @@ asmlinkage long sys_piga_add_sequence(unsigned int __user s_len, unsigned int __
 		return -EFAULT;
 	}
 
+	if (piga_lock_pol() != 0) {
+		if (*piga_status()) {
+			printk(KERN_ERR "PIGA: You can't change the policy with PIGA control enabled. Disable PIGA first");
+		} else {
+			printk(KERN_ERR "PIGA: An other process is already loading a policy!");
+			//TODO Show the process holding the lock
+		}
+		return -EFAULT;
+	}
+
 	seq = vmalloc(sizeof(struct sequence) * s_len);
 	if (seq == NULL) {
 		printk(KERN_ERR "PIGA: Can't alloc mem for sequences");
+		piga_unlock_pol();
 		return -ENOMEM;
 	}
 	if (copy_from_user(seq, s, sizeof(struct sequence) * s_len)) {
 		printk(KERN_ERR "PIGA: Can't copy sequence from userspace");
 		vfree(seq);
+		piga_unlock_pol();
 		return -EFAULT;
 	}
 
@@ -37,20 +49,25 @@ asmlinkage long sys_piga_add_sequence(unsigned int __user s_len, unsigned int __
 	if (link == NULL) {
 		printk(KERN_ERR "PIGA: Can't alloc mem for links");
 		vfree(seq);
+		piga_unlock_pol();
 		return -ENOMEM;
 	}
 	if (copy_from_user(link, l, sizeof(struct link) * l_len)) {
 		printk(KERN_ERR "PIGA: Can't copy links from userspace");
 		vfree(link);
 		vfree(seq);
+		piga_unlock_pol();
 		return -EFAULT;
 	}
 
 	printk(KERN_INFO "PIGA: Listing added sequences");
 	for(i = 0; i < s_len; ++i) {
 		if (seq[i].length == 0) {
-			printk(KERN_ERR "PIGA: This sequence isn't valid. Stopping");
-			return -1;
+			printk(KERN_ERR "PIGA: Found an invalid sequence. Stopping");
+			vfree(link);
+			vfree(seq);
+			piga_unlock_pol();
+			return -EFAULT;
 		}
 		printk(KERN_INFO "len: %u, pos: %u", seq[i].length, seq[i].current_position);
 		off = seq[i].link_offset;

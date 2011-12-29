@@ -13,9 +13,10 @@ struct sequence {
 	unsigned int length;
 	unsigned int current_position;
 	unsigned int link_offset;
-	char * seq_string;
+	char * seq_string; // WARNING This is not used but don't remove it. See FIXME
 // 	struct list_head list;
 };
+// FIXME Find out why removing seq_string introduces a bug (packed struct ?)
 
 
 struct link {
@@ -25,6 +26,12 @@ struct link {
 	u32 requested;
 // 	struct list_head list;
 // 	sequence list ?
+};
+
+
+struct sig {
+	struct list_head list;
+	struct sequence * seq;
 };
 
 
@@ -56,8 +63,10 @@ bool piga_seq_next(struct sequence *);
 struct sequence * piga_get_sequence_at(u32, u32, u16);
 
 
-/** To setup policy **/
+/** To setup and lock policy loading **/
 int piga_set_pol(unsigned int s_l, unsigned int l_l, struct sequence * s, struct link * l);
+int piga_lock_pol(void);
+void piga_unlock_pol(void);
 // bool piga_move_sequence(u32, u32, u16, u32, u32, u16);
 
 

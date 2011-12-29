@@ -2,8 +2,10 @@
 
 #include <linux/string.h>
 #include <linux/slab.h>
+#include <linux/spinlock.h>
 #include <linux/vmalloc.h>
 #include <linux/kernel.h>
+#include <linux/semaphore.h>
 
 #include "../av_permissions.h"
 #include "../flask.h"
@@ -15,22 +17,28 @@
 #define PIGA_ALLOW 0
 #define PIGA_DENY -EACCES
 
-
-// static int MAX_SID = 1000; // FIXME : 65536 ?
-
-// static struct link *** links; // link[tclass][ssid][tsid]
-// static struct list_head ** sequences; // (struct listhead *)[ssid]
-
-// Sequence are stored here until I find a satisfying way to store them
-// static struct sequence ** sequences = NULL;
-// static unsigned int sequences_size = 0;
-// static unsigned int sequence_max = 0;
+/**
+ * Defines the maximum tclass value used in SELinux + 1 for convenience
+**/
+#define PIGA_SELINUX_MAX_TCLASS 50
 
 
+/**
+ * Sequence storage
+ * seq_lock is acquired when a policy is loaded
+**/
+static struct semaphore seq_lock;
 static unsigned int s_len = 0;
 static unsigned int l_len = 0;
 static struct sequence * seq = NULL;
 static struct link * link = NULL;
+
+
+/**
+ * Quick acces & list storage
+**/
+static struct sig tclass_tab[PIGA_SELINUX_MAX_TCLASS];
+static DEFINE_RWLOCK(tclass_lock);
 
 
 static int piga_status_enabled = 0;
@@ -156,6 +164,18 @@ int piga_set_pol(unsigned int s_l, unsigned int l_l,
 	l_len = l_l;
 
 	return 0;
+}
+
+
+int piga_lock_pol(void)
+{
+	return down_trylock(&seq_lock);
+}
+
+
+void piga_unlock_pol(void)
+{
+	up(&seq_lock);
 }
 
 
@@ -427,6 +447,7 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 		}
 
 		rc = PIGA_ALLOW;
+		read_lock(&tclass_lock);
 		seqs = piga_get_sequence_at(ssid, tsid, tclass);
 		for (i = 0; i < s_len; ++i) {
 			s = seqs + i;
@@ -439,10 +460,15 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 					printk(KERN_INFO "PIGA: End of sequence. Access denied\n");
 					rc = PIGA_DENY;
 				} else {
+					read_unlock(&tclass_lock);
+					write_lock(&tclass_lock);
 					piga_seq_next(s);
+					write_unlock(&tclass_lock);
+					read_lock(&tclass_lock);
 				}
 			}
 		}
+		read_unlock(&tclass_lock);
 	}
 
 	return rc;
@@ -451,6 +477,17 @@ int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested, struct common_a
 
 int init_piga()
 {
-	printk(KERN_DEBUG "PIGA:  Starting in permissive mode\n");
+	int i;
+
+	sema_init(&seq_lock, 1);
+
+	//init each "case" with empty list :
+	//static struct list_head * tclass_tab[PIGA_SELINUX_MAX_TCLASS];
+	for (i = 0; i < PIGA_SELINUX_MAX_TCLASS; ++i) {
+		INIT_LIST_HEAD(&tclass_tab[i].list);
+	}
+
+	printk(KERN_INFO "PIGA:     Starting in permissive mode\n");
+
 	return 0;
 }

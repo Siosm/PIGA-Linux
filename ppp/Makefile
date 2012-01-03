@@ -26,3 +26,6 @@ ppp: clean
 
 clean:
 	rm -f ppp ppp.lex.c ppp.lex.o ppp.yacc.c ppp.yacc.h ppp.yacc.o piga.o ppp.o y.output *~
+
+test:
+	./test1.sh

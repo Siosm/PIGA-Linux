@@ -39,8 +39,8 @@ static ssize_t piga_status_write(struct kobject *kobj, struct kobj_attribute *at
 		}
 	} else {
 		if (tmp_status) {
-			*piga_status() = 1;
-			if (piga_lock_pol()) {
+			if (piga_lock_pol() != 0) {
+				*piga_status() = 1;
 				printk(KERN_INFO "PIGA: Enabled");
 			} else {
 				piga_unlock_pol();

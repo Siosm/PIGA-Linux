@@ -28,4 +28,10 @@ clean:
 	rm -f ppp ppp.lex.c ppp.lex.o ppp.yacc.c ppp.yacc.h ppp.yacc.o piga.o ppp.o y.output *~
 
 test:
-	./test1.sh
+	./test.sh ../pol/result2_5000 localtime_to_tmp.sh
+#	./test.sh ../pol/testpol.pol localtime_to_tmp.sh
+#	./test.sh ../pol/result2_500 localtime_to_tmp.sh
+#	./test.sh ../pol/result2_5000 localtime_to_tmp.sh
+#	./test.sh ../pol/result2_50000 localtime_to_tmp.sh
+#	./test.sh ../pol/result2_100000 localtime_to_tmp.sh
+

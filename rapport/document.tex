@@ -119,7 +119,7 @@
 % Titre pour le Glossaire/Index des noms
 \renewcommand{\nomname}{Glossary}
 %Separateur des dates
-\renewcommand{\dateseparator}{-}
+\renewcommand{\dateseparator}{/}
 
 \renewcommand{\title}[1]{
 	\vspace*{2cm}
@@ -410,35 +410,52 @@ Every design made to secure an operating system has to rely, at some point, on o
 
 \smallskip
 
-Standard security models ...
-
-%Les modèles de sécurité standard se situent tous dans la première catégorie alors que les méthodes que nous allons présenter par la suite peuvent être placées dans les catégories trois et quatre. Le test complet de tous les logiciels présents sur un système d'exploitation est une tâche difficilement réalisable si l'on considère la diversité des matériels disponibles et la complexité d'une application telle que le noyau d'un système d'exploitation. Il existe des systèmes d'exploitation et plus particulièrement des noyaux certifiés Critères Communs \cite{CCCERT}, tel QNX\cite{QNX}, qui peuvent être classés dans la catégorie 2. En revanche, le code source de ces différents systèmes n'étant pas disponible librement, nous ne les détaillerons pas dans ce document.
+Standard security models are in the first category whereas most of the one I will present later are in the third and forth ones.
 
 \bigskip
 
-An example of hardware based integrity control, further expanded with intel VT-d technology:
+Testing the whole feature set of an operating system is a tedious task. This is even harder if we consider the various architectures,hardware diversity and the complexity involved in the design of core pieces of an operating system such as the kernel. Some software, such as the QNX operating system \cite{QNX}, have had intensive testing, a controlled design and are certified as conforming to strict criteria like the Common Criteria \cite{CCCERT}. Those systems are part of the second category. However, the source code for those operating systems are not freely available so I will not details them much further.
+
+\bigskip
+
+The Figure \ref{INTELTXT} shows an example of hardware based integrity control, further expanded with intel VT-d technology.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.70]{techrefresh-info-txtfull.png}
 	\caption{Intel Trusted Execution Technology}
+	\label{INTELTXT}
 \end{figure}
 
-\subsection{Les différentes méthodes de contrôle d'accès}
+\subsection{Access control models}
 
-Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et la minimisation des privilèges, les systèmes d'exploitations actuels ont implenté différentes méthodes de contrôle d'accès. Nous allons donc les présenter dans cette partie.
+Several Access control models have been implemented in modern operating systems to achieve the objectives mentioned previously. I'll detail those models in this section.
+
+%Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et la minimisation des privilèges, les systèmes d'exploitations actuels ont implenté différentes méthodes de contrôle d'accès. Nous allons donc les présenter dans cette partie.
 
 \subsubsection{Discretionary Access Control (DAC)}
 
-Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits bien superieurs à ces besoins (Firefox a par exemple accès à la liste des comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi compromettre la confidentialité d'un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède. Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
+... Control is left at the discretion of the user. But most of the time the user is also the identity impersonated by an attacker.
+
+Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits bien superieurs à ces besoins (Firefox a par exemple accès à la liste des comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi compromettre la confidentialité d'un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède.
+
+\bigskip
+
+This model can not ensure confidentiality or any other complex property as for example a user give grant access to other users on confidential information he has access to. DAC is to be considered as being part of the first category, in which no clear policy is enforced on the system. 
+
+%Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
 
 \subsubsection{Mandatory Access Control (MAC)}
 
-The reasons behind the use of Mandatory Access Control are fully described in \cite{NSATIOF}. They can be summarized in this example: Browers (and related plugins) are considered as the most used attack vector for conventionnal desktop computers. With classic DAC, a user's Firefox process would have the same priviledge as any other program ran by this user. So Firefox would be able to read the user's private ssh keys generally stored in their base directory and send it to a remote attacker.
+The reasons behind the increassing necessity to use Mandatory Access Control are fully described in \cite{NSATIOF}. They are partialy summarized in this example: Browers (and related plugins) are considered as the most used attack vector for conventionnal desktop computers. With classic DAC, a user's Firefox process would have the same priviledge as any other program ran by this user. So Firefox would be able to read the user's private ssh keys generally stored in their base directory and send it to a remote attacker.
+
+\bigskip
 
 The MAC philosophy is to enforce the principle of least priviledge to every program on an operating system. Firefox would then not have the required permissions to acces those keys, as only the ssh daemon would be able to do so.
 
 %Removing the choice from the user, which can easily makes mistakes, 
+
+\bigskip
 
 Le contrôle d'accès mandataire repose sur la séparation entre les applications et l'entité prenant la décision d'autoriser ou d'interdire une action. Cette entité peut être implémentée au sein du noyau ou à l'aide de mécanismes externes au système, matériels \cite{ITXT}. Ce modèle permet d'assurer la conformité du système à un ensemble de règles qui forme une politique de sécurité. Il est ainsi possible d'appliquer le principe de moindres privilèges en partant d'une base n'autorisant aucune interaction puis en rajoutant progressivement des interactions autorisées. Le contrôle d'accès mandataire correspond aux catégories trois et quatre, où l'on ne fait pas confiance aux applications pour se reposer sur la mise en \oe{}uvre d'une politique de sécurité plus ou moins fiable.
 
@@ -453,7 +470,7 @@ Le modèle de sécurité multiniveau permet d'atteindre certains des buts fixés
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{bell-lp}
-	\caption{Le modèle Bell-LaPadula}
+	\caption{The Bell-LaPadula Model}
 \end{figure}
 
 \bigskip
@@ -463,7 +480,7 @@ Le modèle de sécurité multiniveau permet d'atteindre certains des buts fixés
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{biba}
-	\caption{Le modèle Biba}
+	\caption{The Biba Integrity Model}
 \end{figure}
 
 \bigskip
@@ -498,13 +515,13 @@ SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire
  \item \textbf{Avantages :} Séparation fine des privilèges et des rôles, intégrée dans le noyau. Des politiques ont déjà été écrites. Il existe une distribution facilitant le déploiement de ce type de protection : Fedora.
 \end{list}
 
-\subsubsection{Policy Graph Interaction Analysis - Mandatory Access Control (PIGA-MAC)}
+\subsubsection{Policy Interaction Graph Analysis - Mandatory Access Control (PIGA-MAC)}
 
 L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de définir et imposer des propriétés de sécurité à l'échelle du système en plus des contrôles au niveau des interactions effectués par SELinux. Il apporte une ``mémoire'' à SELinux. Un tel résultat est obtenu après génération du graphe complet des interactions possibles et autorisées par une politique SELinux, recherche de chemins interdits, et consignation de ces chemins. Cette solution permet un contrôle plus avancé sur les flux d'informations dans un système, qu'ils soient directs ou indirects.
 
 \begin{list}{}{}
- \item \textbf{Contrainte pour l'administrateur :} Connaissance du langage de définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis matériels pour la ``compilation'' des politiques.
- \item \textbf{Avantages :} Un contrôle très fin sur les interactions dans un système, restriction (statique) des privilèges maximale.
+	\item \textbf{Contrainte pour l'administrateur :} Connaissance du langage de définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis matériels pour la ``compilation'' des politiques.
+	\item \textbf{Avantages :} Un contrôle très fin sur les interactions dans un système, restriction (statique) des privilèges maximale.
 \end{list}
 
 Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche (ANR) \cite{PIGASAINTMALO}\cite{PIGAPROP}.
@@ -514,8 +531,8 @@ Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a 
 grsecurity \cite{GRSEC} est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
 
 \begin{list}{}{}
- \item \textbf{Contrainte pour l'administrateur :} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
- \item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
+	\item \textbf{Contrainte pour l'administrateur :} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
+	\item \textbf{Avantages :} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
@@ -550,8 +567,8 @@ Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurit�
 PIGA features are intrinsically link to SELinux features so the choice of development environment was limited. The main GNU/Linux distributions supporting SELinux are :
 
 \begin{itemize}
-	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}, Fedora \cite{FEDORA}
-	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}
+	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}, Fedora \cite{FEDORA} ;
+	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}.
 \end{itemize}
 
 \smallskip
@@ -562,8 +579,8 @@ As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution 
 
 The Hardened Gentoo Project has taken upon the goal of building a completly secure operating system from the ground up. To achieve this goal, several particularities have been selected :
 \begin{itemize}
-	\item a linux kernel with the PaX \& grsecurity patch
-	\item a carefully crafted une configuration and several restrictive compilation options
+	\item a linux kernel with the PaX \& grsecurity patch ;
+	\item a carefully crafted une configuration and several restrictive compilation options ;
 	\item a modular SELinux policy based on the reference policy.
 \end{itemize}
 
@@ -603,6 +620,20 @@ The Virtual Machine Manager provided me with all the tools required to deploy QE
 
 \subsection{What does PIGA do ?}
 
+PIGA's first objective was to detect any malicious activity on a system. To achieve this goal, PIGA is built on top of an other MAC (for now only grsecurity and SELinux). 
+
+\bigskip
+
+Each MAC implementation defines operations or interactions performed on a system by userspace programs (read, write...). PIGA  builds a graph with the MAC defined interactions in order to obtain an exhaustive view of all the interactions and sequence of interactions that are allowed on a system.
+
+\bigskip
+
+The language defined in \cite{THESEBRIFFAUT} is designed help administrators represent security properties. Administrators can use this language to define which properties they want to ensure on a selected system (program binaries integrity for example). Then, the PIGA-pol tool will generate the full list of sequence of interactions infringing the security properties from the interaction graph previously generated.
+
+\bigskip
+
+This will ensure that no cover-channel or alternative way can be used to exploit a weakness in the MAC policy.
+
 \subsection{Objectives}
 
 The following objectives (and implementation order) were layed out with Jérémy Briffaut at the begining of the project :
@@ -614,31 +645,89 @@ The following objectives (and implementation order) were layed out with Jérémy
 	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal policy, process based signatures, better audit features, rule learning, state save and restore...)
 \end{enumerate}
 
+\smallskip
+
+The previously discussed objectives and the development environment I have chosen add several constrains:
+
+\begin{enumerate}
+	\item As PIGA will likely be developped and used inside a virtual machine, we need to make sure the modifications we bring into the kernel are not affecting virtualization.
+	\item The implementation has to be fast enough to work in a limited environment such as a virtual machine.
+	\item To make PIGA as architecture independant as possible, we should not use processor specific features for example.
+\end{enumerate}
+
+
 \subsection{Architecture}
 
 PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard'' PIGA tools. This project focused only on the kernel patch and the policy loader tool. The ``standard'' tools functionnality will be briefly explained here for convenience.
 
 \subsubsection{PIGA tools}
 
-%FIXME
+% FIXME
 Tools to generate graphs and policy files from SELinux policy files. IDS and IPS Java stuff. Original kernel patch description.
 
 \subsubsection{Linux kernel implementation}
 
 As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
 
+\bigskip
 % Implementation details
 
-It is also as least intrusive as possible as only two major files need minor modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
-As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
+A standard PIGA policy may be involve 1 000 to 300 000 rules containing 1 to 13 SELinux interactions. So in order to use as light on memory and fast to load from userspace to the kernel, the PIGA policy is stored in a basic array of 'struct sequence' in the kernel.
 
-% Séparer les lectures des écritures d'états des signatures pour faire avancer les signutures.
+\begin{lstlisting}
+struct sequence {
+	unsigned int length;
+	unsigned int current_position;
+	unsigned int link_offset;
+};
+
+struct link {
+	unsigned int cs;
+	unsigned int cc;
+	unsigned short tclass;
+	unsigned int requested;
+};
+
+// The number of sequences and links
+static unsigned int s_len = 0;
+static unsigned int l_len = 0;
+
+// Sequence and link 'array storage'
+static struct sequence * seq = NULL;
+static struct link * link = NULL;
+\end{lstlisting}
+
+\smallskip
+
+The sequences are placed in order in the 'seq' array, and their corresponding links are added to the 'link array', at the offset 'link\_offset'. For example, to obtain the third sequence:
+
+\begin{lstlisting}
+// Retrieve the sequence:
+struct sequence * seq2 = seq[2];
+
+// Retrieve the associated seq[2].length links:
+for(i = 0; i < seq2->length; ++i) {
+	struct link * l = link.[seq2->link_offset + i];
+}
+\end{lstlisting}
+
+\smallskip
+
+This simple implementation allow us to load the PIGA policy easily from userspace as it only require the copy of two memory regions, which is a fast process. Details of the interface between the kernel and userspace will be discussed after the next section.
+
+\bigskip
+
+The kernel modifications remain as least intrusive as possible as only two major files need minor modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
+
+\bigskip
+
+As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
 
 \subsubsection{Piga Policy Parser}
 
-The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures were previously generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
+The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures are to be previously generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
 
-The PPP currently offers very basic features and options :
+The PPP currently offers only the first basic features and options, but will progressively support more of them:
 \begin{itemize}
 	\item -h: prints the help
 	\item -v: turn verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
@@ -649,14 +738,15 @@ The PPP currently offers very basic features and options :
 	\item -l: load the given SELinux module before loading the PIGA policy
 	\item -f: use full check mode for PIGA
 	\item -a: use SELinux audit mode for PIGA (requires a custom SELinux module which can be loaded with -l)
-	\item -r: restore previous PIGA state using designated file
+	\item -r file: restore previous PIGA state from file
+	\item -o file: store current PIGA state in file.
 	\item -c: enable conditionnal signatures (PIGA feature not yet available)
-	\item -w: enable warning mode (PIGA feature not yet available)
+	\item -w: enable warning/audit mode (PIGA feature not yet available)
 \end{itemize}
 
 \smallskip
 
-In order to load a policy into the kernel, you need to give a policy file to the tool standard input (classic input from a file as an argument will be implemented: ppp [-hvsenfacw] [-l selinux\_module] < PIGA\_policy.pol) :
+In order to load a policy into the kernel, you need to give a policy file to the tool standard input as PPP is based on Flex \& Yacc. Classic input from a file as an argument will be implemented soon. Usage: ppp [-hvsenfacw] [-l selinux\_module] [-r state\_file] [-o state\_file] < PIGA\_policy.pol) :
 
 \begin{lstlisting}
 $ ppp -s < piga_policy.pol
@@ -687,28 +777,13 @@ $ ppp -s < piga_policy.pol
 [+]             write: 1
 \end{lstlisting}
 
-In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded as none has been ignored. The uint (unsigned int) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose. The sid/uint are retreived throught the kernel interface described in the next section.
+\smallskip
+
+In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded as none has been ignored. The SID (Security ID) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose. The SIDs are retreived throught the kernel interface described in the next section.
 
 \subsubsection{Interface between the kernel and userspace}
 
-The PIGA policy is stored in a basic array of struct sequence in the kernel. % FIXME
-
-\begin{lstlisting}
-struct sequence {
-	unsigned int length;
-	unsigned int current_position;
-	unsigned int link_offset;
-};
-
-struct link {
-	unsigned int cs;
-	unsigned int cc;
-	unsigned short tclass;
-	unsigned int requested;
-};
-\end{lstlisting}
-
-For now, the PPP tool is using a custom system call which enables it to quickly load the policy.
+For now, the PPP tool is using two custom system call. One which enables it to quickly load the policy:
 
 \begin{lstlisting}
 /** Userspace code **/
@@ -726,7 +801,7 @@ For now, the PPP tool is using a custom system call which enables it to quickly 
 syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 \end{lstlisting}
 
-I also added an other one as I need to get the corresponding SID for each SELinux security context in order to do as much parsing as possible in userspace.
+And an other one needed to retieve the corresponding SID for each SELinux security context.This was designed in order to do as much parsing as possible in userspace:
 
 \begin{lstlisting}
 /** Userspace code **/
@@ -779,20 +854,36 @@ mode  status
 
 Even in this crude form, PIGA-Linux isn't performing so bad. It takes notably longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with ten files) but the system is still working. The audit only mode might also improve performance a lot.
 
-% FIXME Proper tests
+% FIXME
+Proper tests (Phoronix Test Suite ?) should be placed here.
 
 \subsection{Design and implementation security}
 
-True start and end times of sequence checking can only be achieved with other LSM hooks. Else, a blocking read syscall, waiting for content from a pipe from example, could escape PIGA sequence checking.
+\subsubsection{Implementing PIGA interactions}
 
-see page 64, 65 (thèse Briffaut) :
-LSM hooks are ponctual whereas PIGA defined interactions are time based.
+% FIXME
+The Linux Security Model is based on hooks implemented as function pointers. These hooks are sometimes considered as arbitrary placed in the kernel code (grsecurity reference here). They should provide just enough informations in order to make an access control decision. Their design is fondamentaly ponctual.
 
-We do not need ``exit hooks'', but precise hooks, place right after blocking sate.
+\bigskip
 
-Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root\_u with the classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t.
+However, the PIGA definition of interactions is based on system call start and end time (see page 64 and 65 in \cite{THESEBRIFFAUT}) and thus isn't ponctual. For example, a blocking read syscall, waiting for content from a pipe, would escape PIGA sequence checking, as the control might happened before any data is written into the pipe.
 
-The policy loader syscall is not controled at all.
+\bigskip
+
+% FIXME
+There should be a diagram detailling the problem here.
+
+\bigskip
+
+We need to modify the PIGA design to include new LSM hooks, which should be placed right after the portion of code that deals with blocking state in the kernel (``exit'' hooks might not be needed).
+
+\subsubsection{/sys/fs/piga pseudo filesystem}
+
+Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root with the classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t. We could make a new SELinux module in order to further restrict the control from userspace.
+
+\subsubsection{Syscalls used by PPP}
+
+The policy loader syscalls are not carefully controlled (yet).
 
 \subsection{Missing and expected features}
 
@@ -812,20 +903,6 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 
 % FIXME
 
-% Le principal objectif de ce stage, qui consistait à mettre à jour l'éditeur pour la sortie de QSOS 2.0, est atteint. Les améliorations apportées à O3S simplifieront la tâche de mise à jour de l'application web. De plus, en attendant, la version 1.1 apporte un confort et des corrections de bugs non négligeables par rapport aux versions précédentes.
-%
-% ~
-%
-% J'ai ainsi consolidé mes connaissances en JavaScript, XUL, PHP et j'ai découvert les outils autour du format XML (XPath, XSLT, DTD, XSD), et la procédure pour réaliser une extension Firefox de bout en bout.
-%
-% ~
-%
-% La participation aux discussions visant à élaborer le format des fiches QSOS 2.0 et de l'Open Source Cartouche ont été particulièrement intéressantes. Mes deux encadrants ont en effet une réelle expérience autour des veilles sur les logiciels et j'ai beacoup appris sur ce sujet.
-%
-% ~
-%
-% La très bonne ambiance et l'entraide au sein des membres de l'Open Source Center sont aussi deux facteurs qui ont contribués à la réussite de ce stage.
-
 \newpage
 
 % FIXME
@@ -837,10 +914,10 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
 
 % Articles
-\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris, Greg Kroah-Hartman, \textit{Linux Security Modules : General Security Support for the Linux Kernel}, \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=pdf}
-\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer, Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of Failure : The Flawed Assumption of Security in Modern Computing Environments. In Proceedings of the 21st National Information Systems Security Conference, pages 303–314, Arlington, Virginia, USA, October 1998
+\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris, Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for the Linux Kernel}, \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=pdf}
+\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer, Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of Failure: The Flawed Assumption of Security in Modern Computing Environments. In Proceedings of the 21st National Information Systems Security Conference, pages 303–314, Arlington, Virginia, USA, October 1998
 \bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle, \textit{PIGA-OS : Retour sur le système d'exploitation vainqueur du défi sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
-\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard, \textit{Formalization os security properties : enforcement for mac operating systems and verification of dynamic mac policies}, International journal on advances in security, 2:325-343, 2009
+\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard, \textit{Formalization of security properties: enforcement for mac operating systems and verification of dynamic mac policies}, International journal on advances in security, 2:325-343, 2009
 
 % Livres
 \bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition}, Pearson Education, Inc.
@@ -852,7 +929,7 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 % Sites web
 \bibitem{GSELH} Gentoo SELinux Handbook,  \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
 \bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
-\bibitem{TRUSTEDBSD}, The TrustedBSD Project, \url{http://www.trustedbsd.org/}
+\bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org/}
 \bibitem{WCS} Wikipedia : Computer Security, \url{http://en.wikipedia.org/wiki/Computer_security}
 \bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
 \bibitem{CCCERT} Certification Critères Commums, \url{http://www.commoncriteriaportal.org}
@@ -872,10 +949,15 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 
 \addcontentsline{toc}{section}{Glossary}
 
+\nomenclature{AppArmor}{Application Armor}
+\nomenclature{DAC}{Discretionary Access Control}
+\nomenclature{MAC}{Mandatory Access Control}
+\nomenclature{PIGA}{Policy Interaction Graph Analysis}
+\nomenclature{SELinux}{Security Enhanced Linux}
 \nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
 \nomenclature{TOMOYO Linux}{}
-\nomenclature{SELinux}{Security Enhanced Linux}
-\nomenclature{AppArmor}{Application Armor}
+
+
 
 \printnomenclature[3cm]
 
@@ -884,14 +966,14 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \section*{Appendix} \addcontentsline{toc}{section}{Appendix}
 
 \subsection*{Notice about the Tux logo displayed on the first and last page}
-Originally drewn by Larry Ewing (\href{http://www.isc.tamu.edu/~lewing/}{http://www.isc.tamu.edu/~lewing/}) (with the GIMP) the Linux Logo has been vectorized by me (Simon Budig, \href{http://www.home.unix-ag.org/simon/}{http://www.home.unix-ag.org/simon/}).
+``Originally drewn by Larry Ewing (\url{http://www.isc.tamu.edu/~lewing/}) (with the GIMP) the Linux Logo has been vectorized by me (Simon Budig, \url{http://www.home.unix-ag.org/simon/}).''
 
 \bigskip
 
 These drawings are copyrighted by Larry Ewing and Simon Budig, redistribution is free but has to include this README/Copyright notice.
 
 \subsection*{Notice about the SELinux logo on the first page}
-This image is licensed under the Creative Commons ShareAlike 2.5 license: \href{http://people.redhat.com/duffy/artwork/selinux-penguin.svg}{http://people.redhat.com/duffy/artwork/selinux-penguin.svg}
+This image is licensed under the Creative Commons ShareAlike 2.5 license: \url{http://people.redhat.com/duffy/artwork/selinux-penguin.svg}
 
 \lastPage
 

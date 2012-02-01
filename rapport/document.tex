@@ -12,7 +12,8 @@
 % \usepackage{lucidabr}
 
 % Pour les liens/urls
-\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,filecolor=black]{hyperref}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,
+filecolor=black]{hyperref}
 
 % Le reste
 \usepackage{verbatim}
@@ -168,7 +169,8 @@
 		\parbox[b][\paperheight]{\paperwidth}{
 			\vfill
 			\centering
-			\includegraphics[width=\paperwidth, height=\paperheight, keepaspectratio=true]{#1}
+			\includegraphics[width=\paperwidth, height=\paperheight,
+keepaspectratio=true]{#1}
 			\vfill
 		}
 	}
@@ -181,7 +183,8 @@
 \fancypagestyle{plain}
 
 %%En tete
-\lhead{\hspace{2.3cm}\large \textbf{Integrating PIGA-MAC into the Linux kernel\\}}
+\lhead{\hspace{2.3cm}\large \textbf{Integrating PIGA-MAC into the Linux
+kernel\\}}
 
 % \chead{\large \textbf{Integrating PIGA-MAC into the Linux kernel\\}}
 
@@ -190,7 +193,8 @@
 %%Pied de page
 \lfoot{}
 
-\cfoot{\vspace{-0.8cm}\rule[0pt]{\textwidth}{0.1mm}\small \ovalbox{\thepage/\pageref{LastPage}}}
+\cfoot{\vspace{-0.8cm}\rule[0pt]{\textwidth}{0.1mm}\small
+\ovalbox{\thepage/\pageref{LastPage}}}
 
 \rfoot{\ddmmyyyydate \today}
 
@@ -233,7 +237,8 @@
 \vspace{0.5cm}
 
 \begin{center}
-\hspace{7.5cm}\includegraphics[width=5cm, keepaspectratio=true]{Logo_SELinux.pdf}
+\hspace{7.5cm}\includegraphics[width=5cm,
+keepaspectratio=true]{Logo_SELinux.pdf}
 \end{center}
 
 \end{titlepage}
@@ -253,11 +258,13 @@
 
 ~
 
-I would like to particularly thank Jérémy Briffaut for the many advice he gave me. This project is mostly based on his thesis and last years work.
+I would like to particularly thank Jérémy Briffaut for the many advice he gave
+me. This project is mostly based on his thesis and last years work.
 
 ~
 
-I would like to thank Martin Peres for introducing me to the PIGA concept and kernel development.
+I would like to thank Martin Peres for introducing me to the PIGA concept and
+kernel development.
 
 ~
 
@@ -273,21 +280,37 @@ I would like to thank Martin Peres for introducing me to the PIGA concept and ke
 
 \section*{Introduction} \addcontentsline{toc}{section}{Introduction}
 
-This project is an integral part of my formation at the ENSI de Bourges, a computer science and security french engineering school.
+This project is an integral part of my formation at the ENSI de Bourges, a
+computer science and security french engineering school.
 
 \bigskip
 
-PIGA (Policy Interaction Graph Analysis) is an advanced Mandatory Access Control mechanism designed to enforce security policy on a system. Just like SELinux, PIGA does not directly prevent vulnerability exploitation, but prevents any further action an attacker might attempt to perform on the system.
+PIGA (Policy Interaction Graph Analysis) is an advanced Mandatory Access Control
+mechanism designed to enforce security policy on a system. Just like SELinux,
+PIGA does not directly prevent vulnerability exploitation, but prevents any
+further action an attacker might attempt to perform on the system.
 
 \bigskip
 
-The current PIGA design faced unexpected problems and some of them are related to the fact that the decision making code is located in userspace. That's the main difficulty that we are trying to address with this kernel port. Among the other problems that I will have to solve, they are multi-core and multi-processor related issues. I will also try to improve performance and ease of use while trying to port the complete PIGA feature set, witch is an ambitious goal.
+The current PIGA design faced unexpected problems and some of them are related
+to the fact that the decision making code is located in userspace. That's the
+main difficulty that we are trying to address with this kernel port. Among the
+other problems that I will have to solve, they are multi-core and
+multi-processor related issues. I will also try to improve performance and ease
+of use while trying to port the complete PIGA feature set, witch is an ambitious
+goal.
 
 \bigskip
 
-I will begin with a short description of all currently available protections for the main open source operating systems such as Linux distributions and some from the BSD family. Then I will proceed to some PIGA reminders, kernel/userspace implementation design. Finally, I will discuss some of the problems I faced during those six months and potential solutions and improvements for further development.
+I will begin with a short description of all currently available protections for
+the main open source operating systems such as Linux distributions and some from
+the BSD family. Then I will proceed to some PIGA reminders, kernel/userspace
+implementation design. Finally, I will discuss some of the problems I faced
+during those six months and potential solutions and improvements for further
+development.
 % FIXME
-%Finally I will compare PIGA-Linux performance to kernel with either nothing, PaX, SELinux, ``classic'' PIGA enabled.
+%Finally I will compare PIGA-Linux performance to kernel with either nothing,
+PaX, SELinux, ``classic'' PIGA enabled.
 
 % FIXME
 
@@ -299,63 +322,100 @@ I will begin with a short description of all currently available protections for
 
 %TODO Add intro
 
-There is a wide range of computer security problems, from hardware specific ones to sotfware related flaws. New vulnerabilities are discovered every day and they occur in every part of modern and complex operating systems. Current mainstream systems are built around a core, or kernel, which controls and abstracts hardware interactions that are provided to the applications. The kernel has full control on the hardware and is often trusted to ensure that each application running in userspace is separated from the others.
+There is a wide range of computer security problems, from hardware specific ones
+to sotfware related flaws. New vulnerabilities are discovered every day and they
+occur in every part of modern and complex operating systems. Current mainstream
+systems are built around a core, or kernel, which controls and abstracts
+hardware interactions that are provided to the applications. The kernel has full
+control on the hardware and is often trusted to ensure that each application
+running in userspace is separated from the others.
 
 \bigskip
 
-In this project, we will not focus on kernel security or kernel hardening (despite the name PIGA-Linux). The main goal of PIGA is to go further than SELinux, in order to enforce security properties on an operating system. So I'll focus my study on mechanisms which allow a user or an administrator to control permissions given to a program running on a computer. It could be summarized as an advanced in-kernel control of userspace applications behaviours.
+In this project, we will not focus on kernel security or kernel hardening
+(despite the name PIGA-Linux). The main goal of PIGA is to go further than
+SELinux, in order to enforce security properties on an operating system. So I'll
+focus my study on mechanisms which allow a user or an administrator to control
+permissions given to a program running on a computer. It could be summarized as
+an advanced in-kernel control of userspace applications behaviours.
 
 \bigskip
 
 Thus, I will use several restrictions to further constrain this study:
 \begin{itemize}
-	\item We are limited to the operating system; we do not take into account interactions with an other system on the network for example;
-	\item We want the solution to be as architecture independant as possible; we should not require specific hardware design to work properly;
-	\item As we do not take into account the underlying hardware, we do not focus on hardware flaws either and therefore do not study hardware based attacks (defective network card or driver...);
-	\item We should focus on systems which have the source code available for study.
+	\item We are limited to the operating system; we do not take into account
+interactions with an other system on the network for example;
+	\item We want the solution to be as architecture independant as possible; we
+should not require specific hardware design to work properly;
+	\item As we do not take into account the underlying hardware, we do not
+focus on hardware flaws either and therefore do not study hardware based attacks
+(defective network card or driver...);
+	\item We should focus on systems which have the source code available for
+study.
 \end{itemize}
 
 \smallskip
 
-Most of current operating system are using an access control design to ensure minimal security, seperation and control on user's activities. The were introduced to limit the effects of an attack against the operating system. But this limited control does not prevent complex attack scenario, such as the compromission of a service which was given adminstrative rights on the system. \cite{NSATIOF} describes in details most of the problems current operating systems are still facing nowadays.
+Most of current operating system are using an access control design to ensure
+minimal security, seperation and control on user's activities. The were
+introduced to limit the effects of an attack against the operating system. But
+this limited control does not prevent complex attack scenario, such as the
+compromission of a service which was given adminstrative rights on the system.
+\cite{NSATIOF} describes in details most of the problems current operating
+systems are still facing nowadays.
 
 \bigskip
 
-Generally speaking, we lack a global, truly enforced, system wide security mechanism. More than simple checks in interactions between kernel and userspace, it's the whole interaction set on a system that need to be controlled.
+Generally speaking, we lack a global, truly enforced, system wide security
+mechanism. More than simple checks in interactions between kernel and userspace,
+it's the whole interaction set on a system that need to be controlled.
 
 \bigskip
 
-First I'm going to detail the objectives an operating system has to achieve. Then I will discuss theorical models and their implementations in modern systems.
+First I'm going to detail the objectives an operating system has to achieve.
+Then I will discuss theorical models and their implementations in modern
+systems.
 
 \bigskip
 
-In this study, I will refer to files (and others ressources such as sockets) as objects, and to program as subjects, whether or not they are directly controlled by a real human user on the system.
+In this study, I will refer to files (and others ressources such as sockets) as
+objects, and to program as subjects, whether or not they are directly controlled
+by a real human user on the system.
 
 \subsection{Generality}
 
 \subsubsection{Security objectives}
 
 % FIXME find the paper on security objectives
-There are three main objectives defined in \cite{SECOBJ}. An operating  system has to provide means to ensure they can be enforced:
+There are three main objectives defined in \cite{SECOBJ}. An operating  system
+has to provide means to ensure they can be enforced:
 
 \bigskip
 
 \textbf{Confidentiality:}
-Information must only be available to users who need it and have the corresponding priviledge. Example: a user should not have access to other users passwords, files or secrets; classified informations should not be available for unclassified users to read.
+Information must only be available to users who need it and have the
+corresponding priviledge. Example: a user should not have access to other users
+passwords, files or secrets; classified informations should not be available for
+unclassified users to read.
 
 \medskip
 
 \textbf{Intégrity:}
-The system must remain in coherent state. Example: important informations such as passwords, which programs are installed and their content, configuration files, should not be alterable by unpriviledge users.
+The system must remain in coherent state. Example: important informations such
+as passwords, which programs are installed and their content, configuration
+files, should not be alterable by unpriviledge users.
 
 \medskip
 
 \textbf{Disponibility:}
-The system must remain stable, reactive and usable. Programs have to function properly. Added security controls should limit as little as possible legitimate system functionnality and programs.
+The system must remain stable, reactive and usable. Programs have to function
+properly. Added security controls should limit as little as possible legitimate
+system functionnality and programs.
 
 \bigskip
 
-Other properties (authenticity...) can be defined as derivatives, as explained in \cite{THESEBRIFFAUT}. Examples:
+Other properties (authenticity...) can be defined as derivatives, as explained
+in \cite{THESEBRIFFAUT}. Examples:
 \begin{itemize}
 	\item priviledge abuse: ...
 	\item ... % FIXME
@@ -363,64 +423,101 @@ Other properties (authenticity...) can be defined as derivatives, as explained i
 
 \smallskip
 
-I will focus on the first two properties, which are confidentiality and integrity. Attack scenario such as Denial of Service will therefore not be taken into account as their goal is to limit a system disponibility. Future references to security objectives will include only those two.
+I will focus on the first two properties, which are confidentiality and
+integrity. Attack scenario such as Denial of Service will therefore not be taken
+into account as their goal is to limit a system disponibility. Future references
+to security objectives will include only those two.
 
 \bigskip
 
-However, a security solution should not turn a working system to an unsable one and thus it can not have a high ressource footprint. I'll try to limit the impact on performance of the chosen solution.
+However, a security solution should not turn a working system to an unsable one
+and thus it can not have a high ressource footprint. I'll try to limit the
+impact on performance of the chosen solution.
 
 \subsubsection{The principle of least privilege}
 
-The process to make the first step toward the previously discussed objectives is based on the principle of least privilege. It involves two steps:
+The process to make the first step toward the previously discussed objectives is
+based on the principle of least privilege. It involves two steps:
 \begin{enumerate}
-	\item make sure each major program functionnality is divided into smaller program (generally depending on their ressource needs);
-	\item restrict the rights of each program to the smallest set of permissions needed for it to function well.
+	\item make sure each major program functionnality is divided into smaller
+program (generally depending on their ressource needs);
+	\item restrict the rights of each program to the smallest set of permissions
+needed for it to function well.
 \end{enumerate}
 
 \smallskip
 
-The most common examples are the postfix and qmail mailer daemon. They are divided in several programs and communicate using files or SystemV IPC. There is a network facing program, a user facing program and the code running under a priviledge user is therefore severely limited, which, as a side effect, improves it's auditability. This way a vulnerability will only impact one program which has a limited permission set. It would require several flaws in each different part to gain enough priviledge to affect the system.
+The most common examples are the postfix and qmail mailer daemon. They are
+divided in several programs and communicate using files or SystemV IPC. There is
+a network facing program, a user facing program and the code running under a
+priviledge user is therefore severely limited, which, as a side effect, improves
+it's auditability. This way a vulnerability will only impact one program which
+has a limited permission set. It would require several flaws in each different
+part to gain enough priviledge to affect the system.
 
 \bigskip
 
-Generally speaking, a program should not have acces to a ressource if it doesn't use it, even if it isn't a confidential ressource.
+Generally speaking, a program should not have acces to a ressource if it doesn't
+use it, even if it isn't a confidential ressource.
 
 \bigskip
 
-On modern operating system, this separation is often enforced using different user accounts with different capabilities. There is an administrator which has all rights on the system, several unpriviledged account for regular users, network enabled one for services such as the web server.
+On modern operating system, this separation is often enforced using different
+user accounts with different capabilities. There is an administrator which has
+all rights on the system, several unpriviledged account for regular users,
+network enabled one for services such as the web server.
 
 \bigskip
 
-However, few programs are well design enough to benefit from this rule. It also doesn't provide a solution in case of program compromission so this isn't enough to enforce security objectives.
+However, few programs are well design enough to benefit from this rule. It also
+doesn't provide a solution in case of program compromission so this isn't enough
+to enforce security objectives.
 
-%Il faut cependant noter que ce principe ne constitue pas une démarche exhaustive permettant d'assurer des objectifs de sécurité.
+%Il faut cependant noter que ce principe ne constitue pas une démarche
+exhaustive permettant d'assurer des objectifs de sécurité.
 
 \subsubsection{Who/what do I need to trust?}
 
-Every design made to secure an operating system has to rely, at some point, on one of it's components (either a hardware one, a software one, or both). This component is trusted to be safe and hardened against attacks. Based on \cite{WCS}, we can establish this list:
+Every design made to secure an operating system has to rely, at some point, on
+one of it's components (either a hardware one, a software one, or both). This
+component is trusted to be safe and hardened against attacks. Based on
+\cite{WCS}, we can establish this list:
 
 % FIXME Pas de copier coller !!
 \begin{itemize}
-	\item Trust all the software to abide by a security policy while being aware that the software is not trustworthy;
+	\item Trust all the software to abide by a security policy while being aware
+that the software is not trustworthy;
 
-	\item Trust all the software to abide by a security policy and the software is validated as trustworthy (by tedious branch and path analysis for example);
+	\item Trust all the software to abide by a security policy and the software
+is validated as trustworthy (by tedious branch and path analysis for example);
 
-	\item Trust no software but enforce a security policy with mechanisms that are not trustworthy;
+	\item Trust no software but enforce a security policy with mechanisms that
+are not trustworthy;
 
-	\item Trust no software but enforce a security policy with trustworthy hardware mechanisms.
+	\item Trust no software but enforce a security policy with trustworthy
+hardware mechanisms.
 \end{itemize}
 
 \smallskip
 
-Standard security models are in the first category whereas most of the one I will present later are in the third and forth ones.
+Standard security models are in the first category whereas most of the one I
+will present later are in the third and forth ones.
 
 \bigskip
 
-Testing the whole feature set of an operating system is a tedious task. This is even harder if we consider the various architectures,hardware diversity and the complexity involved in the design of core pieces of an operating system such as the kernel. Some software, such as the QNX operating system \cite{QNX}, have had intensive testing, a controlled design and are certified as conforming to strict criteria like the Common Criteria \cite{CCCERT}. Those systems are part of the second category. However, the source code for those operating systems are not freely available so I will not details them much further.
+Testing the whole feature set of an operating system is a tedious task. This is
+even harder if we consider the various architectures,hardware diversity and the
+complexity involved in the design of core pieces of an operating system such as
+the kernel. Some software, such as the QNX operating system \cite{QNX}, have had
+intensive testing, a controlled design and are certified as conforming to strict
+criteria like the Common Criteria \cite{CCCERT}. Those systems are part of the
+second category. However, the source code for those operating systems are not
+freely available so I will not details them much further.
 
 \bigskip
 
-The Figure \ref{INTELTXT} shows an example of hardware based integrity control, further expanded with intel VT-d technology.
+The Figure \ref{INTELTXT} shows an example of hardware based integrity control,
+further expanded with intel VT-d technology.
 
 \begin{figure}[h]
 	\centering
@@ -431,45 +528,89 @@ The Figure \ref{INTELTXT} shows an example of hardware based integrity control, 
 
 \subsection{Access control models}
 
-Several Access control models have been implemented in modern operating systems to achieve the objectives mentioned previously. I'll detail those models in this section.
+Several Access control models have been implemented in modern operating systems
+to achieve the objectives mentioned previously. I'll detail those models in this
+section.
 
-%Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et la minimisation des privilèges, les systèmes d'exploitations actuels ont implenté différentes méthodes de contrôle d'accès. Nous allons donc les présenter dans cette partie.
+%Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et
+la minimisation des privilèges, les systèmes d'exploitations actuels ont
+implenté différentes méthodes de contrôle d'accès. Nous allons donc les
+présenter dans cette partie.
 
 \subsubsection{Discretionary Access Control (DAC)}
 
-... Control is left at the discretion of the user. But most of the time the user is also the identity impersonated by an attacker.
+... Control is left at the discretion of the user. But most of the time the user
+is also the identity impersonated by an attacker.
 
-Le contrôle d'accès discrétionnaire correspond à un modèle laissant à l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits bien superieurs à ces besoins (Firefox a par exemple accès à la liste des comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi compromettre la confidentialité d'un système en accordant des droits importants à d'autres utilisateurs sur les fichiers qu'il possède.
+Le contrôle d'accès discrétionnaire correspond à un modèle laissant à
+l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux
+objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits
+bien superieurs à ces besoins (Firefox a par exemple accès à la liste des
+comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi
+compromettre la confidentialité d'un système en accordant des droits importants
+à d'autres utilisateurs sur les fichiers qu'il possède.
 
 \bigskip
 
-This model can not ensure confidentiality or any other complex property as for example a user give grant access to other users on confidential information he has access to. DAC is to be considered as being part of the first category, in which no clear policy is enforced on the system. 
+This model can not ensure confidentiality or any other complex property as for
+example a user give grant access to other users on confidential information he
+has access to. DAC is to be considered as being part of the first category, in
+which no clear policy is enforced on the system.
 
-%Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système. Il est à ranger dans la première catégorie des modèles qui font confiance aux logiciels sans imposer de contrôle de sécurité fort.
+%Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système.
+Il est à ranger dans la première catégorie des modèles qui font confiance aux
+logiciels sans imposer de contrôle de sécurité fort.
 
 \subsubsection{Mandatory Access Control (MAC)}
 
-The reasons behind the increassing necessity to use Mandatory Access Control are fully described in \cite{NSATIOF}. They are partialy summarized in this example: Browers (and related plugins) are considered as the most used attack vector for conventionnal desktop computers. With classic DAC, a user's Firefox process would have the same priviledge as any other program ran by this user. So Firefox would be able to read the user's private ssh keys generally stored in their base directory and send it to a remote attacker.
+The reasons behind the increassing necessity to use Mandatory Access Control are
+fully described in \cite{NSATIOF}. They are partialy summarized in this example:
+Browers (and related plugins) are considered as the most used attack vector for
+conventionnal desktop computers. With classic DAC, a user's Firefox process
+would have the same priviledge as any other program ran by this user. So Firefox
+would be able to read the user's private ssh keys generally stored in their base
+directory and send it to a remote attacker.
 
 \bigskip
 
-The MAC philosophy is to enforce the principle of least priviledge to every program on an operating system. Firefox would then not have the required permissions to acces those keys, as only the ssh daemon would be able to do so. The consequences of users making bad choices or mistakes, while managing the permissions given to his files for example, are also severly limited in a MAC environment.
+The MAC philosophy is to enforce the principle of least priviledge to every
+program on an operating system. Firefox would then not have the required
+permissions to acces those keys, as only the ssh daemon would be able to do so.
+The consequences of users making bad choices or mistakes, while managing the
+permissions given to his files for example, are also severly limited in a MAC
+environment.
 
 \bigskip
 
-MAC mechanisms are based on clear distinctions between the user (its applications) and the process responsible for grating or denying permissions. This ``process'' can be implemented as an other application but generally require cooperation from the kernel. Its goal is to ensure that a set of rules, the security policy, are enforced on a system.
+MAC mechanisms are based on clear distinctions between the user (its
+applications) and the process responsible for grating or denying permissions.
+This ``process'' can be implemented as an other application but generally
+require cooperation from the kernel. Its goal is to ensure that a set of rules,
+the security policy, are enforced on a system.
 
 \bigskip
 
-Using MAC, we can build a policy enforing the least priviledge design by starting with a base policy denying acces to everything, and progressively allowing applications to use the ressources they need. In terms of trust, MAC can be categorized in the third and forth ones which means not trusting applications to behave properly and ensuring that another mechanism, software or hardware based, will control them.
+Using MAC, we can build a policy enforing the least priviledge design by
+starting with a base policy denying acces to everything, and progressively
+allowing applications to use the ressources they need. In terms of trust, MAC
+can be categorized in the third and forth ones which means not trusting
+applications to behave properly and ensuring that another mechanism, software or
+hardware based, will control them.
 
 \subsubsection{Multilevel Security and Multi Categories Security (MLS \& MCS)}
 
-The multi-level and multi-category security model enable us to achieve goals such as integrity and confidentiality. Objects and subjects are separated in several category or security level and rules are set up to limit interactions between those levels or category.
+The multi-level and multi-category security model enable us to achieve goals
+such as integrity and confidentiality. Objects and subjects are separated in
+several category or security level and rules are set up to limit interactions
+between those levels or category.
 
 \bigskip
 
-\textbf{Bell-LaPaluda:} This model tends to preserve confidentiality of information as it only allows a subject to write information to a superior or equal level of confidentiality, and read information from an equal or inferior level. The several disadvantages in this model are the lack of integrity control and distinctions between too subjects with the same confidentiality level.
+\textbf{Bell-LaPaluda:} This model tends to preserve confidentiality of
+information as it only allows a subject to write information to a superior or
+equal level of confidentiality, and read information from an equal or inferior
+level. The several disadvantages in this model are the lack of integrity control
+and distinctions between too subjects with the same confidentiality level.
 
 \begin{figure}[h]
 	\centering
@@ -479,7 +620,9 @@ The multi-level and multi-category security model enable us to achieve goals suc
 
 \bigskip
 
-\textbf{Biba:} As opposed to the previously described model, it's integrity control that's being enforced by the Biba design. Only modifications in an inferior or equal level and reads from a superior or equal level are allowed.
+\textbf{Biba:} As opposed to the previously described model, it's integrity
+control that's being enforced by the Biba design. Only modifications in an
+inferior or equal level and reads from a superior or equal level are allowed.
 
 \begin{figure}[h]
 	\centering
@@ -489,20 +632,39 @@ The multi-level and multi-category security model enable us to achieve goals suc
 
 \bigskip
 
-Les modèles suivant ne peuvent donc se suffirent à eux-mêmes car ils ne permettent pas d'atteindre plus d'un ou deux objectifs à la fois. Ils posent aussi le problème de la sur-classification des données (toutes les données devenues confidentielles), conduisant à l'introduction d'une méthode de dé-classification de l'information, compromettant l'ensemble du modèle.
-En pratique, ces modèles peuvent être utilisés sur des ensembles restreints comme nous le verrons par la suite.
+Les modèles suivant ne peuvent donc se suffirent à eux-mêmes car ils ne
+permettent pas d'atteindre plus d'un ou deux objectifs à la fois. Ils posent
+aussi le problème de la sur-classification des données (toutes les données
+devenues confidentielles), conduisant à l'introduction d'une méthode de
+dé-classification de l'information, compromettant l'ensemble du modèle.
+En pratique, ces modèles peuvent être utilisés sur des ensembles restreints
+comme nous le verrons par la suite.
 
 \subsubsection{Role Based Access Control (RBAC)}
 
-Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permettant de simplifier le travail de l'administrateur d'un système utilisant un contrôle mandataire. Le principe du contrôle d'accès mandataire consiste à attribuer des rôles à chaque utilisateur de la machine. Ces rôles donnent ainsi accès à différents éléments du système. Par exemple, les rôles d'utilisateur, d'administrateur et de webmestre peuvent être définis et un utilisateur classique pourra se voir attribuer le rôle de webmestre lui autorisant de modifier les pages disponibles sur un serveur sans avoir besoin de donner un accès administrateur complet à cette personne.
+Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permettant
+de simplifier le travail de l'administrateur d'un système utilisant un contrôle
+mandataire. Le principe du contrôle d'accès mandataire consiste à attribuer des
+rôles à chaque utilisateur de la machine. Ces rôles donnent ainsi accès à
+différents éléments du système. Par exemple, les rôles d'utilisateur,
+d'administrateur et de webmestre peuvent être définis et un utilisateur
+classique pourra se voir attribuer le rôle de webmestre lui autorisant de
+modifier les pages disponibles sur un serveur sans avoir besoin de donner un
+accès administrateur complet à cette personne.
 
 \subsubsection{Type Enforcement}
 
-Ce principe repose sur l'association d'un contexte de sécurité à chaque sujet et objet (pocessus, socket, fichier...). L'accès à un object par un sujet doit correspondre à une règle de la politique de sécurité pour être autorisé. Ce modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du système, y compris les fichiers présents sur les supports de stockage.
+Ce principe repose sur l'association d'un contexte de sécurité à chaque sujet et
+objet (pocessus, socket, fichier...). L'accès à un object par un sujet doit
+correspondre à une règle de la politique de sécurité pour être autorisé. Ce
+modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du
+système, y compris les fichiers présents sur les supports de stockage.
 
 \subsection{Available solutions to enforce Mandatory Access Control}
 
-This section will detail the different implementations of security models in some operating systems. I decided to concentrate my study on systems where the source code is freely available for study: Linux and the BSD family.
+This section will detail the different implementations of security models in
+some operating systems. I decided to concentrate my study on systems where the
+source code is freely available for study: Linux and the BSD family.
 
 \subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
 
@@ -512,45 +674,101 @@ This section will detail the different implementations of security models in som
 
 \subsubsection{Security Enhanced Linux (SELinux)}
 
-SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire basé sur le ``type enforcement'', de niveaux de sécurité/confidentialité non prédéfinis, et d'un contrôle d'accès basé sur les rôles. SELinux a été développé par la National Security Agency (NSA) et a été intégrée au noyau Linux une fois que l'architecture des Linux Security Modules fut mise en place. SELinux permet de contrôler pour chaque appel système la validité de l'interaction par rapport aux définitions d'une politique. On associe à chaque objets et processus un context de sécurité. L'accès à un object par un processus doit correspondre à une règle de la politique SELinux pour être autorisé. Il faut noter que chaque décision est prise indépendamment des précédentes: SELinux n'as pas de mémoire des transitions effectuées sur un système. C'est cette limitation et la possibilité d'utiliser les flux d'informations indirects, donc non contrôlés par SELinux, qui ont poussé la création de PIGA.
+SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire
+basé sur le ``type enforcement'', de niveaux de sécurité/confidentialité non
+prédéfinis, et d'un contrôle d'accès basé sur les rôles. SELinux a été développé
+par la National Security Agency (NSA) et a été intégrée au noyau Linux une fois
+que l'architecture des Linux Security Modules fut mise en place. SELinux permet
+de contrôler pour chaque appel système la validité de l'interaction par rapport
+aux définitions d'une politique. On associe à chaque objets et processus un
+context de sécurité. L'accès à un object par un processus doit correspondre à
+une règle de la politique SELinux pour être autorisé. Il faut noter que chaque
+décision est prise indépendamment des précédentes: SELinux n'as pas de mémoire
+des transitions effectuées sur un système. C'est cette limitation et la
+possibilité d'utiliser les flux d'informations indirects, donc non contrôlés par
+SELinux, qui ont poussé la création de PIGA.
 
 \begin{list}{}{}
- \item \textbf{Contrainte pour l'administrateur:} Il faut décrire la totalité des interactions possibles pour chaque programme présent sur un système. Il faut s'assurer du bon fonctionnement de ces politiques. Il n'existe pas d'outils pour valider les politiques SELinux. Seuls certains systèmes de fichiers supportent les attributs étendus nécessaires à la labelisation des fichiers présents sur les supports de stockage.
- \item \textbf{Avantages:} Séparation fine des privilèges et des rôles, intégrée dans le noyau. Des politiques ont déjà été écrites. Il existe une distribution facilitant le déploiement de ce type de protection: Fedora.
+ \item \textbf{Contrainte pour l'administrateur:} Il faut décrire la totalité
+des interactions possibles pour chaque programme présent sur un système. Il faut
+s'assurer du bon fonctionnement de ces politiques. Il n'existe pas d'outils pour
+valider les politiques SELinux. Seuls certains systèmes de fichiers supportent
+les attributs étendus nécessaires à la labelisation des fichiers présents sur
+les supports de stockage.
+ \item \textbf{Avantages:} Séparation fine des privilèges et des rôles, intégrée
+dans le noyau. Des politiques ont déjà été écrites. Il existe une distribution
+facilitant le déploiement de ce type de protection: Fedora.
 \end{list}
 
-\subsubsection{Policy Interaction Graph Analysis - Mandatory Access Control (PIGA-MAC)}
+\subsubsection{Policy Interaction Graph Analysis - Mandatory Access Control
+(PIGA-MAC)}
 
-L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de définir et imposer des propriétés de sécurité à l'échelle du système en plus des contrôles au niveau des interactions effectués par SELinux. Il apporte une ``mémoire'' à SELinux. Un tel résultat est obtenu après génération du graphe complet des interactions possibles et autorisées par une politique SELinux, recherche de chemins interdits, et consignation de ces chemins. Cette solution permet un contrôle plus avancé sur les flux d'informations dans un système, qu'ils soient directs ou indirects.
+L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy
+Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants
+de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de
+définir et imposer des propriétés de sécurité à l'échelle du système en plus des
+contrôles au niveau des interactions effectués par SELinux. Il apporte une
+``mémoire'' à SELinux. Un tel résultat est obtenu après génération du graphe
+complet des interactions possibles et autorisées par une politique SELinux,
+recherche de chemins interdits, et consignation de ces chemins. Cette solution
+permet un contrôle plus avancé sur les flux d'informations dans un système,
+qu'ils soient directs ou indirects.
 
 \begin{list}{}{}
-	\item \textbf{Contrainte pour l'administrateur:} Connaissance du langage de définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis matériels pour la ``compilation'' des politiques.
-	\item \textbf{Avantages:} Un contrôle très fin sur les interactions dans un système, restriction (statique) des privilèges maximale.
+	\item \textbf{Contrainte pour l'administrateur:} Connaissance du langage de
+définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis
+matériels pour la ``compilation'' des politiques.
+	\item \textbf{Avantages:} Un contrôle très fin sur les interactions dans un
+système, restriction (statique) des privilèges maximale.
 \end{list}
 
-Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche (ANR) \cite{PIGASAINTMALO}\cite{PIGAPROP}.
+Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été
+vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche
+(ANR) \cite{PIGASAINTMALO}\cite{PIGAPROP}.
 
 \subsubsection{PaX \& grsecurity}
 
-grsecurity \cite{GRSEC} est une autre implémentation des mécanismes de contrôle d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les accès à la mémoire.
+grsecurity \cite{GRSEC} est une autre implémentation des mécanismes de contrôle
+d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une
+gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un
+patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les
+accès à la mémoire.
 
 \begin{list}{}{}
-	\item \textbf{Contrainte pour l'administrateur:} Certains programmes ne fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser correctement les binaires car la labellisation est effectuée par rapport à l'arborescence
-	\item \textbf{Avantages:} Protection avancée de l'utilisation de la mémoire avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
+	\item \textbf{Contrainte pour l'administrateur:} Certains programmes ne
+fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser
+correctement les binaires car la labellisation est effectuée par rapport à
+l'arborescence
+	\item \textbf{Avantages:} Protection avancée de l'utilisation de la mémoire
+avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
 
 Présentation de W\^{}X \cite{TRUSTEDBSD}.
 
-Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité telles que les attributs étendus pour le système de fichier UFS2, les listes de contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes de contrôles d'accès mandataire.
+Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité
+telles que les attributs étendus pour le système de fichier UFS2, les listes de
+contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes
+de contrôles d'accès mandataire.
 
 % \subsubsection{PIGA-SYSTRANS ou contextd}
 %
-% Contextd est un démon chargé de coordonner différents mécanismes de sécurité sur un système Linux. En effet, dans toutes les solutions décrites précédemment, les programmes se voyaient attribuer les droits dont ils avaient besoin, pour toujours. Une application utilisant ponctuellement le réseau se voyait attribuée le droit définitif d'utiliser un port. Contextd introduit la notion de domaine (web, impôts, ...) lié à une activité particulière de l'utilisateur. Les programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans le domaine courant.
+% Contextd est un démon chargé de coordonner différents mécanismes de sécurité
+sur un système Linux. En effet, dans toutes les solutions décrites précédemment,
+les programmes se voyaient attribuer les droits dont ils avaient besoin, pour
+toujours. Une application utilisant ponctuellement le réseau se voyait attribuée
+le droit définitif d'utiliser un port. Contextd introduit la notion de domaine
+(web, impôts, ...) lié à une activité particulière de l'utilisateur. Les
+programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans
+le domaine courant.
 % \begin{list}{}{}
-%  \item \textbf{Contrainte pour l'administrateur:} Maîtrise de SELinux, PIGA. Rédaction et test des règles exhaustives pour faire fonctionner les programmes avec contextd. Certains programmes nécessitent des modifications, surtout lorsque ceux-ci ont un comportement inter-domaine.
-%  \item \textbf{Avantages:} Presque la plus fine implémentation du principe de moindre privilèges.
+%  \item \textbf{Contrainte pour l'administrateur:} Maîtrise de SELinux, PIGA.
+Rédaction et test des règles exhaustives pour faire fonctionner les programmes
+avec contextd. Certains programmes nécessitent des modifications, surtout
+lorsque ceux-ci ont un comportement inter-domaine.
+%  \item \textbf{Avantages:} Presque la plus fine implémentation du principe de
+moindre privilèges.
 % \end{list}
 
 % Pax = sécurité automatique
@@ -558,65 +776,90 @@ Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurit�
 % PIGA = contrôle les accès indirects
 % iptables contrôle le trafic réseau
 %
-% contextd = chef d'orchestre + changement dynamique des règles des autres  mécanismes de protection pour adapter les permissions au domaine d'utilisation.
+% contextd = chef d'orchestre + changement dynamique des règles des autres
+mécanismes de protection pour adapter les permissions au domaine d'utilisation.
 %
 % Chercher tous les systèmes de MAC/DAC/RBAC,...
 %
-% Classer les MAC en fonction du travail à faire par l'administrateur ? en fonction d'où ils agissent ? par rapport à la logique interne (stateless ou statefull) ?
+% Classer les MAC en fonction du travail à faire par l'administrateur ? en
+fonction d'où ils agissent ? par rapport à la logique interne (stateless ou
+statefull) ?
 
 \newpage
 
 \section{Development and test environment}
 
-PIGA features are intrinsically linked to SELinux features so the choice of development environment was limited. The main GNU/Linux distributions supporting SELinux are:
+PIGA features are intrinsically linked to SELinux features so the choice of
+development environment was limited. The main GNU/Linux distributions supporting
+SELinux are:
 
 \begin{itemize}
-	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific Linux \cite{SL}, Fedora \cite{FEDORA};
+	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific
+Linux \cite{SL}, Fedora \cite{FEDORA};
 	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}.
 \end{itemize}
 
 \smallskip
 
-As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution as the primary development environment.
+As PIGA-OS is based on Hardened Gentoo, I chose to stick with this distribution
+as the primary development environment.
 
 \subsection{Hardened Gentoo}
 
-The Hardened Gentoo Project has taken upon the goal of building a completly secure operating system from the ground up. To achieve this goal, several particularities have been selected:
+The Hardened Gentoo Project has taken upon the goal of building a completly
+secure operating system from the ground up. To achieve this goal, several
+particularities have been selected:
 \begin{itemize}
 	\item a linux kernel with the PaX \& grsecurity patch;
-	\item a carefully crafted une configuration and several restrictive compilation options;
+	\item a carefully crafted une configuration and several restrictive
+compilation options;
 	\item a modular SELinux policy based on the reference policy.
 \end{itemize}
 
 \smallskip
 
-The first step of this project was to setup a virtual Hardened Gentoo development environment. I used the well written Gentoo SELinux Handbook available at \cite{GSELH}.
+The first step of this project was to setup a virtual Hardened Gentoo
+development environment. I used the well written Gentoo SELinux Handbook
+available at \cite{GSELH}.
 
 \bigskip
 
-The Gentoo choice was also driven by the fact that I had to understand most of the building process in order to make it work properly. This constrain was actualy a benefit.
+The Gentoo choice was also driven by the fact that I had to understand most of
+the building process in order to make it work properly. This constrain was
+actualy a benefit.
 
 \subsection{QEMU, KVM and the Virtual Machine Manager}
 
-In order to ease the development process, I used some KVM and QEMU special features.
+In order to ease the development process, I used some KVM and QEMU special
+features.
 
 \bigskip
 
-QEMU enabled me to use an externaly (as in: not on a virtual drive) compiled kernel. It saved me a lot of time in kernel compilation as I was able to do it on the host system instead of the virtual one. As the host and the virtual machine architecture matchs (x86\_64), there was no cross-compilation involved and I simply used this kernel into the Gentoo virtual machine.
+QEMU enabled me to use an externaly (as in: not on a virtual drive) compiled
+kernel. It saved me a lot of time in kernel compilation as I was able to do it
+on the host system instead of the virtual one. As the host and the virtual
+machine architecture matchs (x86\_64), there was no cross-compilation involved
+and I simply used this kernel into the Gentoo virtual machine.
 
 \bigskip
 
-The Virtual Machine Manager provided me with all the tools required to deploy QEMU/KVM virtual machines more easily.
+The Virtual Machine Manager provided me with all the tools required to deploy
+QEMU/KVM virtual machines more easily.
 
 \bigskip
 
-Finally, I had to ensure that the modifications I would introduce in the kernel would not prevent the use of PIGA in a virtual environment, thus the use of QEMU.
+Finally, I had to ensure that the modifications I would introduce in the kernel
+would not prevent the use of PIGA in a virtual environment, thus the use of
+QEMU.
 
 % FIXME
 % \subsection{Related tests}
 
-% This virtual environment allowed me to test several of the available solutions (SMACK, TOMOYO...).
-% J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les scénarios d'attaques et la réponse que pouvait apporter un administrateur à ces scénarios.
+% This virtual environment allowed me to test several of the available solutions
+(SMACK, TOMOYO...).
+% J'ai ainsi créé une machine virtuelle pour chaque solution et j'ai testé les
+scénarios d'attaques et la réponse que pouvait apporter un administrateur à ces
+scénarios.
 % Violation d'intégrité:
 % Violation de confidentialité:
 % \subsection{Résultats}
@@ -628,68 +871,100 @@ Finally, I had to ensure that the modifications I would introduce in the kernel 
 
 \subsection{What does PIGA do ?}
 
-PIGA's first objective was to detect any malicious activity on a system. To achieve this goal, PIGA is built on top of an other MAC (for now only grsecurity and SELinux). 
+PIGA's first objective was to detect any malicious activity on a system. To
+achieve this goal, PIGA is built on top of an other MAC (for now only grsecurity
+and SELinux).
 
 \bigskip
 
-Each MAC implementation defines operations or interactions performed on a system by userspace programs (read, write...). PIGA  builds a graph with the MAC defined interactions in order to obtain an exhaustive view of all the interactions and sequence of interactions that are allowed on a system.
+Each MAC implementation defines operations or interactions performed on a system
+by userspace programs (read, write...). PIGA  builds a graph with the MAC
+defined interactions in order to obtain an exhaustive view of all the
+interactions and sequence of interactions that are allowed on a system.
 
 \bigskip
 
-The language defined in \cite{THESEBRIFFAUT} is designed help administrators represent security properties. Administrators can use this language to define which properties they want to ensure on a selected system (program binaries integrity for example). Then, the PIGA-pol tool will generate the full list of sequence of interactions infringing the security properties from the interaction graph previously generated.
+The language defined in \cite{THESEBRIFFAUT} is designed help administrators
+represent security properties. Administrators can use this language to define
+which properties they want to ensure on a selected system (program binaries
+integrity for example). Then, the PIGA-pol tool will generate the full list of
+sequence of interactions infringing the security properties from the interaction
+graph previously generated.
 
 \bigskip
 
-This will ensure that no cover-channel or alternative way can be used to exploit a weakness in the MAC policy.
+This will ensure that no cover-channel or alternative way can be used to exploit
+a weakness in the MAC policy.
 
 \subsection{Objectives}
 
-The following objectives (and implementation order) were layed out with Jérémy Briffaut at the begining of the project:
+The following objectives (and implementation order) were layed out with Jérémy
+Briffaut at the begining of the project:
 
 \begin{enumerate}
 	\item Implement a basic decision making algorithm in the kernel
 	\item Create userspace tools to load a PIGA policy into the kernel
-	\item Optimize the policy storage into the kernel to handle large policy (more than three hundred thousand signatures) in order to make this usefull in the real world
-	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal policy, process based signatures, better audit features, rule learning, state save and restore...)
+	\item Optimize the policy storage into the kernel to handle large policy
+(more than three hundred thousand signatures) in order to make this usefull in
+the real world
+	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal
+policy, process based signatures, better audit features, rule learning, state
+save and restore...)
 \end{enumerate}
 
 \smallskip
 
-The previously discussed objectives and the development environment I have chosen add several constrains:
+The previously discussed objectives and the development environment I have
+chosen add several constrains:
 
 \begin{enumerate}
-	\item As PIGA will likely be developped and used inside a virtual machine, we need to make sure the modifications we bring into the kernel are not affecting virtualization.
-	\item The implementation has to be fast enough to work in a limited environment such as a virtual machine.
-	\item To make PIGA as architecture independant as possible, we should not use processor specific features for example.
+	\item As PIGA will likely be developped and used inside a virtual machine,
+we need to make sure the modifications we bring into the kernel are not
+affecting virtualization.
+	\item The implementation has to be fast enough to work in a limited
+environment such as a virtual machine.
+	\item To make PIGA as architecture independant as possible, we should not
+use processor specific features for example.
 \end{enumerate}
 
 
 \subsection{Architecture}
 
-PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard'' PIGA tools. This project focused only on the kernel patch and the policy loader tool. The ``standard'' tools functionnality will be briefly explained here for convenience.
+PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard''
+PIGA tools. This project focused only on the kernel patch and the policy loader
+tool. The ``standard'' tools functionnality will be briefly explained here for
+convenience.
 
 \subsubsection{PIGA tools}
 
 % FIXME
-Tools to generate graphs and policy files from SELinux policy files. IDS and IPS Java stuff. Original kernel patch description.
+Tools to generate graphs and policy files from SELinux policy files. IDS and IPS
+Java stuff. Original kernel patch description.
 
 Anatomy of a PIGA policy:
 
 \begin{lstlisting}
 # Lines starting with an '#' are comments. Blank lines and spaces are ignored
 
-WARN - 0$4028 : root:sysadm_r:sysadm_t -( file { read } )-> system_u:object_r:locale_t ; root:sysadm_r:sysadm_t -( file { write } )-> root:object_r:user_tmp_t ; root:sysadm_r:sysadm_t -( file { read } )-> root:object_r:user_tmp_t
+WARN - 0$4028 : root:sysadm_r:sysadm_t -( file { read } )->
+system_u:object_r:locale_t ; root:sysadm_r:sysadm_t -( file { write } )->
+root:object_r:user_tmp_t ; root:sysadm_r:sysadm_t -( file { read } )->
+root:object_r:user_tmp_t
 \end{lstlisting}
 
 
 \subsubsection{Linux kernel implementation}
 
-As of today, the kernel implementation is severly limited in terms of performance, but fullfils the basic purpose of PIGA.
+As of today, the kernel implementation is severly limited in terms of
+performance, but fullfils the basic purpose of PIGA.
 
 \bigskip
 % Implementation details
 
-A standard PIGA policy may be involve 1 000 to 300 000 rules containing 1 to 13 SELinux interactions. So in order to use as light on memory and fast to load from userspace to the kernel, the PIGA policy is stored in a basic array of 'struct sequence' in the kernel.
+A standard PIGA policy may be involve 1 000 to 300 000 rules containing 1 to 13
+SELinux interactions. So in order to use as light on memory and fast to load
+from userspace to the kernel, the PIGA policy is stored in a basic array of
+'struct sequence' in the kernel.
 
 \begin{lstlisting}
 struct sequence {
@@ -716,7 +991,9 @@ static struct link * link = NULL;
 
 \smallskip
 
-The sequences are placed in order in the 'seq' array, and their corresponding links are added to the 'link array', at the offset 'link\_offset'. For example, to obtain the third sequence:
+The sequences are placed in order in the 'seq' array, and their corresponding
+links are added to the 'link array', at the offset 'link\_offset'. For example,
+to obtain the third sequence:
 
 \begin{lstlisting}
 // Retrieve the sequence:
@@ -730,25 +1007,39 @@ for(i = 0; i < seq2->length; ++i) {
 
 \smallskip
 
-This simple implementation allow us to load the PIGA policy easily from userspace as it only require the copy of two memory regions, which is a fast process. Details of the interface between the kernel and userspace will be discussed after the next section.
+This simple implementation allow us to load the PIGA policy easily from
+userspace as it only require the copy of two memory regions, which is a fast
+process. Details of the interface between the kernel and userspace will be
+discussed after the next section.
 
 \bigskip
 
-The kernel modifications remain as least intrusive as possible as only two major files need minor modifications. The decision taking algorithm for SELinux regroups every checks in a single function, allowing us to easily add the PIGA control after the SELinux one.
+The kernel modifications remain as least intrusive as possible as only two major
+files need minor modifications. The decision taking algorithm for SELinux
+regroups every checks in a single function, allowing us to easily add the PIGA
+control after the SELinux one.
 
 \bigskip
 
-As all SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux denials. For now, we can keep the SELinux auditing interface to audit PIGA denials. In future development, we should include a flag or a special field specifying that this particular denial is related to PIGA.
+As all SELinux behaviours remain unchanged, PIGA denials currently appear as
+SELinux denials. For now, we can keep the SELinux auditing interface to audit
+PIGA denials. In future development, we should include a flag or a special field
+specifying that this particular denial is related to PIGA.
 
 \subsubsection{Piga Policy Parser}
 
-The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of signatures contained in a policy file. Those signatures are to be previously generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
+The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the
+GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of
+signatures contained in a policy file. Those signatures are to be previously
+generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
 
 The PPP currently offers only the first basic features and options:
 \begin{itemize}
 	\item -h: prints the help
-	\item -v: turn verbose mode on, printing warnings for secrity contexts found in the PIGA policy but not in the loaded SELinux policy
-	\item -s: display some statistics from the PIGA policy, such as the count of each security context
+	\item -v: turn verbose mode on, printing warnings for secrity contexts found
+in the PIGA policy but not in the loaded SELinux policy
+	\item -s: display some statistics from the PIGA policy, such as the count of
+each security context
 \end{itemize}
 
 \smallskip
@@ -759,7 +1050,8 @@ Some possible, not implemented, improvements and ideas are listed here:
 	\item -n: do not enable PIGA after loading the policy (default)
 	\item -l: load the given SELinux module before loading the PIGA policy
 	\item -f: use full check mode for PIGA
-	\item -a: use SELinux audit mode for PIGA (requires a custom SELinux module which can be loaded with -l)
+	\item -a: use SELinux audit mode for PIGA (requires a custom SELinux module
+which can be loaded with -l)
 	\item -r file: restore previous PIGA state from file
 	\item -o file: store current PIGA state in file.
 	\item -c: enable conditionnal signatures (PIGA feature not yet available)
@@ -768,7 +1060,10 @@ Some possible, not implemented, improvements and ideas are listed here:
 
 \smallskip
 
-In order to load a policy into the kernel, you need to give a policy file to the tool standard input as PPP is based on Flex \& Yacc. Classic input from a file as an argument will be implemented soon. Usage: ppp [-hvsenfacw] [-l selinux\_module] [-r state\_file] [-o state\_file] < PIGA\_policy.pol):
+In order to load a policy into the kernel, you need to give a policy file to the
+tool standard input as PPP is based on Flex \& Yacc. Classic input from a file
+as an argument will be implemented soon. Usage: ppp [-hvsenfacw] [-l
+selinux\_module] [-r state\_file] [-o state\_file] < PIGA\_policy.pol):
 
 \begin{lstlisting}
 $ ppp -s < piga_policy.pol
@@ -801,11 +1096,17 @@ Policy stats: '<name> (<sid>): <count>'
 
 \smallskip
 
-In this example, we used the statistics flag to dispaly some informations about the policy loaded. First, PPP tells us that 4 out of 4 signatures have been loaded as none has been ignored. The SID (Security ID) field correspond to the current number associated with the security context in the kernel. Those numbers change at each reboot, so this display has no further purpose. The SIDs are retreived throught the kernel interface described in the next section.
+In this example, we used the statistics flag to dispaly some informations about
+the policy loaded. First, PPP tells us that 4 out of 4 signatures have been
+loaded as none has been ignored. The SID (Security ID) field correspond to the
+current number associated with the security context in the kernel. Those numbers
+change at each reboot, so this display has no further purpose. The SIDs are
+retreived throught the kernel interface described in the next section.
 
 \subsubsection{Interface between the kernel and userspace}
 
-For now, the PPP tool is using two custom system call. One which enables it to quickly load the policy:
+For now, the PPP tool is using two custom system call. One which enables it to
+quickly load the policy:
 
 \begin{lstlisting}
 /** Userspace code **/
@@ -823,7 +1124,9 @@ For now, the PPP tool is using two custom system call. One which enables it to q
 syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 \end{lstlisting}
 
-And an other one needed to retieve the corresponding SID for each SELinux security context.This was designed in order to do as much parsing as possible in userspace:
+And an other one needed to retieve the corresponding SID for each SELinux
+security context.This was designed in order to do as much parsing as possible in
+userspace:
 
 \begin{lstlisting}
 /** Userspace code **/
@@ -840,9 +1143,15 @@ And an other one needed to retieve the corresponding SID for each SELinux securi
 syscall(__NR_sys_piga_add_sequence, scontext, len, sid);
 \end{lstlisting}
 
-As I'm going to improve the kernel storage of policy, I'll probably change this interface to make it more compliant with current kernel design policy (we should not create any new system call, but use ioctl, or other interfaces like sockets...).
+As I'm going to improve the kernel storage of policy, I'll probably change this
+interface to make it more compliant with current kernel design policy (we should
+not create any new system call, but use ioctl, or other interfaces like
+sockets...).
 
-PIGA control from userspace is also a work in progress, but is correctly implemented. In order to be consistent with the recent move of the SELinux filesystem to /sys/fs/selinux, I created a directory alongside for piga. There are three pseudo files available in /sys/fs/piga: % FIXME
+PIGA control from userspace is also a work in progress, but is correctly
+implemented. In order to be consistent with the recent move of the SELinux
+filesystem to /sys/fs/selinux, I created a directory alongside for piga. There
+are three pseudo files available in /sys/fs/piga: % FIXME
 
 \begin{lstlisting}
 $ ls /sys/fs/piga/
@@ -850,7 +1159,9 @@ mode  status
 \end{lstlisting}
 
 \begin{itemize}
-	\item mode: This controls the mode in witch PIGA is running. If disabled, PIGA runs in full check mode, checking every SELinux interaction. If enabled, PIGA checks only selinux audited interactions, thus improving performance.
+	\item mode: This controls the mode in witch PIGA is running. If disabled,
+PIGA runs in full check mode, checking every SELinux interaction. If enabled,
+PIGA checks only selinux audited interactions, thus improving performance.
 	\begin{lstlisting}
 	$ cat /sys/fs/piga/mode
 	Disabled: Full check
@@ -874,7 +1185,10 @@ mode  status
 
 \subsection{Performance}
 
-Even in this crude form, PIGA-Linux isn't performing so bad. It takes notably longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with ten files) but the system is still working. The audit only mode might also improve performance a lot.
+Even in this crude form, PIGA-Linux isn't performing so bad. It takes notably
+longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with
+ten files) but the system is still working. The audit only mode might also
+improve performance a lot.
 
 % FIXME
 Proper tests (Phoronix Test Suite ?) should be placed here.
@@ -884,11 +1198,21 @@ Proper tests (Phoronix Test Suite ?) should be placed here.
 \subsubsection{Implementing PIGA interactions}
 
 % FIXME grsecurity reference needed
-The Linux Security Model is based on hooks implemented as function pointers. These hooks are sometimes considered as being arbitrary placed in the kernel code (grsecurity reference needed here) but they also ensure that the structure, which will be used in the security functions, are correctly locked down and concurrency-speaking safe. They should provide just enough informations in order to make an access control decision. Finally Their design is fondamentaly ponctual.
+The Linux Security Model is based on hooks implemented as function pointers.
+These hooks are sometimes considered as being arbitrary placed in the kernel
+code (grsecurity reference needed here) but they also ensure that the structure,
+which will be used in the security functions, are correctly locked down and
+concurrency-speaking safe. They should provide just enough informations in order
+to make an access control decision. Finally Their design is fondamentaly
+ponctual.
 
 \bigskip
 
-However, the PIGA definition of interactions is based on system call start and end time (see page 64 and 65 in \cite{THESEBRIFFAUT}) and thus isn't ponctual. For example, a blocking read syscall, waiting for content from a pipe, would escape PIGA sequence checking, as the control might happened before any data is written into the pipe.
+However, the PIGA definition of interactions is based on system call start and
+end time (see page 64 and 65 in \cite{THESEBRIFFAUT}) and thus isn't ponctual.
+For example, a blocking read syscall, waiting for content from a pipe, would
+escape PIGA sequence checking, as the control might happened before any data is
+written into the pipe.
 
 \bigskip
 
@@ -897,7 +1221,11 @@ There should be a diagram detailling the problem here.
 
 \bigskip
 
-We need to modify the PIGA design to include new LSM hooks, which should be placed right after the portion of code that deals with blocking state in the kernel if this is possible (this will require a deep knowledge of the kernel subsystems). ``exit'' hooks might be needed if we would like to ensure full detections (but not full prevention) of malicious interactions.
+We need to modify the PIGA design to include new LSM hooks, which should be
+placed right after the portion of code that deals with blocking state in the
+kernel if this is possible (this will require a deep knowledge of the kernel
+subsystems). ``exit'' hooks might be needed if we would like to ensure full
+detections (but not full prevention) of malicious interactions.
 
 \bigskip
 
@@ -906,11 +1234,16 @@ There should be another diagram detailling the ``solution'' here.
 
 \subsubsection{/sys/fs/piga pseudo filesystem}
 
-Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root with the classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t. We could make a new SELinux module in order to further restrict the control from userspace.
+Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root with the
+classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t. We could
+make a new SELinux module in order to further restrict the control from
+userspace.
 
 \subsubsection{Syscalls used by PPP}
 
-The policy loader syscalls are not carefully controlled. They should be ``transformed'' into ictl calls as it seems to be the accepted way of adding such control into the kernel.
+The policy loader syscalls are not carefully controlled. They should be
+``transformed'' into ictl calls as it seems to be the accepted way of adding
+such control into the kernel.
 
 \subsection{Missing and expected features}
 
@@ -919,16 +1252,21 @@ Those features are still missing and should be part of the project:
 \begin{itemize}
 	\item conditionnal PIGA policy;
 	\item ``process-linked'' signatures;
-	\item better audit features to make the distinction between SELinux and PIGA denials clear;
-	\item rule learning (advanced grsecurity-like feature, involving step by step, deny by default learning);
-	\item current signature state save and restore (for continuity accross system reboot/halt).
+	\item better audit features to make the distinction between SELinux and PIGA
+denials clear;
+	\item rule learning (advanced grsecurity-like feature, involving step by
+step, deny by default learning);
+	\item current signature state save and restore (for continuity accross
+system reboot/halt).
 \end{itemize}
 
 \newpage
 
 \section*{Conclusion} \addcontentsline{toc}{section}{Conclusion}
 
-Thanks to this project and the helpful supervision of Jérémy Briffaut, I was able to learn a lot about the SELinux implementation in the Linux kernel, the current PIGA implementation and all of it's features.
+Thanks to this project and the helpful supervision of Jérémy Briffaut, I was
+able to learn a lot about the SELinux implementation in the Linux kernel, the
+current PIGA implementation and all of it's features.
 
 % FIXME
 
@@ -940,29 +1278,54 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \begin{thebibliography}{40}
 
 % Thèses
-\bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis, \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+\bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis,
+\url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
 
 % Articles
-\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris, Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for the Linux Kernel}, \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=pdf}
-\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer, Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of Failure: The Flawed Assumption of Security in Modern Computing Environments. In Proceedings of the 21st National Information Systems Security Conference, pages 303–314, Arlington, Virginia, USA, October 1998
-\bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle, \textit{PIGA-OS: Retour sur le système d'exploitation vainqueur du défi sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
-\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard, \textit{Formalization of security properties: enforcement for mac operating systems and verification of dynamic mac policies}, International journal on advances in security, 2:325-343, 2009
+\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris,
+Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for
+the Linux Kernel},
+\url{
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=p
+df}
+\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer,
+Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of
+Failure: The Flawed Assumption of Security in Modern Computing Environments. In
+Proceedings of the 21st National Information Systems Security Conference, pages
+303–314, Arlington, Virginia, USA, October 1998
+\bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan
+Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle,
+\textit{PIGA-OS: Retour sur le système d'exploitation vainqueur du défi
+sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
+\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard,
+\textit{Formalization of security properties: enforcement for mac operating
+systems and verification of dynamic mac policies}, International journal on
+advances in security, 2:325-343, 2009
 
 % Livres
-\bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition}, Pearson Education, Inc.
-\bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan, \textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall, Première édition, 6 août 2006
+\bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
+Pearson Education, Inc.
+\bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan,
+\textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall,
+Première édition, 6 août 2006
 
 % Présentations
-\bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat Enterprise Linux 5}, \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
+\bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
+Enterprise Linux 5},
+\url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
 
 % Sites web
-\bibitem{GSELH} Gentoo SELinux Handbook,  \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
+\bibitem{GSELH} Gentoo SELinux Handbook,
+\url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
 \bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
 \bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org/}
-\bibitem{WCS} Wikipedia: Computer Security, \url{http://en.wikipedia.org/wiki/Computer_security}
+\bibitem{WCS} Wikipedia: Computer Security,
+\url{http://en.wikipedia.org/wiki/Computer_security}
 \bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
-\bibitem{CCCERT} Certification Critères Commums, \url{http://www.commoncriteriaportal.org}
-\bibitem{ITXT} Intel Trusted Execution Technology (TXT), \url{http://www.intel.com/technology/malwarereduction/index.htm}
+\bibitem{CCCERT} Certification Critères Commums,
+\url{http://www.commoncriteriaportal.org}
+\bibitem{ITXT} Intel Trusted Execution Technology (TXT),
+\url{http://www.intel.com/technology/malwarereduction/index.htm}
 
 % Sites distributions GNU/Linux
 \bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
@@ -970,7 +1333,8 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \bibitem{CENTOS} CentOS, \url{http://www.centos.org}
 \bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
 \bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
-\bibitem{GENTOOH} Gentoo Hardened Project, \url{http://www.gentoo.org/proj/en/hardened}
+\bibitem{GENTOOH} Gentoo Hardened Project,
+\url{http://www.gentoo.org/proj/en/hardened}
 
 \end{thebibliography}
 
@@ -995,14 +1359,18 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was a
 \section*{Appendix} \addcontentsline{toc}{section}{Appendix}
 
 \subsection*{Notice about the Tux logo displayed on the first and last page}
-``Originally drewn by Larry Ewing (\url{http://www.isc.tamu.edu/~lewing/}) (with the GIMP) the Linux Logo has been vectorized by me (Simon Budig, \url{http://www.home.unix-ag.org/simon/}).''
+``Originally drewn by Larry Ewing (\url{http://www.isc.tamu.edu/~lewing/}) (with
+the GIMP) the Linux Logo has been vectorized by me (Simon Budig,
+\url{http://www.home.unix-ag.org/simon/}).''
 
 \bigskip
 
-These drawings are copyrighted by Larry Ewing and Simon Budig, redistribution is free but has to include this README/Copyright notice.
+These drawings are copyrighted by Larry Ewing and Simon Budig, redistribution is
+free but has to include this README/Copyright notice.
 
 \subsection*{Notice about the SELinux logo on the first page}
-This image is licensed under the Creative Commons ShareAlike 2.5 license: \url{http://people.redhat.com/duffy/artwork/selinux-penguin.svg}
+This image is licensed under the Creative Commons ShareAlike 2.5 license:
+\url{http://people.redhat.com/duffy/artwork/selinux-penguin.svg}
 
 \lastPage
 

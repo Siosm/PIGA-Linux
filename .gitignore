@@ -1,3 +1,18 @@
 .kdev4
 *.kdev4
 
+*~
+
+*.aux
+*.ilg
+*.log
+*.nls
+*.tex.*
+*.idx
+*.lof
+*.nlo
+*.out
+*.toc
+*.nav
+*.snm
+

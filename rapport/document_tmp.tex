@@ -297,8 +297,8 @@ to the fact that the decision making code is located in userspace. That's the
 main difficulty that we are trying to address with this kernel port. Among the
 other problems that I will have to solve, they are multi-core and
 multi-processor related issues. I will also try to improve performance and ease
-of use while trying to port the complete PIGA feature set, which is an
-ambitious goal.
+of use while trying to port the complete PIGA feature set, witch is an ambitious
+goal.
 
 \bigskip
 
@@ -394,16 +394,16 @@ has to provide means to ensure they can be enforced:
 
 \textbf{Confidentiality:}
 Information must only be available to users who need it and have the
-corresponding privilege. Example: a user should not have access to other users
-passwords, files or secrets; classified information should not be available for
+corresponding priviledge. Example: a user should not have access to other users
+passwords, files or secrets; classified informations should not be available for
 unclassified users to read.
 
 \medskip
 
 \textbf{Integrity:}
-The system must remain in coherent state. Example: important information such
+The system must remain in coherent state. Example: important informations such
 as passwords, which programs are installed and their content, configuration
-files, should not be alterable by unprivilege users.
+files, should not be alterable by unpriviledge users.
 
 \medskip
 
@@ -413,6 +413,15 @@ properly. Added security controls should limit as little as possible legitimate
 system functionnality and programs.
 
 \bigskip
+
+Other properties (authenticity...) can be defined as derivatives, as explained
+in \cite{THESEBRIFFAUT}. Examples:
+\begin{itemize}
+	\item priviledge abuse: ...
+	\item ... % FIXME
+\end{itemize}
+
+\smallskip
 
 I will focus on the first two properties, which are confidentiality and
 integrity. Attack scenario such as Denial of Service will therefore not be taken
@@ -441,10 +450,10 @@ needed for it to function well.
 The most common examples are the postfix and qmail mailer daemon. They are
 divided in several programs and communicate using files or SystemV IPC. There is
 a network facing program, a user facing program and the code running under a
-privilege user is therefore severely limited, which, as a side effect, improves
+priviledge user is therefore severely limited, which, as a side effect, improves
 it's auditability. This way a vulnerability will only impact one program which
 has a limited permission set. It would require several flaws in each different
-part to gain enough privilege to affect the system.
+part to gain enough priviledge to affect the system.
 
 \bigskip
 
@@ -455,17 +464,17 @@ use it, even if it isn't a confidential ressource.
 
 On modern operating system, this separation is often enforced using different
 user accounts with different capabilities. There is an administrator which has
-all rights on the system, several unprivileged account for regular users,
-and network enabled accounts for services such as the web server.
+all rights on the system, several unpriviledged account for regular users,
+network enabled one for services such as the web server.
 
 \bigskip
 
-However, few programs are well designed enough to benefit from this rule. It
-also doesn't provide a solution in case of program compromission so this isn't
-enough to enforce security objectives.
+However, few programs are well design enough to benefit from this rule. It also
+doesn't provide a solution in case of program compromission so this isn't enough
+to enforce security objectives.
 
-% Il faut cependant noter que ce principe ne constitue pas une démarche
-% exhaustive permettant d'assurer des objectifs de sécurité.
+%Il faut cependant noter que ce principe ne constitue pas une démarche
+exhaustive permettant d'assurer des objectifs de sécurité.
 
 \subsubsection{Who/what do I need to trust?}
 
@@ -503,14 +512,12 @@ the kernel. Some software, such as the QNX operating system \cite{QNX}, have had
 intensive testing, a controlled design and are certified as conforming to strict
 criteria like the Common Criteria \cite{CCCERT}. Those systems are part of the
 second category. However, the source code for those operating systems are not
-freely available so I will not detail them much further.
+freely available so I will not details them much further.
 
 \bigskip
 
 The Figure \ref{INTELTXT} shows an example of hardware based integrity control,
-with corresponds to the fourth category. Its goal is to verify the signature
-of critical components in the system to make sure that they have not been
-tampered with before boot. If the check fails, the system is unable to boot.
+further expanded with intel VT-d technology.
 
 \begin{figure}[h]
 	\centering
@@ -519,51 +526,40 @@ tampered with before boot. If the check fails, the system is unable to boot.
 	\label{INTELTXT}
 \end{figure}
 
-\smallskip
-
-The Linux Integrity Subsystem \cite{LINUXIMA} is an other example of hardware
-assisted integrity control, involving a Trusted Platform Module (TPM) which
-stores cryptographic keys. However this approach is rather complex and protects
-only from some off-line based attacks which are not detailled in this study.
-
-\bigskip
-
-It should be noted that both of those mechanisms only provide detection and
-cannot prevent an intrusion or corruption from happening.
-
 \subsection{Access control models}
 
 Several Access control models have been implemented in modern operating systems
 to achieve the objectives mentioned previously. I'll detail those models in this
 section.
 
+%Pour atteindre les objectifs détaillés précédemment et obtenir la séparation et
+la minimisation des privilèges, les systèmes d'exploitations actuels ont
+implenté différentes méthodes de contrôle d'accès. Nous allons donc les
+présenter dans cette partie.
+
 \subsubsection{Discretionary Access Control (DAC)}
 
-The Discretionary Access Control model give each user full control over the
-files and other system objects it owns. The control is left at the discretion
-of the user, and most of the time this is also the identity impersonated by an
-attacker.
+... Control is left at the discretion of the user. But most of the time the user
+is also the identity impersonated by an attacker.
 
-\bigskip
-
-Applications ran by this user are also given the same control, and most of the
-time they have too many privileges. For example, Firefox can access any file
-stored in the user home directory, including the user ssh private key.
-
-\bigskip
-
-DAC based operating systems are also often vulnerable to the confused deputy
-problem \cite{CDP}. In this scenario, a privileged application is tricked by an
-underprivileged one into revealing information or acting in a particular way
-which wasn't intended in the first place.
+Le contrôle d'accès discrétionnaire correspond à un modèle laissant à
+l'utilisateur, et donc aux programmes, tout contrôle sur les droits accordés aux
+objets qu'il possède. Un logiciel dispose ainsi la plupart du temps de droits
+bien superieurs à ces besoins (Firefox a par exemple accès à la liste des
+comptes utilisateurs). Un sujet (utilisateur ou logiciel) peut ainsi
+compromettre la confidentialité d'un système en accordant des droits importants
+à d'autres utilisateurs sur les fichiers qu'il possède.
 
 \bigskip
 
 This model can not ensure confidentiality or any other complex property as for
 example a user give grant access to other users on confidential information he
 has access to. DAC is to be considered as being part of the first category, in
-which no clear policy is enforced on the system. \cite{HRUDAC} further
-describes why a DAC based system will not be able to ensure security properties.
+which no clear policy is enforced on the system.
+
+%Ce modèle ne permet pas d'assurer la confidentialité, l'intégrité d'un système.
+Il est à ranger dans la première catégorie des modèles qui font confiance aux
+logiciels sans imposer de contrôle de sécurité fort.
 
 \subsubsection{Mandatory Access Control (MAC)}
 
@@ -571,13 +567,13 @@ The reasons behind the increassing necessity to use Mandatory Access Control are
 fully described in \cite{NSATIOF}. They are partialy summarized in this example:
 Browers (and related plugins) are considered as the most used attack vector for
 conventionnal desktop computers. With classic DAC, a user's Firefox process
-would have the same privilege as any other program ran by this user. So Firefox
+would have the same priviledge as any other program ran by this user. So Firefox
 would be able to read the user's private ssh keys generally stored in their base
 directory and send it to a remote attacker.
 
 \bigskip
 
-The MAC philosophy is to enforce the principle of least privilege to every
+The MAC philosophy is to enforce the principle of least priviledge to every
 program on an operating system. Firefox would then not have the required
 permissions to acces those keys, as only the ssh daemon would be able to do so.
 The consequences of users making bad choices or mistakes, while managing the
@@ -594,16 +590,12 @@ the security policy, are enforced on a system.
 
 \bigskip
 
-Using MAC, we can build a policy enforing the least privilege design by
+Using MAC, we can build a policy enforing the least priviledge design by
 starting with a base policy denying acces to everything, and progressively
 allowing applications to use the ressources they need. In terms of trust, MAC
 can be categorized in the third and forth ones which means not trusting
 applications to behave properly and ensuring that another mechanism, software or
 hardware based, will control them.
-
-\subsubsection{Capability-based security}
-
-% FIXME
 
 \subsubsection{Multilevel Security and Multi Categories Security (MLS \& MCS)}
 
@@ -672,8 +664,7 @@ système, y compris les fichiers présents sur les supports de stockage.
 
 This section will detail the different implementations of security models in
 some operating systems. I decided to concentrate my study on systems where the
-source code is freely available for study: Linux and the BSD family. This
-section is based on the detailled summary on page 86 of \cite{THESEBRIFFAUT}.
+source code is freely available for study: Linux and the BSD family.
 
 \subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
 
@@ -764,20 +755,20 @@ de contrôles d'accès mandataire.
 % \subsubsection{PIGA-SYSTRANS ou contextd}
 %
 % Contextd est un démon chargé de coordonner différents mécanismes de sécurité
-% sur un système Linux. En effet, dans toutes les solutions décrites précédemment,
-% les programmes se voyaient attribuer les droits dont ils avaient besoin, pour
-% toujours. Une application utilisant ponctuellement le réseau se voyait attribuée
-% le droit définitif d'utiliser un port. Contextd introduit la notion de domaine
-% (web, impôts, ...) lié à une activité particulière de l'utilisateur. Les
-% programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans
-% le domaine courant.
+sur un système Linux. En effet, dans toutes les solutions décrites précédemment,
+les programmes se voyaient attribuer les droits dont ils avaient besoin, pour
+toujours. Une application utilisant ponctuellement le réseau se voyait attribuée
+le droit définitif d'utiliser un port. Contextd introduit la notion de domaine
+(web, impôts, ...) lié à une activité particulière de l'utilisateur. Les
+programmes surveillés n'ont le droit de faire que ce qui leur est autorisé dans
+le domaine courant.
 % \begin{list}{}{}
 %  \item \textbf{Contrainte pour l'administrateur:} Maîtrise de SELinux, PIGA.
-% Rédaction et test des règles exhaustives pour faire fonctionner les programmes
-% avec contextd. Certains programmes nécessitent des modifications, surtout
-% lorsque ceux-ci ont un comportement inter-domaine.
+Rédaction et test des règles exhaustives pour faire fonctionner les programmes
+avec contextd. Certains programmes nécessitent des modifications, surtout
+lorsque ceux-ci ont un comportement inter-domaine.
 %  \item \textbf{Avantages:} Presque la plus fine implémentation du principe de
-% moindre privilèges.
+moindre privilèges.
 % \end{list}
 
 % Pax = sécurité automatique
@@ -786,13 +777,13 @@ de contrôles d'accès mandataire.
 % iptables contrôle le trafic réseau
 %
 % contextd = chef d'orchestre + changement dynamique des règles des autres
-% mécanismes de protection pour adapter les permissions au domaine d'utilisation.
+mécanismes de protection pour adapter les permissions au domaine d'utilisation.
 %
 % Chercher tous les systèmes de MAC/DAC/RBAC,...
 %
 % Classer les MAC en fonction du travail à faire par l'administrateur ? en
-% fonction d'où ils agissent ? par rapport à la logique interne (stateless ou
-% statefull) ?
+fonction d'où ils agissent ? par rapport à la logique interne (stateless ou
+statefull) ?
 
 \newpage
 
@@ -856,37 +847,21 @@ This option is enabled with the corresponding arguments added to the qemu
 command line:
 
 \begin{lstlisting}
-qemu-kvm ... -kernel path/to/bzImage -append root=/dev/sda1 ro quiet
-\end{lstlisting}
-
-\subsubsection{Debuging a kernel with QEMU and gdbserver}
-
-One of the many useful feature in the QEMU emulator is the ability to debug a
-kernel running inside a virtual machine thanks to the gdbserver program. In
-order to use it, you have to add this argument to the qemu command line, where
-1234 is the port you want it to listen to:
-
-\begin{lstlisting}
-qemu-kvm ... -gdb tcp::1234 ...
+qemu-kvl ... -kernel path/to/bzImage -append root=/dev/sda1 ro quiet ...
 \end{lstlisting}
 
 \subsubsection{libvirtd XML configuration}
 
-To simplify network setup and management for virtual machines, I choosed to
-use libvirtd and the graphical user interface called virt-manager which
-stands for Virtual Machine Manager. The libvirtd daemon uses XML files to
-store virtual machines configurations. This is the example configuration I used,
-including the previously discussed QEMU features:
-
 \begin{lstlisting}
+
 
 \end{lstlisting}
 
-% \subsubsection{Constrains related to the QEMU emulator}
+\subsubsection{Constrains related to the QEMU emulator}
 
-% Finally, I had to ensure that the modifications I would introduce in the
-% kernel would not prevent the use of PIGA in a virtual environment, thus the
-% use of QEMU.
+Finally, I had to ensure that the modifications I would introduce in the kernel
+would not prevent the use of PIGA in a virtual environment, thus the use of
+QEMU.
 
 % FIXME
 % \subsection{Related tests}
@@ -905,7 +880,7 @@ including the previously discussed QEMU features:
 
 \section{PIGA-Linux}
 
-\subsection{What does PIGA do?}
+\subsection{What does PIGA do ?}
 
 PIGA's first objective was to detect any malicious activity on a system. To
 achieve this goal, PIGA is built on top of an other MAC (for now only grsecurity
@@ -932,31 +907,6 @@ graph previously generated.
 This will ensure that no cover-channel or alternative way can be used to exploit
 a weakness in the MAC policy.
 
-\bigskip
-
-% FIXME describe PIGA design
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.8]{piga_principe}
-	\caption{The process to enable PIGA control}
-	\label{PIGAARCHI}
-\end{figure}
-
-\subsection{Why porting PIGA to Linux?}
-
-% FIXME
-Originally implemented as an userspace daemon...
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=1.1]{piga_evol.pdf}
-	\caption{From PIGA-IDS/IPS to PIGA-Linux}
-	\label{PIGAEVOL}
-\end{figure}
-
-Network problems, multi-core...
-
 \subsection{Objectives}
 
 The following objectives (and implementation order) were layed out with Jérémy
@@ -966,7 +916,7 @@ Briffaut at the begining of the project:
 	\item Implement a basic decision making algorithm in the kernel
 	\item Create userspace tools to load a PIGA policy into the kernel
 	\item Optimize the policy storage into the kernel to handle large policy
-(more than three hundred thousand signatures) in order to make this useful in
+(more than three hundred thousand signatures) in order to make this usefull in
 the real world
 	\item Implement remaining PIGA-IDS and PIGA-IPS fonctionnality (conditionnal
 policy, process based signatures, better audit features, rule learning, state
@@ -1157,7 +1107,7 @@ Policy stats: '<name> (<sid>): <count>'
 
 \smallskip
 
-In this example, we used the statistics flag to dispaly some information about
+In this example, we used the statistics flag to dispaly some informations about
 the policy loaded. First, PPP tells us that 4 out of 4 signatures have been
 loaded as none has been ignored. The SID (Security ID) field correspond to the
 current number associated with the security context in the kernel. Those numbers
@@ -1212,15 +1162,15 @@ sockets...).
 PIGA control from userspace is also a work in progress, but is correctly
 implemented. In order to be consistent with the recent move of the SELinux
 filesystem to /sys/fs/selinux, I created a directory alongside for piga. There
-are three pseudo files available in /sys/fs/piga:
+are three pseudo files available in /sys/fs/piga: % FIXME
 
 \begin{lstlisting}
 $ ls /sys/fs/piga/
-mode  stats  status
+mode  status
 \end{lstlisting}
 
 \begin{itemize}
-	\item mode: This controls the mode in which PIGA is running. If disabled,
+	\item mode: This controls the mode in witch PIGA is running. If disabled,
 PIGA runs in full check mode, checking every SELinux interaction. If enabled,
 PIGA checks only selinux audited interactions, thus improving performance.
 	\begin{lstlisting}
@@ -1229,14 +1179,6 @@ PIGA checks only selinux audited interactions, thus improving performance.
 	$ echo 1 > /sys/fs/piga/mode
 	$ cat /proc/piga/mode
 	Enabled: SELinux audited interactions only
-	\end{lstlisting}
-	% FIXME
-	\item stats: This contains some statistics about the number of sequences and
-links available, and the number of those that have been loaded into the tclass
-lists.
-	% TODO
-	\begin{lstlisting}
-	$ cat /sys/fs/piga/stats
 	\end{lstlisting}
 	\item status: The current status of PIGA-Linux, either enabled or disabled.
 	\begin{lstlisting}
@@ -1250,7 +1192,7 @@ lists.
 
 \newpage
 
-\section{Results and problems encountered}
+\section{Results and thoughts}
 
 \subsection{Performance}
 
@@ -1259,27 +1201,21 @@ longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with
 ten files) but the system is still working. The audit only mode might also
 improve performance a lot.
 
-The focus an performance improvements was not successfully as of today due to
-the difficulty of debuging kernel space algorithm. Towards the end, I found
-how to debug a kernel running inside QEMU, which proved to be useful.
-
-Performance improvements are a key task in the success of this project, and
-could be achieved by implementing and testing algorithms in userspace before
-porting it to the kernel.
-
-Once it will have reach acceptable speed, we should compare it to vanilla,
-SELinux, PaX and grsecurity kernels, probably using the the Phoronix Test Suite.
+% FIXME
+Proper tests (Phoronix Test Suite ?) should be placed here.
 
 \subsection{Design and implementation security}
 
 \subsubsection{Implementing PIGA interactions}
 
+% FIXME grsecurity reference needed
 The Linux Security Model is based on hooks implemented as function pointers.
 These hooks are sometimes considered as being arbitrary placed in the kernel
-code \cite{LSMHOOKS} but they also ensure that the structure, which will be used
-in the security functions, are correctly locked down and concurrency safe. They
-should provide just enough information in order to make an access control
-decision. Finally, their design is fondamentaly ponctual.
+code (grsecurity reference needed here) but they also ensure that the structure,
+which will be used in the security functions, are correctly locked down and
+concurrency-speaking safe. They should provide just enough informations in order
+to make an access control decision. Finally Their design is fondamentaly
+ponctual.
 
 \bigskip
 
@@ -1376,12 +1312,6 @@ sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
 \textit{Formalization of security properties: enforcement for mac operating
 systems and verification of dynamic mac policies}, International journal on
 advances in security, 2:325-343, 2009
-\bibitem{HRUDAC} Michael A. Harrison, Walter L. Ruzzo and Jeffrey D. Ullman,
-\textit{Protection in Operating Systems}. Communications of the ACM.
-19(8):461–471, August 1976,
-\url{
-http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.7226&rep=rep1&type=
-pdf}
 
 % Livres
 \bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
@@ -1389,10 +1319,6 @@ Pearson Education, Inc.
 \bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan,
 \textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall,
 Première édition, 6 août 2006
-\bibitem{SELINUXNOTEBOOK} Richard Haines, \textit{The SELinux Notebook - The
-Foundations - 2nd Edition }, 2009,
-\url{http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-}
 
 % Présentations
 \bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
@@ -1402,25 +1328,17 @@ Enterprise Linux 5},
 % Sites web
 \bibitem{GSELH} Gentoo SELinux Handbook,
 \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
-\bibitem{GENTOOH} Gentoo Hardened Project,
-\url{http://www.gentoo.org/proj/en/hardened}
+\bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
+\bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org/}
 % \bibitem{WCS} Wikipedia: Computer Security,
 % \url{http://en.wikipedia.org/wiki/Computer_security}
 % \bibitem{WCS} Wikipedia: Computer Security,
 % \url{http://en.wikipedia.org/wiki/Information_security}
+\bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
+\bibitem{CCCERT} Certification Critères Commums,
+\url{http://www.commoncriteriaportal.org}
 \bibitem{ITXT} Intel Trusted Execution Technology (TXT),
 \url{http://www.intel.com/technology/malwarereduction/index.htm}
-\bibitem{LINUXIMA} Linux Integrity Subsystem and Integrity Measurement
-Architecture, \url{http://linux-ima.sourceforge.net}
-\bibitem{CDP} The confused deputy problem,
-\url{http://www.cis.upenn.edu/~KeyKOS/ConfusedDeputy.html}
-\bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
-\bibitem{LSMHOOKS} Why doesn't grsecurity use LSM?,
-\url{http://grsecurity.net/lsm.php}
-\bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org}
-\bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
-\bibitem{CCCERT} Common Criteria for Information Technology Security Evaluation,
-\url{http://www.commoncriteriaportal.org}
 
 % Sites distributions GNU/Linux
 \bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
@@ -1428,6 +1346,8 @@ Architecture, \url{http://linux-ima.sourceforge.net}
 \bibitem{CENTOS} CentOS, \url{http://www.centos.org}
 \bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
 \bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
+\bibitem{GENTOOH} Gentoo Hardened Project,
+\url{http://www.gentoo.org/proj/en/hardened}
 
 \end{thebibliography}
 
@@ -1441,7 +1361,7 @@ Architecture, \url{http://linux-ima.sourceforge.net}
 \nomenclature{PIGA}{Policy Interaction Graph Analysis}
 \nomenclature{SELinux}{Security Enhanced Linux}
 \nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
-% \nomenclature{TOMOYO Linux}{}
+\nomenclature{TOMOYO Linux}{}
 
 
 

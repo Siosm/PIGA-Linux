@@ -30,3 +30,12 @@ final:
 	# You need pdftk in order to remove the second page from this document
 	pdftk document.pdf cat 1 3-end output document_ready.pdf
 
+slides:
+	pdflatex soutenance.tex > /dev/null
+
+slides_final:
+	inkscape -z -D --file=images/piga_evol.svg --export-pdf=images/piga_evol.pdf --export-width=100
+	pdflatex soutenance.tex > /dev/null
+	pdflatex soutenance.tex > /dev/null
+	pdflatex soutenance.tex > /dev/null
+

@@ -14,6 +14,7 @@ svg2pdf:
 	inkscape -z -D --file=images/biba.svg --export-pdf=images/biba.pdf --export-width=100
 	inkscape -z -D --file=images/Logo_SELinux.svg --export-pdf=images/Logo_SELinux.pdf --export-width=100
 	inkscape -z -D --file=images/modele_generale_en.svg --export-pdf=images/modele_generale_en.pdf --export-width=100
+	inkscape -z -D --file=images/piga_evol.svg --export-pdf=images/piga_evol.pdf --export-width=100
 
 glossary:
 	makeindex document.nlo  -s nomencl.ist -o document.nls
@@ -21,11 +22,17 @@ glossary:
 biblio:
 	bibtex document.aux
 
-final: clean svg2pdf
-	make buildmute && make buildmute && make buildmute
+full: clean svg2pdf
+	make buildmute
+	make buildmute
+	make buildmute
 	make glossary
 	make biblio
-	make buildmute && make buildmute && make buildmute
+	make buildmute
+	make buildmute
+	make buildmute
+
+final:
 	# You need pdftk in order to remove the second page from this document
 	pdftk document.pdf cat 1 3-end output document_ready.pdf
 

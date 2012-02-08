@@ -284,6 +284,11 @@ kernel development.
 included in the Linux kernel}
 \nomenclature{\textbf{DAC}}{\textit{Discretionary Access Control}}
 \nomenclature{\textbf{HRU}}{Theorical model representing DAC systems}
+\nomenclature{\textbf{IDS}}{\textit{Intrusion Detection System:} a device or
+software that monitors network and/or system activities for malicious
+activities}
+\nomenclature{\textbf{IPS}}{\textit{Intrusion Prevention System:} an extension
+of an IDS that also tries to block or prevent intrusions that are detected }
 \nomenclature{\textbf{LSM}}{\textit{Linux Security Modules:} Hooks inserted in
 the Linux kernel in order to implement modular access control}
 \nomenclature{\textbf{MAC}}{\textit{Mandatory Access Control}}
@@ -334,7 +339,7 @@ implementation design. Finally, I will discuss some of the problems I faced
 during those six months and potential solutions and improvements for further
 development.
 
-% FIXME
+% FIXME Intro: performance ?
 % Finally I will compare PIGA-Linux performance to kernel with either nothing,
 % PaX, SELinux, ``classic'' PIGA enabled.
 
@@ -633,7 +638,24 @@ hardware based, will control them.
 
 \subsubsection{Capability-based security}
 
-% FIXME
+Capability-based security is a concept which gives each subject or process a
+restricted set of permissions on critical ressources. A process will never be
+able to gain more permissions, and it can only give the permissions it already
+owns to its children. As with those restrictions every process on the
+system would only lose capabilities, such operating systems implements
+capability exchange to allow granting of selected capabilities. There are only
+a few operating systems implementing such design \cite{capabilitycapsicum}.
+
+\bigskip
+
+The Linux kernel implements a similar but very basic concept of capabilities to
+limit the need of binaries with the setuid flag. This flag allows binaries to be
+run under the uid or identity of the binary owner and is often used to allow
+users to run programs which require root privileges. In this case, capabilities
+allow the administrator to grant a process the access to a restricted set of
+system ressources such as binding on TCP port under 1024 while keeping the
+process runnning under an underprivileged user. Those capabilities can not be
+transfered to other processes.
 
 \subsubsection{Multilevel Security and Multi Categories Security (MLS \& MCS)}
 
@@ -672,6 +694,8 @@ allowed.
 
 \bigskip
 
+Those security model ...
+%FIXME
 Les modèles suivant ne peuvent donc se suffirent à eux-mêmes car ils ne
 permettent pas d'atteindre plus d'un ou deux objectifs à la fois. Ils posent
 aussi le problème de la sur-classification des données (toutes les données
@@ -682,23 +706,30 @@ comme nous le verrons par la suite.
 
 \subsubsection{Role Based Access Control (RBAC)}
 
-Plus qu'un modèle réel de contrôle, c'est un modèle d'administration permettant
-de simplifier le travail de l'administrateur d'un système utilisant un contrôle
-mandataire. Le principe du contrôle d'accès mandataire consiste à attribuer des
-rôles à chaque utilisateur de la machine. Ces rôles donnent ainsi accès à
-différents éléments du système. Par exemple, les rôles d'utilisateur,
-d'administrateur et de webmestre peuvent être définis et un utilisateur
-classique pourra se voir attribuer le rôle de webmestre lui autorisant de
-modifier les pages disponibles sur un serveur sans avoir besoin de donner un
-accès administrateur complet à cette personne.
+Role Base Access Control is an administration model to simplify the management
+of MAC enabled operating systems. It allows to regroup desired set of
+permissions into several roles and assign roles to users. For example, the
+user, admin, web\_admin roles could be defined so an user could be given
+control over the web server without requiring full acces as in root or admin
+access to the server. This also allows the administrators to easily grant and
+remove a large group of various permissions to an user, thus improving
+management.
 
 \subsubsection{Type Enforcement}
 
-Ce principe repose sur l'association d'un contexte de sécurité à chaque sujet et
-objet (pocessus, socket, fichier...). L'accès à un object par un sujet doit
-correspondre à une règle de la politique de sécurité pour être autorisé. Ce
-modèle nécessite l'attribution d'un contexte de sécurité à tous les objets du
-système, y compris les fichiers présents sur les supports de stockage.
+The Type Enforcement model is based on a reference monitor and full labelling
+of system ressources. A security context is associated to each object and
+subject and every interaction between any subject or by a subject on an object
+is controlled by the reference monitor. Most of the time, decisions are based
+on a policy which is enforced on the system by a trusted element, which is
+often sotfware based such as the operating system kernel.
+
+\bigskip
+
+The only allowed interactions are those defined in the policy and any other
+access is denied by the reference monitor. This model require the administrator
+to grant only the required permissions to selected subjects and to chose a
+security context for every file on every storage used by a system.
 
 \subsection{Available solutions to enforce Mandatory Access Control}
 
@@ -709,13 +740,13 @@ section is based on the detailled summary on page 86 of
 \cite{theseJBriffaut}.
 
 \subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
-
+%FIXME
 \subsubsection{TOMOYO Linux}
 
 \subsubsection{Application Armor (AppArmor)}
 
 \subsubsection{Security Enhanced Linux (SELinux)}
-
+%FIXME
 SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire
 basé sur le ``type enforcement'', de niveaux de sécurité/confidentialité non
 prédéfinis, et d'un contrôle d'accès basé sur les rôles. SELinux a été développé
@@ -744,7 +775,7 @@ facilitant le déploiement de ce type de protection: Fedora.
 
 \subsubsection{Policy Interaction Graph Analysis - Mandatory Access Control
 (PIGA-MAC)}
-
+%FIXME
 L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy
 Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants
 de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de
@@ -769,7 +800,7 @@ vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche
 (ANR) \cite{pigaosdefisecurite2011}\cite{pigaproperty2010}.
 
 \subsubsection{PaX \& grsecurity}
-
+%FIXME
 grsecurity \cite{grsecuritywebsite} est une autre implémentation des mécanismes
 de contrôle
 d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une
@@ -787,7 +818,7 @@ avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinu
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
-
+%FIXME
 Présentation de W\^{}X \cite{trustedbsdproject}.
 
 Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité
@@ -871,7 +902,8 @@ available at \cite{gentooselinuxhandbook}.
 
 The Gentoo choice was also driven by the fact that I had to understand most of
 the building process in order to make it work properly. This constrain was
-actualy a benefit.
+actualy a benefit as I needed a clear view on how SELinux works and how do I
+manage it.
 
 \subsection{QEMU, KVM, libvirtd and the Virtual Machine Manager}
 
@@ -887,7 +919,6 @@ on the host system instead of the virtual one. As the host and the virtual
 machine architecture matchs (x86\_64), there was no cross-compilation involved
 and I simply used this kernel into the Gentoo virtual machine.
 
-%FIXME
 This option is enabled with the corresponding arguments added to the qemu
 command line:
 
@@ -917,13 +948,11 @@ including the previously discussed QEMU features:
 \begin{lstlisting}
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>Gentoo_projet</name>
-  ...
   <memory>2097152</memory>
-  ...
   <vcpu>1</vcpu>
   <os>
     <type arch='x86_64' machine='pc-0.14'>hvm</type>
-    <kernel>linux-2.6.39-hardened-r8/arch/x86_64/boot/bzImage</kernel>
+    <kernel>linux-2.6.39-hardened-r8/arch/x86_64/boot/zImage</kernel>
     <cmdline>root=/dev/sda1 ro quiet</cmdline>
     <boot dev='hd'/>
   </os>
@@ -936,21 +965,17 @@ including the previously discussed QEMU features:
       <target dev='hda' bus='ide'/>
       <address type='drive' controller='0' bus='0' unit='0'/>
     </disk>
-	...
     <interface type='network'>
-      <mac address='52:54:00:58:76:20'/>
-      <source network='default'/>
       <model type='e1000'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+      ...
     </interface>
-	...
+    ...
   </devices>
   <qemu:commandline>
     <qemu:arg value='-gdb'/>
     <qemu:arg value='tcp::1234'/>
   </qemu:commandline>
 </domain>
-
 \end{lstlisting}
 
 % \subsubsection{Constrains related to the QEMU emulator}
@@ -959,7 +984,6 @@ including the previously discussed QEMU features:
 % kernel would not prevent the use of PIGA in a virtual environment, thus the
 % use of QEMU.
 
-% FIXME
 % \subsection{Related tests}
 
 % This virtual environment allowed me to test several of the available solutions
@@ -1001,11 +1025,12 @@ graph previously generated.
 \bigskip
 
 This will ensure that no cover-channel or alternative way can be used to exploit
-a weakness in the MAC policy.
+a weakness in the MAC policy. \cite{theseJBriffaut} contains a full description
+of PIGA features.
 
 \bigskip
 
-The Figure \ref{PIGAARCHI} describe the process to generate the signature
+The Figure \ref{PIGAARCHI} details the process to generate the signature
 database from both an access control policy and a detection policy. Those
 signatures can then be used to enforce access control on a system and report
 access errors or warnings.
@@ -1019,8 +1044,13 @@ access errors or warnings.
 
 \subsection{Why porting PIGA to Linux?}
 
-% FIXME
-Originally implemented as an userspace daemon...
+The PIGA concept gave birth to several components such as the PIGA-IDS/IPS,
+which is an userspace daemon written in Java. It was developped as a proof of
+concept and turned into a fully working IPS for the PIGA-OS project
+\cite{pigaosdefisecurite2011}. Its userspace design led to some limits and
+raised unexpected problems for network related interactions. It also introduced
+several additionnal context switch for each system call and had a limited but
+mesurable impact on the system performance.
 
 \begin{figure}[h]
 	\centering
@@ -1029,7 +1059,16 @@ Originally implemented as an userspace daemon...
 	\label{PIGAEVOL}
 \end{figure}
 
-Network problems, multi-core...
+\smallskip
+
+From a security point of view, the process making the decission to allow or
+deny access what located in userspace and thus was more vulnerable to
+conventionnal attacks.
+
+\bigskip
+
+Several of those problems could be solved more easily by moving the decision
+making process into the kernel.
 
 \subsection{Objectives}
 
@@ -1072,7 +1111,7 @@ convenience.
 
 \subsubsection{PIGA tools}
 
-% FIXME
+% FIXME PIGA tools
 Tools to generate graphs and policy files from SELinux policy files. IDS and IPS
 Java stuff. Original kernel patch description.
 
@@ -1304,13 +1343,16 @@ PIGA checks only selinux audited interactions, thus improving performance.
 	$ cat /proc/piga/mode
 	Enabled: SELinux audited interactions only
 	\end{lstlisting}
-	% FIXME
 	\item stats: This contains some statistics about the number of sequences and
 links available, and the number of those that have been loaded into the tclass
 lists.
-	% TODO
 	\begin{lstlisting}
 	$ cat /sys/fs/piga/stats
+	PIGA statistics:
+		4 signatres available
+		12 links available
+
+		4 signatures stored in lists
 	\end{lstlisting}
 	\item status: The current status of PIGA-Linux, either enabled or disabled.
 	\begin{lstlisting}
@@ -1388,12 +1430,13 @@ There should be another diagram detailling the ``solution'' here.
 Access to the PIGA pseudo filesystem is restrited to sysadm\_u/root with the
 classic SELinux policy as it is labelled system\_u:object\_r:sysfs\_t. We could
 make a new SELinux module in order to further restrict the control from
-userspace.
+userspace. We could for example completly disable access once the policy is
+loaded.
 
 \subsubsection{Syscalls used by PPP}
 
 The policy loader syscalls are not carefully controlled. They should be
-``transformed'' into ictl calls as it seems to be the accepted way of adding
+``transformed'' into ioctl calls as it seems to be the accepted way of adding
 such control into the kernel.
 
 \subsection{Missing and expected features}
@@ -1401,14 +1444,16 @@ such control into the kernel.
 Those features are still missing and should be part of the project:
 
 \begin{itemize}
-	\item conditionnal PIGA policy;
-	\item ``process-linked'' signatures;
+	\item conditionnal PIGA policy, preventing access to certain ressources
+once a sequence based boolean expression is true;
+	\item ``process-linked'' signatures, linking sequence progress to process
+to further precise with operations are to be denied;
 	\item better audit features to make the distinction between SELinux and PIGA
 denials clear;
-	\item rule learning (advanced grsecurity-like feature, involving step by
-step, deny by default learning);
-	\item current signature state save and restore (for continuity accross
-system reboot/halt).
+	\item rule learning, advanced grsecurity-like feature, involving step by
+step, deny by default learning, to ease the learning curve for administrators;
+	\item current signature state save and restore, for continuity accross
+system reboot/halt.
 \end{itemize}
 
 \newpage
@@ -1419,7 +1464,16 @@ Thanks to this project and the helpful supervision of Jérémy Briffaut, I was
 able to learn a lot about the SELinux implementation in the Linux kernel, the
 current PIGA implementation and all of its features.
 
-% FIXME
+\bigskip
+
+The main challenge I faced was kernel debuging and I did not solve it soon
+engouh. An other option would have been to implement the full algorithm in C, in
+userspace first, using only limited functionnality from the glibc and to
+optimise it, before porting it to the kernel.
+
+\bigskip
+
+% TODO Conclusion on research stuff
 
 \newpage
 

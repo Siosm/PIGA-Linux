@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="41cm" height="21cm" viewBox="39 -61 802 402" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g>
+    <rect style="fill: #ffffff" x="40" y="80" width="800" height="260" rx="2.35099e-38" ry="2.35099e-38"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke-linejoin: round; stroke-dasharray: 0.4; stroke: #000000" x="40" y="80" width="800" height="260" rx="2.35099e-38" ry="2.35099e-38"/>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="40" y="313.5" width="238.002" height="26.5"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke-dasharray: 0.4; stroke: #000000" x="40" y="313.5" width="238.002" height="26.5"/>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="360" y="-60" width="480" height="140" rx="2.35099e-38" ry="2.35099e-38"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke-linejoin: round; stroke-dasharray: 0.4; stroke: #000000" x="360" y="-60" width="480" height="140" rx="2.35099e-38" ry="2.35099e-38"/>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="100" y="100" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="100" y="100" width="100" height="80"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="150" y="126.975">
+    <tspan x="150" y="126.975">Access</tspan>
+    <tspan x="150" y="144.975">control</tspan>
+    <tspan x="150" y="162.975">policy</tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="300" y="100" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="300" y="100" width="100" height="80"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="350" y="144.975">
+    <tspan x="350" y="144.975">Graphs</tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="500" y="100" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="500" y="100" width="100" height="80"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="550" y="135.975">
+    <tspan x="550" y="135.975">Signature</tspan>
+    <tspan x="550" y="153.975">database</tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="700" y="100" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="700" y="100" width="100" height="80"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="750" y="126.975">
+    <tspan x="750" y="126.975">Warnings</tspan>
+    <tspan x="750" y="144.975">or access</tspan>
+    <tspan x="750" y="162.975">Errors</tspan>
+  </text>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="200" y1="140" x2="289" y2="140"/>
+    <polygon style="fill: #000000" points="289,145 299,140 289,135 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="289,145 299,140 289,135 "/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="399" y1="140" x2="488" y2="140"/>
+    <polygon style="fill: #000000" points="488,145 498,140 488,135 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="488,145 498,140 488,135 "/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="600" y1="140" x2="689" y2="140"/>
+    <polygon style="fill: #000000" points="689,145 699,140 689,135 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="689,145 699,140 689,135 "/>
+  </g>
+  <text font-size="12.8" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:700" x="250" y="134">
+    <tspan x="250" y="134">convertion</tspan>
+  </text>
+  <text font-size="12.8" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:700" x="650" y="134">
+    <tspan x="650" y="134">detection</tspan>
+  </text>
+  <text font-size="12.8" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:700" x="448" y="156">
+    <tspan x="448" y="156">property</tspan>
+    <tspan x="448" y="172">analysis</tspan>
+  </text>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="100" y1="220" x2="400" y2="220"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="110" y1="215" x2="110" y2="225"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="390" y1="225" x2="390" y2="215"/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="300" y1="260" x2="600" y2="260"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="310" y1="255" x2="310" y2="265"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="590" y1="265" x2="590" y2="255"/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="500" y1="300" x2="800" y2="300"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="510" y1="295" x2="510" y2="305"/>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="790" y1="305" x2="790" y2="295"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="250" y="237.35">
+    <tspan x="250" y="237.35">Phase 1: Graphs building</tspan>
+  </text>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="450" y="277.35">
+    <tspan x="450" y="277.35">Phase 2: Signature database generation</tspan>
+  </text>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="650" y="317.35">
+    <tspan x="650" y="317.35">Phase 3: Detection and/or prevention</tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="398.5" y="-16.4" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="398.5" y="-16.4" width="100" height="80"/>
+  </g>
+  <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="448.5" y1="63.6" x2="449" y2="140"/>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="448.5" y="19.575">
+    <tspan x="448.5" y="19.575">Detection</tspan>
+    <tspan x="448.5" y="37.575">policy</tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="580" y="-20" width="100" height="80"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="580" y="-20" width="100" height="80"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:700" x="630" y="15.975">
+    <tspan x="630" y="15.975">Security</tspan>
+    <tspan x="630" y="33.975">properties</tspan>
+  </text>
+  <text font-size="14.4" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:normal" x="784" y="6.975">
+    <tspan x="784" y="6.975">Activity based</tspan>
+    <tspan x="784" y="24.975">description</tspan>
+    <tspan x="784" y="42.975">language</tspan>
+  </text>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="580" y1="20" x2="511" y2="20"/>
+    <polygon style="fill: #000000" points="511,15 501,20 511,25 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="511,15 501,20 511,25 "/>
+  </g>
+  <text font-size="12.8" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:italic;font-weight:700" x="540" y="17">
+    <tspan x="540" y="17"></tspan>
+  </text>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke-dasharray: 20 4 4 4 4 4; stroke: #000000" x1="740" y1="20" x2="684.472" y2="20"/>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="692.236,15 682.236,20 692.236,25 "/>
+  </g>
+  <g>
+    <rect style="fill: #ffffff" x="360" y="-60" width="127.002" height="26.5"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke-dasharray: 0.4; stroke: #000000" x="360" y="-60" width="127.002" height="26.5"/>
+  </g>
+  <text font-size="14.4" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:italic;font-weight:700" x="363" y="-42">
+    <tspan x="363" y="-42">Administration</tspan>
+  </text>
+  <text font-size="16" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:italic;font-weight:700" x="44.1" y="330.3">
+    <tspan x="44.1" y="330.3">Detection and prevention</tspan>
+  </text>
+</svg>

@@ -278,6 +278,31 @@ kernel development.
 
 \newpage
 
+\addcontentsline{toc}{section}{Glossary}
+
+\nomenclature{\textbf{AppArmor}}{\textit{Application Armor:} a MAC mechanism
+included in the Linux kernel}
+\nomenclature{\textbf{DAC}}{\textit{Discretionary Access Control}}
+\nomenclature{\textbf{HRU}}{Theorical model representing DAC systems}
+\nomenclature{\textbf{LSM}}{\textit{Linux Security Modules:} Hooks inserted in
+the Linux kernel in order to implement modular access control}
+\nomenclature{\textbf{MAC}}{\textit{Mandatory Access Control}}
+\nomenclature{\textbf{MLS}}{\textit{Multilevel Security}}
+\nomenclature{\textbf{MCS}}{\textit{Multi Categories Security}}
+\nomenclature{\textbf{PaX}}{Linux kernel patch including support for
+non-executable memory pages}
+\nomenclature{\textbf{PIGA}}{\textit{Policy Interaction Graph Analysis}}
+\nomenclature{\textbf{SELinux}}{\textit{Security Enhanced Linux:} a MAC
+mechanism included in the Linux kernel}
+\nomenclature{\textbf{SMACK}}{\textit{Simplified Mandatory Access Control
+Kernel:} a MAC mechanism included in the Linux kernel}
+\nomenclature{\textbf{TOMOYO Linux}}{A MAC mechanism included in the Linux
+kernel}
+
+\printnomenclature[3cm]
+
+\newpage
+
 \section*{Introduction} \addcontentsline{toc}{section}{Introduction}
 
 This project is an integral part of my formation at the ENSI de Bourges, a
@@ -308,11 +333,10 @@ the BSD family. Then I will proceed to some PIGA reminders, kernel/userspace
 implementation design. Finally, I will discuss some of the problems I faced
 during those six months and potential solutions and improvements for further
 development.
-% FIXME
-%Finally I will compare PIGA-Linux performance to kernel with either nothing,
-PaX, SELinux, ``classic'' PIGA enabled.
 
 % FIXME
+% Finally I will compare PIGA-Linux performance to kernel with either nothing,
+% PaX, SELinux, ``classic'' PIGA enabled.
 
 \newpage
 
@@ -361,7 +385,8 @@ minimal security, seperation and control on user's activities. They were
 introduced to limit the effects of an attack against the operating system. But
 this limited control does not prevent complex attack scenario, such as the
 compromission of a service which was given adminstrative rights on the system.
-\cite{NSATIOF} describes in details most of the problems current operating
+\cite{inevitabilityoffailure1998} describes in details most of the problems
+current operating
 systems are still facing nowadays.
 
 \bigskip
@@ -387,8 +412,8 @@ by a real human user on the system.
 \subsubsection{Security objectives}
 
 % FIXME find the paper on security objectives
-There are three main objectives defined in \cite{SECOBJ}. An operating  system
-has to provide means to ensure they can be enforced:
+There are three main objectives generally defined in computer security articles.
+An operating system has to provide means to ensure they can be enforced:
 
 \bigskip
 
@@ -471,10 +496,9 @@ enough to enforce security objectives.
 
 Every design made to secure an operating system has to rely, at some point, on
 one of it's components (either a hardware one, a software one, or both). This
-component is trusted to be safe and hardened against attacks. Based on
-\cite{WCS}, we can establish this list:
+component is trusted to be safe and hardened against attacks. This is summarized
+in this list, based on \cite{wikipediacomputersecurity}:
 
-% FIXME Pas de copier coller !!
 \begin{itemize}
 	\item Trust all the software to abide by a security policy while being aware
 that the software is not trustworthy;
@@ -499,15 +523,18 @@ will present later are in the third and forth ones.
 Testing the whole feature set of an operating system is a tedious task. This is
 even harder if we consider the various architectures,hardware diversity and the
 complexity involved in the design of core pieces of an operating system such as
-the kernel. Some software, such as the QNX operating system \cite{QNX}, have had
+the kernel. Some software, such as the QNX operating system
+\cite{qnxoperatingsystem}, have had
 intensive testing, a controlled design and are certified as conforming to strict
-criteria like the Common Criteria \cite{CCCERT}. Those systems are part of the
+criteria like the Common Criteria \cite{commoncriteria}. Those systems are part
+of the
 second category. However, the source code for those operating systems are not
 freely available so I will not detail them much further.
 
 \bigskip
 
-The Figure \ref{INTELTXT} shows an example of hardware based integrity control,
+The Figure \ref{INTELTXT} \cite{inteltxt} shows an example of hardware based
+integrity control,
 with corresponds to the fourth category. Its goal is to verify the signature
 of critical components in the system to make sure that they have not been
 tampered with before boot. If the check fails, the system is unable to boot.
@@ -521,7 +548,7 @@ tampered with before boot. If the check fails, the system is unable to boot.
 
 \smallskip
 
-The Linux Integrity Subsystem \cite{LINUXIMA} is an other example of hardware
+The Linux Integrity Subsystem \cite{linuxima} is an other example of hardware
 assisted integrity control, involving a Trusted Platform Module (TPM) which
 stores cryptographic keys. However this approach is rather complex and protects
 only from some off-line based attacks which are not detailled in this study.
@@ -553,7 +580,8 @@ stored in the user home directory, including the user ssh private key.
 \bigskip
 
 DAC based operating systems are also often vulnerable to the confused deputy
-problem \cite{CDP}. In this scenario, a privileged application is tricked by an
+problem \cite{confuseddeputyproblem}. In this scenario, a privileged application
+is tricked by an
 underprivileged one into revealing information or acting in a particular way
 which wasn't intended in the first place.
 
@@ -562,13 +590,15 @@ which wasn't intended in the first place.
 This model can not ensure confidentiality or any other complex property as for
 example a user give grant access to other users on confidential information he
 has access to. DAC is to be considered as being part of the first category, in
-which no clear policy is enforced on the system. \cite{HRUDAC} further
+which no clear policy is enforced on the system. \cite{hru1976protection}
+further
 describes why a DAC based system will not be able to ensure security properties.
 
 \subsubsection{Mandatory Access Control (MAC)}
 
 The reasons behind the increassing necessity to use Mandatory Access Control are
-fully described in \cite{NSATIOF}. They are partialy summarized in this example:
+fully described in \cite{inevitabilityoffailure1998}. They are partialy
+summarized in this example:
 Browers (and related plugins) are considered as the most used attack vector for
 conventionnal desktop computers. With classic DAC, a user's Firefox process
 would have the same privilege as any other program ran by this user. So Firefox
@@ -614,7 +644,8 @@ between those levels or category.
 
 \bigskip
 
-\textbf{Bell-LaPaluda:} This model tends to preserve confidentiality of
+\textbf{Bell-LaPaluda:} This model \cite{BLP} tends to preserve confidentiality
+of
 information as it only allows a subject to write information to a superior or
 equal level of confidentiality, and read information from an equal or inferior
 level. The several disadvantages in this model are the lack of integrity control
@@ -629,8 +660,9 @@ and distinctions between too subjects with the same confidentiality level.
 \bigskip
 
 \textbf{Biba:} As opposed to the previously described model, it's integrity
-control that's being enforced by the Biba design. Only modifications in an
-inferior or equal level and reads from a superior or equal level are allowed.
+control that's being enforced by the Biba design \cite{Biba}. Only modifications
+in an inferior or equal level and reads from a superior or equal level are
+allowed.
 
 \begin{figure}[h]
 	\centering
@@ -673,7 +705,8 @@ système, y compris les fichiers présents sur les supports de stockage.
 This section will detail the different implementations of security models in
 some operating systems. I decided to concentrate my study on systems where the
 source code is freely available for study: Linux and the BSD family. This
-section is based on the detailled summary on page 86 of \cite{THESEBRIFFAUT}.
+section is based on the detailled summary on page 86 of
+\cite{theseJBriffaut}.
 
 \subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
 
@@ -733,11 +766,12 @@ système, restriction (statique) des privilèges maximale.
 
 Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été
 vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche
-(ANR) \cite{PIGASAINTMALO}\cite{PIGAPROP}.
+(ANR) \cite{pigaosdefisecurite2011}\cite{pigaproperty2010}.
 
 \subsubsection{PaX \& grsecurity}
 
-grsecurity \cite{GRSEC} est une autre implémentation des mécanismes de contrôle
+grsecurity \cite{grsecuritywebsite} est une autre implémentation des mécanismes
+de contrôle
 d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une
 gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un
 patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les
@@ -754,7 +788,7 @@ avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinu
 
 \subsubsection{W\^{}X \& TrustedBSD}
 
-Présentation de W\^{}X \cite{TRUSTEDBSD}.
+Présentation de W\^{}X \cite{trustedbsdproject}.
 
 Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité
 telles que les attributs étendus pour le système de fichier UFS2, les listes de
@@ -803,9 +837,11 @@ development environment was limited. The main GNU/Linux distributions supporting
 SELinux are:
 
 \begin{itemize}
-	\item Red Hat Enterprise Linux \cite{RHEL}, CentOS \cite{CENTOS}, Scientific
-Linux \cite{SL}, Fedora \cite{FEDORA};
-	\item Gentoo \cite{GENTOO} with the Hardened Gentoo project \cite{GENTOOH}.
+	\item Red Hat Enterprise Linux \cite{rhelwebsite}, CentOS
+\cite{centoswebsite}, Scientific
+Linux \cite{scientificlinuxwebsite}, Fedora \cite{fedorawebsite};
+	\item Gentoo \cite{gentoowebsite} with the Hardened Gentoo project
+\cite{gentoohardenedproject}.
 \end{itemize}
 
 \smallskip
@@ -829,7 +865,7 @@ compilation options;
 
 The first step of this project was to setup a virtual Hardened Gentoo
 development environment. I used the well written Gentoo SELinux Handbook
-available at \cite{GSELH}.
+available at \cite{gentooselinuxhandbook}.
 
 \bigskip
 
@@ -908,8 +944,8 @@ including the previously discussed QEMU features:
 \subsection{What does PIGA do?}
 
 PIGA's first objective was to detect any malicious activity on a system. To
-achieve this goal, PIGA is built on top of an other MAC (for now only grsecurity
-and SELinux).
+achieve this goal, PIGA is built on top of an other MAC (only grsecurity
+and SELinux in its current form).
 
 \bigskip
 
@@ -920,7 +956,7 @@ interactions and sequence of interactions that are allowed on a system.
 
 \bigskip
 
-The language defined in \cite{THESEBRIFFAUT} is designed help administrators
+The language defined in \cite{theseJBriffaut} is designed help administrators
 represent security properties. Administrators can use this language to define
 which properties they want to ensure on a selected system (program binaries
 integrity for example). Then, the PIGA-pol tool will generate the full list of
@@ -934,11 +970,14 @@ a weakness in the MAC policy.
 
 \bigskip
 
-% FIXME describe PIGA design
+The Figure \ref{PIGAARCHI} describe the process to generate the signature
+database from both an access control policy and a detection policy. Those
+signatures can then be used to enforce access control on a system and report
+access errors or warnings.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.8]{piga_principe}
+	\includegraphics[scale=0.37]{modele_generale_en.pdf}
 	\caption{The process to enable PIGA control}
 	\label{PIGAARCHI}
 \end{figure}
@@ -1274,9 +1313,11 @@ SELinux, PaX and grsecurity kernels, probably using the the Phoronix Test Suite.
 
 \subsubsection{Implementing PIGA interactions}
 
-The Linux Security Model is based on hooks implemented as function pointers.
+The Linux Security Model is based on hooks implemented as function pointers
+\cite{lsm2002linux}.
 These hooks are sometimes considered as being arbitrary placed in the kernel
-code \cite{LSMHOOKS} but they also ensure that the structure, which will be used
+code \cite{grsecuritylsm} but they also ensure that the structure, which
+will be used
 in the security functions, are correctly locked down and concurrency safe. They
 should provide just enough information in order to make an access control
 decision. Finally, their design is fondamentaly ponctual.
@@ -1284,7 +1325,7 @@ decision. Finally, their design is fondamentaly ponctual.
 \bigskip
 
 However, the PIGA definition of interactions is based on system call start and
-end time (see page 64 and 65 in \cite{THESEBRIFFAUT}) and thus isn't ponctual.
+end time (see page 64 and 65 in \cite{theseJBriffaut}) and thus isn't ponctual.
 For example, a blocking read syscall, waiting for content from a pipe, would
 escape PIGA sequence checking, as the control might happened before any data is
 written into the pipe.
@@ -1341,111 +1382,99 @@ system reboot/halt).
 
 Thanks to this project and the helpful supervision of Jérémy Briffaut, I was
 able to learn a lot about the SELinux implementation in the Linux kernel, the
-current PIGA implementation and all of it's features.
+current PIGA implementation and all of its features.
 
 % FIXME
 
 \newpage
 
-% FIXME
 \addcontentsline{toc}{section}{References}
 
-\begin{thebibliography}{40}
+\bibliography{biblio}{}
+\bibliographystyle{unsrt}
 
-% Thèses
-\bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis,
-\url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+\nocite{*}
 
-% Articles
-\bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris,
-Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for
-the Linux Kernel},
-\url{
-http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=p
-df}
-\bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer,
-Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of
-Failure: The Flawed Assumption of Security in Modern Computing Environments. In
-Proceedings of the 21st National Information Systems Security Conference, pages
-303–314, Arlington, Virginia, USA, October 1998
-\bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan
-Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle,
-\textit{PIGA-OS: Retour sur le système d'exploitation vainqueur du défi
-sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
-\bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard,
-\textit{Formalization of security properties: enforcement for mac operating
-systems and verification of dynamic mac policies}, International journal on
-advances in security, 2:325-343, 2009
-\bibitem{HRUDAC} Michael A. Harrison, Walter L. Ruzzo and Jeffrey D. Ullman,
-\textit{Protection in Operating Systems}. Communications of the ACM.
-19(8):461–471, August 1976,
-\url{
-http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.7226&rep=rep1&type=
-pdf}
-
-% Livres
-\bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
-Pearson Education, Inc.
-\bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan,
-\textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall,
-Première édition, 6 août 2006
-\bibitem{SELINUXNOTEBOOK} Richard Haines, \textit{The SELinux Notebook - The
-Foundations - 2nd Edition }, 2009,
-\url{http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-}
-
-% Présentations
-\bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
-Enterprise Linux 5},
-\url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
-
-% Sites web
-\bibitem{GSELH} Gentoo SELinux Handbook,
-\url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
-\bibitem{GENTOOH} Gentoo Hardened Project,
-\url{http://www.gentoo.org/proj/en/hardened}
+% \begin{thebibliography}{40}
+% 
+% % Thèses
+% \bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis,
+% \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
+% 
+% % Articles
+% \bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris,
+% Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for
+% the Linux Kernel},
+% \url{
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=p
+% df}
+% \bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer,
+% Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of
+% Failure: The Flawed Assumption of Security in Modern Computing Environments. In
+% Proceedings of the 21st National Information Systems Security Conference, pages
+% 303–314, Arlington, Virginia, USA, October 1998
+% \bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan
+% Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle,
+% \textit{PIGA-OS: Retour sur le système d'exploitation vainqueur du défi
+% sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
+% \bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard,
+% \textit{Formalization of security properties: enforcement for mac operating
+% systems and verification of dynamic mac policies}, International journal on
+% advances in security, 2:325-343, 2009
+% \bibitem{HRUDAC} Michael A. Harrison, Walter L. Ruzzo and Jeffrey D. Ullman,
+% \textit{Protection in Operating Systems}. Communications of the ACM.
+% 19(8):461–471, August 1976,
+% \url{
+% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.7226&rep=rep1&type=
+% pdf}
+% 
+% % Livres
+% \bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
+% Pearson Education, Inc.
+% \bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan,
+% \textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall,
+% Première édition, 6 août 2006
+% \bibitem{SELINUXNOTEBOOK} Richard Haines, \textit{The SELinux Notebook - The
+% Foundations - 2nd Edition }, 2009,
+% \url{http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
+% }
+% 
+% % Présentations
+% \bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
+% Enterprise Linux 5},
+% \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
+% 
+% % Sites web
+% \bibitem{GSELH} Gentoo SELinux Handbook,
+% \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
+% \bibitem{GENTOOH} Gentoo Hardened Project,
+% \url{http://www.gentoo.org/proj/en/hardened}
+% \bibitem{ITXT} Intel Trusted Execution Technology (TXT),
+% \url{http://www.intel.com/technology/malwarereduction/index.htm}
+% \bibitem{LINUXIMA} Linux Integrity Subsystem and Integrity Measurement
+% Architecture, \url{http://linux-ima.sourceforge.net}
+% \bibitem{CDP} The confused deputy problem,
+% \url{http://www.cis.upenn.edu/~KeyKOS/ConfusedDeputy.html}
+% \bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
+% \bibitem{LSMHOOKS} Why doesn't grsecurity use LSM?,
+% \url{http://grsecurity.net/lsm.php}
+% \bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org}
+% \bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
+% \bibitem{CCCERT} Common Criteria for Information Technology Security Evaluation,
+% \url{http://www.commoncriteriaportal.org}
 % \bibitem{WCS} Wikipedia: Computer Security,
 % \url{http://en.wikipedia.org/wiki/Computer_security}
-% \bibitem{WCS} Wikipedia: Computer Security,
-% \url{http://en.wikipedia.org/wiki/Information_security}
-\bibitem{ITXT} Intel Trusted Execution Technology (TXT),
-\url{http://www.intel.com/technology/malwarereduction/index.htm}
-\bibitem{LINUXIMA} Linux Integrity Subsystem and Integrity Measurement
-Architecture, \url{http://linux-ima.sourceforge.net}
-\bibitem{CDP} The confused deputy problem,
-\url{http://www.cis.upenn.edu/~KeyKOS/ConfusedDeputy.html}
-\bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
-\bibitem{LSMHOOKS} Why doesn't grsecurity use LSM?,
-\url{http://grsecurity.net/lsm.php}
-\bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org}
-\bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
-\bibitem{CCCERT} Common Criteria for Information Technology Security Evaluation,
-\url{http://www.commoncriteriaportal.org}
-
-% Sites distributions GNU/Linux
-\bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
-\bibitem{FEDORA} Fedora, \url{http://fedoraproject.org}
-\bibitem{CENTOS} CentOS, \url{http://www.centos.org}
-\bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
-\bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
-
-\end{thebibliography}
-
-\newpage
-
-\addcontentsline{toc}{section}{Glossary}
-
-\nomenclature{AppArmor}{Application Armor}
-\nomenclature{DAC}{Discretionary Access Control}
-\nomenclature{MAC}{Mandatory Access Control}
-\nomenclature{PIGA}{Policy Interaction Graph Analysis}
-\nomenclature{SELinux}{Security Enhanced Linux}
-\nomenclature{SMACK}{Simplified Mandatory Access Control Kernel}
-% \nomenclature{TOMOYO Linux}{}
-
-
-
-\printnomenclature[3cm]
+% % \bibitem{WCS} Wikipedia: Computer Security,
+% % \url{http://en.wikipedia.org/wiki/Information_security}
+% 
+% % Sites distributions GNU/Linux
+% \bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
+% \bibitem{FEDORA} Fedora, \url{http://fedoraproject.org}
+% \bibitem{CENTOS} CentOS, \url{http://www.centos.org}
+% \bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
+% \bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
+% 
+% \end{thebibliography}
 
 \newpage
 

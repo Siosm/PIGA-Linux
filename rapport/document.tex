@@ -915,6 +915,41 @@ store virtual machines configurations. This is the example configuration I used,
 including the previously discussed QEMU features:
 
 \begin{lstlisting}
+<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+  <name>Gentoo_projet</name>
+  ...
+  <memory>2097152</memory>
+  ...
+  <vcpu>1</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-0.14'>hvm</type>
+    <kernel>linux-2.6.39-hardened-r8/arch/x86_64/boot/bzImage</kernel>
+    <cmdline>root=/dev/sda1 ro quiet</cmdline>
+    <boot dev='hd'/>
+  </os>
+  ...
+  <devices>
+    <emulator>/usr/bin/qemu-kvm</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='gentoo_projet.img'/>
+      <target dev='hda' bus='ide'/>
+      <address type='drive' controller='0' bus='0' unit='0'/>
+    </disk>
+	...
+    <interface type='network'>
+      <mac address='52:54:00:58:76:20'/>
+      <source network='default'/>
+      <model type='e1000'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+	...
+  </devices>
+  <qemu:commandline>
+    <qemu:arg value='-gdb'/>
+    <qemu:arg value='tcp::1234'/>
+  </qemu:commandline>
+</domain>
 
 \end{lstlisting}
 
@@ -1396,11 +1431,11 @@ current PIGA implementation and all of its features.
 \nocite{*}
 
 % \begin{thebibliography}{40}
-% 
+%
 % % Thèses
 % \bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis,
 % \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
-% 
+%
 % % Articles
 % \bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris,
 % Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for
@@ -1427,7 +1462,7 @@ current PIGA implementation and all of its features.
 % \url{
 % http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.7226&rep=rep1&type=
 % pdf}
-% 
+%
 % % Livres
 % \bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
 % Pearson Education, Inc.
@@ -1438,12 +1473,12 @@ current PIGA implementation and all of its features.
 % Foundations - 2nd Edition }, 2009,
 % \url{http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
 % }
-% 
+%
 % % Présentations
 % \bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
 % Enterprise Linux 5},
 % \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
-% 
+%
 % % Sites web
 % \bibitem{GSELH} Gentoo SELinux Handbook,
 % \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
@@ -1466,14 +1501,14 @@ current PIGA implementation and all of its features.
 % \url{http://en.wikipedia.org/wiki/Computer_security}
 % % \bibitem{WCS} Wikipedia: Computer Security,
 % % \url{http://en.wikipedia.org/wiki/Information_security}
-% 
+%
 % % Sites distributions GNU/Linux
 % \bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
 % \bibitem{FEDORA} Fedora, \url{http://fedoraproject.org}
 % \bibitem{CENTOS} CentOS, \url{http://www.centos.org}
 % \bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
 % \bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
-% 
+%
 % \end{thebibliography}
 
 \newpage

@@ -22,7 +22,7 @@ glossary:
 biblio:
 	bibtex document.aux
 
-full: clean svg2pdf
+full: clean
 	make buildmute
 	make buildmute
 	make buildmute
@@ -32,14 +32,17 @@ full: clean svg2pdf
 	make buildmute
 	make buildmute
 
-final:
+final: svg2pdf
+	make full
 	# You need pdftk in order to remove the second page from this document
 	pdftk document.pdf cat 1 3-end output document_ready.pdf
 
 slides:
 	pdflatex soutenance.tex > /dev/null
 
-slides_final:
+svg2pdf_slides:
 	inkscape -z -D --file=images/piga_evol.svg --export-pdf=images/piga_evol.pdf --export-width=100
+
+slides_final: svg2pdf_slides
 	make slides && make slides && make slides
 

@@ -504,18 +504,15 @@ enough to enforce security objectives.
 Every design made to secure an operating system has to rely, at some point, on
 one of it's components (either a hardware one, a software one, or both). This
 component is trusted to be safe and hardened against attacks. This is summarized
-in this list, based on \cite{wikipediacomputersecurity}:
+in this list:
 
 \begin{itemize}
 	\item Trust all the software to abide by a security policy while being aware
 that the software is not trustworthy;
-
 	\item Trust all the software to abide by a security policy and the software
-is validated as trustworthy (by tedious branch and path analysis for example);
-
+is validated as trustworthy (by static analysis, unit testing, branch analysis);
 	\item Trust no software but enforce a security policy with mechanisms that
 are not trustworthy;
-
 	\item Trust no software but enforce a security policy with trustworthy
 hardware mechanisms.
 \end{itemize}
@@ -773,57 +770,46 @@ Linux kernel; a reference policy is available.
 (PIGA-MAC)}
 
 PIGA is a concept with a collection of associated tools made by Jérémy Briffaut
-as a proof of concept for his PhD thesis.
-%TODO Translate
-L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy
-Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants
-de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de
-définir et imposer des propriétés de sécurité à l'échelle du système en plus des
-contrôles au niveau des interactions effectués par SELinux. Il apporte une
-``mémoire'' à SELinux. Un tel résultat est obtenu après génération du graphe
-complet des interactions possibles et autorisées par une politique SELinux,
-recherche de chemins interdits, et consignation de ces chemins. Cette solution
-permet un contrôle plus avancé sur les flux d'informations dans un système,
-qu'ils soient directs ou indirects.
+as a proof of concept for his PhD thesis and further enhanced later with the
+help of the SDS team from the LIFO laboratory and ENSIB students to produce
+PIGA-OS. The PIGA-OS operating system won the Sec\&Si challenge organized by
+the french National Research Agency (ANR) \cite{pigaosdefisecurite2011}
+\cite{pigaproperty2010}. It's goal is to enforce security properties on a system
+thanks to an activity description language and a compiler to obtain sequences of
+SELinux interaction that are infringing those properties. This improvement could
+be simplified as being a statefull SELinux implementation and is able to detect
+covert channel exploits.
 
 \begin{list}{}{}
-	\item \textbf{Contrainte pour l'administrateur:} Connaissance du langage de
-définition de propriété PIGA, maîtrise préalable de SELinux, pré-requis
-matériels pour la ``compilation'' des politiques.
-	\item \textbf{Avantages:} Un contrôle très fin sur les interactions dans un
-système, restriction (statique) des privilèges maximale.
+	\item \textbf{Constrains for the administrator:} Knowledge of
+the activity description language and SELinux is required. The PIGA policy
+generator is performance hungry, but it is a one time operation.
+	\item \textbf{Advantages:} Fine-grained control over on going interaction.
+SELinux advantages.
 \end{list}
 
-Le système d'exploitation PIGA-OS basé sur la recherche effectuée sur PIGA a été
-vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche
-(ANR) \cite{pigaosdefisecurite2011}\cite{pigaproperty2010}.
-
 \subsubsection{PaX \& grsecurity}
-%TODO Translate
-grsecurity \cite{grsecuritywebsite} est une autre implémentation des mécanismes
-de contrôle
-d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une
-gestion des droits basée sur les rôles. Souvent associé à grsecurity, PaX est un
-patch pour le noyau Linux ajoutant des restrictions et des contrôles sur les
-accès à la mémoire.
+
+grsecurity \cite{grsecuritywebsite} is another implementation of the MAC and
+RBAC models. It also features Access Control Lists and trusted path execution,
+ensuring the binaries on the system can not be modified by untrusted users.
+Often associated with PaX witch is a Linux kernel patch, it brings heavy
+restrictions to the rights given to standard users and access to memory pages.
 
 \begin{list}{}{}
-	\item \textbf{Contrainte pour l'administrateur:} Certains programmes ne
-fonctionnent plus avec les restrictions implémentées par PaX. Il faut organiser
-correctement les binaires car la labellisation est effectuée par rapport à
-l'arborescence
-	\item \textbf{Avantages:} Protection avancée de l'utilisation de la mémoire
-avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinux
+	\item \textbf{Constrains for the administrator:} Several program do
+not work with the PaX restrictions. The trusted execution of programs require
+carefull administration and policy design.
+	\item \textbf{Advantages:} Advanced memory protection, rule learning
+feature, simplier design compared to SELinux.
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
-%TODO Translate
-Présentation de W\^{}X \cite{trustedbsdproject}.
 
-Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité
-telles que les attributs étendus pour le système de fichier UFS2, les listes de
-contrôle d'accès, des capacités d'audit liées à la sécurité, plusieurs méthodes
-de contrôles d'accès mandataire.
+The Trusted BSD project \cite{trustedbsdproject} has added a feature
+similiar to PaX called W\^{}X to enforce separation between executable and
+writable memory pages on FreeBSD. Audit capabilities, Access Control Lists and
+several MAC mechanisms were also added.
 
 % \subsubsection{PIGA-SYSTRANS ou contextd}
 %
@@ -1207,7 +1193,7 @@ process.
 
 \bigskip
 
-In order to reduce research time during normal kernel operation, I attempted to
+In order to reduce seeking time during normal kernel operation, I attempted to
 add a second dynamic storage based on the kernel implementation of linked list.
 It stores interactions in an array indexed by the tclass field:
 
@@ -1227,8 +1213,8 @@ will be discussed further down.
 
 \bigskip
 
-The kernel modifications remain as least intrusive as possible as only two major
-files need minor modifications. The decision taking algorithm for SELinux
+The kernel modifications remain as less intrusive as possible as only two
+major files need minor modifications. The decision taking algorithm for SELinux
 regroups every checks in a single function, allowing us to easily add the PIGA
 control after the SELinux one. Every system call controled by a LSM hook has
 to pass this test. This is an extract from security/selinux/avc.c:
@@ -1249,7 +1235,7 @@ int avc_has_perm_flags(u32 ssid, u32 tsid, u16 tclass,
 	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, 0, &avd);
 
 #ifdef CONFIG_SECURITY_PIGA
-	if (rc != -EACCES) {
+	if (likely(rc != -EACCES)) {
 		rc = piga_has_perm(ssid, tsid, tclass, requested, auditdata,
 						   rc, &avd);
 	}
@@ -1318,7 +1304,7 @@ the number of loaded signatures.
 		rc = PIGA_ALLOW;
 		read_lock(&tclass_lock);
 		seqs = piga_get_sequence_at(ssid, tsid, tclass);
-		if (list_empty(&(seqs->list))) {
+		if (unlikely(list_empty(&(seqs->list)))) {
 			read_unlock(&tclass_lock);
 			return rc;
 		}
@@ -1326,14 +1312,15 @@ the number of loaded signatures.
 		// Iterate over the list to find if the signature is maching
 		list_for_each_entry(sg, &(seqs->list), list) {
 			s = sg->seq;
-			if (piga_seq_get_cs(s) == ssid
+			if (unlikely(
+				piga_seq_get_cs(s) == ssid
 				&& piga_seq_get_cc(s) == tsid
 				&& piga_seq_get_tclass(s) == tclass
-				&& (piga_seq_get_requested(s) & requested) > 0) {
+				&& (piga_seq_get_requested(s) & requested) > 0)) {
 
 				print_vector(ssid, tsid, tclass, requested, auditdata, rc, avd);
 
-				if (piga_seq_end(s) == true) {
+				if (unlikely(piga_seq_end(s) == true)) {
 					printk(KERN_INFO "PIGA: End of sequence. Access denied\n");
 					rc = PIGA_DENY;
 				} else {
@@ -1355,7 +1342,7 @@ the number of loaded signatures.
 
 \medskip
 
-To prevent concurrenct access to the kernel stored signatures, I used a simple
+To prevent concurrent access to the kernel stored signatures, I used a simple
 read/write locking mechanism, which will only enable one process to modify the
 state of a signature at a precise time. This is also the first step towards a
 multi-cpu and multi-core architecture. Fine-grained locking could also be
@@ -1704,87 +1691,6 @@ supervision. I will probably keep working on this project.
 \bibliographystyle{unsrt}
 
 \nocite{*}
-
-% \begin{thebibliography}{40}
-%
-% % Thèses
-% \bibitem{THESEBRIFFAUT} Jérémy Briffaut thesis,
-% \url{http://tel.archives-ouvertes.fr/tel-00261613_v1/}
-%
-% % Articles
-% \bibitem{LSMINTRO} Chris Wright, Crispin Cowan, Stephen Smalley, James Morris,
-% Greg Kroah-Hartman, \textit{Linux Security Modules: General Security Support for
-% the Linux Kernel},
-% \url{
-% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.84.6867&rep=rep1&type=p
-% df}
-% \bibitem{NSATIOF} Peter A. Loscocco, Stephen D. Smalley, Patrick A. Muckelbauer,
-% Ruth C. Taylor, S. Jeff Turner, and John F. Farrell. The Inevitability of
-% Failure: The Flawed Assumption of Security in Modern Computing Environments. In
-% Proceedings of the 21st National Information Systems Security Conference, pages
-% 303–314, Arlington, Virginia, USA, October 1998
-% \bibitem{PIGASAINTMALO} Jérémy Briffaut, Martin Peres, Jonathan
-% Rouzaud-Cornabas, Jigar Solanki, Christian Toinard, Benjamin Venelle,
-% \textit{PIGA-OS: Retour sur le système d'exploitation vainqueur du défi
-% sécurité}, \url{http://renpar.irisa.fr/cfse8/cfse8_16.pdf}
-% \bibitem{PIGAPROP} Jérémy Briffaut, Jean-François Lalande, Christian Toinard,
-% \textit{Formalization of security properties: enforcement for mac operating
-% systems and verification of dynamic mac policies}, International journal on
-% advances in security, 2:325-343, 2009
-% \bibitem{HRUDAC} Michael A. Harrison, Walter L. Ruzzo and Jeffrey D. Ullman,
-% \textit{Protection in Operating Systems}. Communications of the ACM.
-% 19(8):461–471, August 1976,
-% \url{
-% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.7226&rep=rep1&type=
-% pdf}
-%
-% % Livres
-% \bibitem{LKDTE} Robert Love, \textit{Linux Kernel Development, Third Edition},
-% Pearson Education, Inc.
-% \bibitem{SELINUXEXAMPLE} Frank Mayer, Karl MacMillan, David Caplan,
-% \textit{SELinux by Example: Using Security Enhanced Linux}, Prentice Hall,
-% Première édition, 6 août 2006
-% \bibitem{SELINUXNOTEBOOK} Richard Haines, \textit{The SELinux Notebook - The
-% Foundations - 2nd Edition }, 2009,
-% \url{http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-% }
-%
-% % Présentations
-% \bibitem{MRHEL5} Daniel J Walsh, Karl MacMillan, \textit{Managing Red Hat
-% Enterprise Linux 5},
-% \url{http://people.redhat.com/dwalsh/SELinux/Presentations/ManageRHEL5.pdf}
-%
-% % Sites web
-% \bibitem{GSELH} Gentoo SELinux Handbook,
-% \url{http://www.gentoo.org/proj/en/hardened/selinux/selinux-handbook.xml}
-% \bibitem{GENTOOH} Gentoo Hardened Project,
-% \url{http://www.gentoo.org/proj/en/hardened}
-% \bibitem{ITXT} Intel Trusted Execution Technology (TXT),
-% \url{http://www.intel.com/technology/malwarereduction/index.htm}
-% \bibitem{LINUXIMA} Linux Integrity Subsystem and Integrity Measurement
-% Architecture, \url{http://linux-ima.sourceforge.net}
-% \bibitem{CDP} The confused deputy problem,
-% \url{http://www.cis.upenn.edu/~KeyKOS/ConfusedDeputy.html}
-% \bibitem{GRSEC} grsecurity website, \url{http://grsecurity.net}
-% \bibitem{LSMHOOKS} Why doesn't grsecurity use LSM?,
-% \url{http://grsecurity.net/lsm.php}
-% \bibitem{TRUSTEDBSD} The TrustedBSD Project, \url{http://www.trustedbsd.org}
-% \bibitem{QNX} QNX Realtime Operating System, \url{http://www.qnx.com}
-% \bibitem{CCCERT} Common Criteria for Information Technology Security Evaluation,
-% \url{http://www.commoncriteriaportal.org}
-% \bibitem{WCS} Wikipedia: Computer Security,
-% \url{http://en.wikipedia.org/wiki/Computer_security}
-% % \bibitem{WCS} Wikipedia: Computer Security,
-% % \url{http://en.wikipedia.org/wiki/Information_security}
-%
-% % Sites distributions GNU/Linux
-% \bibitem{RHEL} Red Hat Enterprise Linux, \url{http://www.redhat.com/rhel}
-% \bibitem{FEDORA} Fedora, \url{http://fedoraproject.org}
-% \bibitem{CENTOS} CentOS, \url{http://www.centos.org}
-% \bibitem{SL} Scientific Linux, \url{http://www.scientificlinux.org}
-% \bibitem{GENTOO} Gentoo, \url{http://www.gentoo.org}
-%
-% \end{thebibliography}
 
 \newpage
 

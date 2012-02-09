@@ -1,9 +1,18 @@
 TODO:
 
-* Capability based system
-
 * Finir de traduire le rapport
 
-* Ajouter la configuration XML de la machine.
+* explication de l'algorithm
+* explication de l'implémentation
+* optimisation
+* hooks et implémentation
+* lien avec SELinux
+* complexité
+* locks
+* concurrence d'accès
+* coder en userpace avant noyau
+* tests unitaire pour valider le
+  concept
 
-* Faire une section problèmes et solutions proposées
+Autre:
+* root cern

@@ -258,13 +258,14 @@ keepaspectratio=true]{Logo_SELinux.pdf}
 
 ~
 
-I would like to particularly thank Jérémy Briffaut for the many advice he gave
-me. This project is mostly based on his thesis and last years work.
+I would like to thank Jérémy Briffaut for the many advices he gave me. This
+project is based on his thesis and would not have been possible without his
+work.
 
 ~
 
-I would like to thank Martin Peres for introducing me to the PIGA concept and
-kernel development.
+I would also like to thank Martin Peres as he introduced me to the PIGA concept
+and kernel development.
 
 ~
 
@@ -349,7 +350,7 @@ development.
 
 \subsection{Context and study limits}
 
-%TODO Add intro
+%FIXME Add intro
 
 There is a wide range of computer security problems, from hardware specific ones
 to sotfware related flaws. New vulnerabilities are discovered every day and they
@@ -417,8 +418,9 @@ by a real human user on the system.
 \subsubsection{Security objectives}
 
 % FIXME find the paper on security objectives
-There are three main objectives generally defined in computer security articles.
-An operating system has to provide means to ensure they can be enforced:
+There are three main objectives generally defined in computer security articles
+and governmental processes \cite{tcsec1986}. An operating system has to provide
+means to ensure they can be enforced:
 
 \bigskip
 
@@ -561,7 +563,7 @@ only from some off-line based attacks which are not detailled in this study.
 \bigskip
 
 It should be noted that both of those mechanisms only provide detection and
-cannot prevent an intrusion or corruption from happening.
+can not prevent an intrusion or corruption from happening.
 
 \subsection{Access control models}
 
@@ -694,15 +696,13 @@ allowed.
 
 \bigskip
 
-Those security model ...
-%FIXME
-Les modèles suivant ne peuvent donc se suffirent à eux-mêmes car ils ne
-permettent pas d'atteindre plus d'un ou deux objectifs à la fois. Ils posent
-aussi le problème de la sur-classification des données (toutes les données
-devenues confidentielles), conduisant à l'introduction d'une méthode de
-dé-classification de l'information, compromettant l'ensemble du modèle.
-En pratique, ces modèles peuvent être utilisés sur des ensembles restreints
-comme nous le verrons par la suite.
+Those relatively simple security model can not enforce more than a single
+security property at the same time. They also raise the problem of over
+classification as in the Bell-LaPadula model, information can only get more
+classified, and its declassification require the intervention of a trusted
+user. This partially compromise the model as it can not function without
+external intervention. In fact, those models can be applied to reduced sections
+of an operating system to provide local integrity and confidentiality checks.
 
 \subsubsection{Role Based Access Control (RBAC)}
 
@@ -740,42 +740,41 @@ section is based on the detailled summary on page 86 of
 \cite{theseJBriffaut}.
 
 \subsubsection{Simplified Mandatory Access Control Kernel (SMACK)}
-%FIXME
+%TODO SMACK
 \subsubsection{TOMOYO Linux}
-
+%TODO TOMOYO Linux
 \subsubsection{Application Armor (AppArmor)}
-
+%TODO AppArmor
 \subsubsection{Security Enhanced Linux (SELinux)}
-%FIXME
-SELinux est une implémentation d'un mécanisme de contrôle d'accès mandataire
-basé sur le ``type enforcement'', de niveaux de sécurité/confidentialité non
-prédéfinis, et d'un contrôle d'accès basé sur les rôles. SELinux a été développé
-par la National Security Agency (NSA) et a été intégrée au noyau Linux une fois
-que l'architecture des Linux Security Modules fut mise en place. SELinux permet
-de contrôler pour chaque appel système la validité de l'interaction par rapport
-aux définitions d'une politique. On associe à chaque objets et processus un
-context de sécurité. L'accès à un object par un processus doit correspondre à
-une règle de la politique SELinux pour être autorisé. Il faut noter que chaque
-décision est prise indépendamment des précédentes: SELinux n'as pas de mémoire
-des transitions effectuées sur un système. C'est cette limitation et la
-possibilité d'utiliser les flux d'informations indirects, donc non contrôlés par
-SELinux, qui ont poussé la création de PIGA.
+
+SELinux is MAC mechanism implemented in the Linux kernel as a Linux Security
+Module \cite{lsm2002linux}. Originally developed by the National Security
+Agency (NSA), it features type enforcement based MAC, RBAC management, MLS and
+MCS support. It is based on security contexts associated with each objects on
+the system, and a reference monitor implemented in the Linux kernel. Just like
+any other LSM based access control, SELinux checks every system call for
+compliance to a set of previously loaded policy. Every choice is made
+independantly, ensuring SELinux is stateless thus ignoring covert channels and
+indirect interactions.
 
 \begin{list}{}{}
- \item \textbf{Contrainte pour l'administrateur:} Il faut décrire la totalité
-des interactions possibles pour chaque programme présent sur un système. Il faut
-s'assurer du bon fonctionnement de ces politiques. Il n'existe pas d'outils pour
-valider les politiques SELinux. Seuls certains systèmes de fichiers supportent
-les attributs étendus nécessaires à la labelisation des fichiers présents sur
-les supports de stockage.
- \item \textbf{Avantages:} Séparation fine des privilèges et des rôles, intégrée
-dans le noyau. Des politiques ont déjà été écrites. Il existe une distribution
-facilitant le déploiement de ce type de protection: Fedora.
+ \item \textbf{Constrains for the administrator:} The full set of allowed
+interactions as to be described in a specified language to create the policy.
+Proper testing must ensure that every application can access the ressources
+they need. File systems must be able to store security context as an extended
+attribute, preventing the use of old or exotic ones. Network operations (NFS
+shares) are challenging and require external control.
+ \item \textbf{Advantages:} Fine-grained confinement of subjects on a
+system; available in several mainstream distributions and well-tested in the
+Linux kernel; a reference policy is available.
 \end{list}
 
 \subsubsection{Policy Interaction Graph Analysis - Mandatory Access Control
 (PIGA-MAC)}
-%FIXME
+
+PIGA is a concept with a collection of associated tools made by Jérémy Briffaut
+as a proof of concept for his PhD thesis.
+%TODO Translate
 L'ensemble désigné sous le nom de PIGA est le résultat de la thèse de Jérémy
 Briffaut ainsi que des contributions de l'équipe SDS du LIFO, et des étudiants
 de l'ENSIB. Il est constitué notamment d'une sur-couche à SELinux permettant de
@@ -800,7 +799,7 @@ vainqueur du concours Sec\&Si organisé par l'Agence Nationale pour la Recherche
 (ANR) \cite{pigaosdefisecurite2011}\cite{pigaproperty2010}.
 
 \subsubsection{PaX \& grsecurity}
-%FIXME
+%TODO Translate
 grsecurity \cite{grsecuritywebsite} est une autre implémentation des mécanismes
 de contrôle
 d'accès mandataire et des listes de contrôle d'accès. Il permet aussi une
@@ -818,7 +817,7 @@ avec PaX (pile non exécutable...), fonctionnement un peu plus simple que SELinu
 \end{list}
 
 \subsubsection{W\^{}X \& TrustedBSD}
-%FIXME
+%TODO Translate
 Présentation de W\^{}X \cite{trustedbsdproject}.
 
 Le projet TrustedBSD consiste à intégrer à FreeBSD des fonctions de sécurité
@@ -1106,39 +1105,59 @@ use processor specific features for example.
 
 PIGA-Linux is divided between a kernel patch, a userspace tool, and ``standard''
 PIGA tools. This project focused only on the kernel patch and the policy loader
-tool. The ``standard'' tools functionnality will be briefly explained here for
-convenience.
+tool. I chose to keep the PIGA signatures text format as I don't need to change
+those steps in the PIGA process. The ``standard'' tools functionnality will be
+briefly explained here for convenience.
 
 \subsubsection{PIGA tools}
 
-% FIXME PIGA tools
-Tools to generate graphs and policy files from SELinux policy files. IDS and IPS
-Java stuff. Original kernel patch description.
+As detailled previously, several tools are required to enable PIGA based control
+on an operating sysytem. First, we need a simple tool to generate the
+interaction graph from a MAC policy by listing every possible iteraction. This
+graph can then be processed by the PIGA-pol tool which looks for sequences that
+could that would match security properties defined by an administrator in the
+PIGA activity based description language. The PIGA-pol tool can generate a
+signature database for grsecurity or SELinux based MAC, but I will only use the
+SELinux version. This choice was based on the fact that PIGA-OS is SELinux based
+and that SELinux provides a fine-grained access control.
 
-Anatomy of a PIGA policy:
+A PIGA policy obtained from an SELinux policy should follow those simple
+guidelines :
 
 \begin{lstlisting}
-# Lines starting with an '#' are comments. Blank lines and spaces are ignored
+# Lines starting with an '#' are comments. Blank lines and spaces are
+# ignored
+#
+# The first two fields should be ignored for now as they correspond to
+# not yet implemented PIGA features
+#
+# Each sequence should be kept on one line for now. Future
+# improvements should allow spreading of a sequence on several lines.
+#
+# Description:
+# <ignored> - <ignored> : <source_selinux_security_context>
+# -( <interaction_class> { <interaction_type> } )->
+# <target_selinux_security_context> ; ...
 
-WARN - 0$4028 : root:sysadm_r:sysadm_t -( file { read } )->
-system_u:object_r:locale_t ; root:sysadm_r:sysadm_t -( file { write } )->
-root:object_r:user_tmp_t ; root:sysadm_r:sysadm_t -( file { read } )->
+WARN - 0$4028 : root:sysadm_r:sysadm_t -( file { read } )-> system_u:
+object_r:locale_t ; root:sysadm_r:sysadm_t -( file { write } )-> root:
+object_r:user_tmp_t ; root:sysadm_r:sysadm_t -( file { read } )->
 root:object_r:user_tmp_t
 \end{lstlisting}
-
 
 \subsubsection{Linux kernel implementation}
 
 As of today, the kernel implementation is severly limited in terms of
-performance, but fullfils the basic purpose of PIGA.
+performance, but fullfils the basic purpose of PIGA: blocking sequences of
+interactions.
 
 \bigskip
-% Implementation details
 
-A standard PIGA policy may be involve 1 000 to 300 000 rules containing 1 to 13
-SELinux interactions. So in order to use as light on memory and fast to load
-from userspace to the kernel, the PIGA policy is stored in a basic array of
-'struct sequence' in the kernel.
+A standard PIGA policy may involve 1 000 to 300 000 rules containing 1 to 13
+SELinux interactions. In order to have a low memory consumption and a fast
+load time from userspace to the kernel, the PIGA policy is first stored in a
+basic array of 'struct sequence' in the kernel and the links composing the
+sequences are stored alongside in an other array of struct link.
 
 \begin{lstlisting}
 struct sequence {
@@ -1163,7 +1182,7 @@ static struct sequence * seq = NULL;
 static struct link * link = NULL;
 \end{lstlisting}
 
-\smallskip
+\medskip
 
 The sequences are placed in order in the 'seq' array, and their corresponding
 links are added to the 'link array', at the offset 'link\_offset'. For example,
@@ -1173,39 +1192,209 @@ to obtain the third sequence:
 // Retrieve the sequence:
 struct sequence * seq2 = seq[2];
 
-// Retrieve the associated seq[2].length links:
+// Retrieve the associated `seq[2].length` links:
 for(i = 0; i < seq2->length; ++i) {
 	struct link * l = link.[seq2->link_offset + i];
+	// Use the link l here
 }
 \end{lstlisting}
 
-\smallskip
+\medskip
 
 This simple implementation allow us to load the PIGA policy easily from
 userspace as it only require the copy of two memory regions, which is a fast
-process. Details of the interface between the kernel and userspace will be
-discussed after the next section.
+process.
+
+\bigskip
+
+In order to reduce research time during normal kernel operation, I attempted to
+add a second dynamic storage based on the kernel implementation of linked list.
+It stores interactions in an array indexed by the tclass field:
+
+\begin{lstlisting}
+/* Defines the maximum tclass value used in SELinux + 1 for convenience */
+#define PIGA_SELINUX_MAX_TCLASS 50
+
+static struct list_head * tclass_tab[PIGA_SELINUX_MAX_TCLASS];
+\end{lstlisting}
+
+\medskip
+
+The statistics obtained from the policy containing 300 000 sequences are
+backing this simple design as signatures appears to be well distributed among
+the different SELinux ``tclass'' type. The impact on the algorithm complexity
+will be discussed further down.
 
 \bigskip
 
 The kernel modifications remain as least intrusive as possible as only two major
 files need minor modifications. The decision taking algorithm for SELinux
 regroups every checks in a single function, allowing us to easily add the PIGA
-control after the SELinux one.
+control after the SELinux one. Every system call controled by a LSM hook has
+to pass this test. This is an extract from security/selinux/avc.c:
+
+\begin{lstlisting}
+...
+#ifdef CONFIG_SECURITY_PIGA
+#include "piga/include/piga.h"
+#endif
+...
+int avc_has_perm_flags(u32 ssid, u32 tsid, u16 tclass,
+		       u32 requested, struct common_audit_data *auditdata,
+		       unsigned flags)
+{
+	struct av_decision avd;
+	int rc, rc2;
+
+	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, 0, &avd);
+
+#ifdef CONFIG_SECURITY_PIGA
+	if (rc != -EACCES) {
+		rc = piga_has_perm(ssid, tsid, tclass, requested, auditdata,
+						   rc, &avd);
+	}
+#endif
+	rc2 = avc_audit(ssid, tsid, tclass, requested, &avd, rc,
+					auditdata, flags);
+	if (rc2)
+		return rc2;
+	return rc;
+}
+...
+\end{lstlisting}
+
+\medskip
+
+This ensures that already denied access are not checked by PIGA-Linux. As all
+SELinux behaviours remain unchanged, PIGA denials currently appear as SELinux
+denials. For now, we can keep the SELinux auditing interface to audit PIGA
+denials. In future development, we should include a flag or a special field
+specifying that this particular denial is related to PIGA.
 
 \bigskip
 
-As all SELinux behaviours remain unchanged, PIGA denials currently appear as
-SELinux denials. For now, we can keep the SELinux auditing interface to audit
-PIGA denials. In future development, we should include a flag or a special field
-specifying that this particular denial is related to PIGA.
+The core algorithm taking decisions in PIGA-Linux is located in
+security/selinux/piga/piga.c:
+
+\begin{lstlisting}
+...
+int piga_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested,
+				  struct common_audit_data *auditdata, int rc, struct
+				  av_decision * avd)
+{
+	struct sig_list * seqs = NULL;
+	struct sequence * s = NULL;
+	u32 denied = 0, audited = 0;
+	struct sig_list *sg;
+...
+\end{lstlisting}
+
+\medskip
+
+First, we check if PIGA is enabled and if it should check every access or
+only SELinux audited access. Each vector in a PIGA signature/seqeunce should be
+added to a special SELinux module loaded before enabling PIGA in order to watch
+only the interactions that are part of a signature and skip everything else.
+This is the first step to improve performance.
+
+\begin{lstlisting}
+	if (piga_status_enabled) {
+		...
+			if (piga_audit_only_mode) {...}
+		}
+\end{lstlisting}
+
+\medskip
+
+The access control part was designed to be as generic as possible. The
+piga\_get\_sequence\_at() function has just enough information about the current
+interaction to retrieve every sequence that could potentially match. Any
+performance improvement and design change will be implemened in this function
+and will not impact the remaining code. The first two versions of the
+piga\_get\_sequence\_at() function have a linear complexity and depend only on
+the number of loaded signatures.
+
+\begin{lstlisting}
+		rc = PIGA_ALLOW;
+		read_lock(&tclass_lock);
+		seqs = piga_get_sequence_at(ssid, tsid, tclass);
+		if (list_empty(&(seqs->list))) {
+			read_unlock(&tclass_lock);
+			return rc;
+		}
+
+		// Iterate over the list to find if the signature is maching
+		list_for_each_entry(sg, &(seqs->list), list) {
+			s = sg->seq;
+			if (piga_seq_get_cs(s) == ssid
+				&& piga_seq_get_cc(s) == tsid
+				&& piga_seq_get_tclass(s) == tclass
+				&& (piga_seq_get_requested(s) & requested) > 0) {
+
+				print_vector(ssid, tsid, tclass, requested, auditdata, rc, avd);
+
+				if (piga_seq_end(s) == true) {
+					printk(KERN_INFO "PIGA: End of sequence. Access denied\n");
+					rc = PIGA_DENY;
+				} else {
+					read_unlock(&tclass_lock);
+					write_lock(&tclass_lock);
+					piga_seq_next(sg);
+					write_unlock(&tclass_lock);
+					read_lock(&tclass_lock);
+				}
+			}
+		}
+		read_unlock(&tclass_lock);
+	}
+
+	return rc;
+}
+...
+\end{lstlisting}
+
+\medskip
+
+To prevent concurrenct access to the kernel stored signatures, I used a simple
+read/write locking mechanism, which will only enable one process to modify the
+state of a signature at a precise time. This is also the first step towards a
+multi-cpu and multi-core architecture. Fine-grained locking could also be
+implemented in future work in order to allow parallel interaction checks.
 
 \subsubsection{Piga Policy Parser}
 
 The PIGA Policy Parser (PPP) is a userspace tool built with Flex and Bison (the
 GNU Lex \& Yacc equivalent). It parses and checks the correctness of a set of
-signatures contained in a policy file. Those signatures are to be previously
+signatures contained in a policy file. Those signatures were previously
 generated with PIGA related tools from a set of PIGA rules and a SELinux policy.
+This is an extract from the Yacc parser (ppp.y) detailling the grammar used to
+parse PIGA policies:
+
+\begin{lstlisting}
+%token <str> TYPE
+%token <str> BOOL
+%token <str> SID
+%token EOL ENDF AVPERMSTART AVPERMEND
+%token <str> WORD
+
+%%
+
+wholefile:	file ENDF {...} | file EOL ENDF {...};
+file:		line {...} | file EOL line {...};
+
+line:		TYPE '-' BOOL ':' signature {...} |
+			BOOL ':' signature {...};
+
+signature:	transition {...} | signature ';' transition {...};
+transition:	SID AVPERMSTART vector AVPERMEND SID {...};
+
+vector:		WORD '{' request '}' {...};
+request:	WORD {...} | request WORD {...};
+
+%%
+\end{lstlisting}
+
+\medskip
 
 The PPP currently offers only the first basic features and options:
 \begin{itemize}
@@ -1268,7 +1457,13 @@ Policy stats: '<name> (<sid>): <count>'
             write: 1
 \end{lstlisting}
 
-\smallskip
+\medskip
+
+Parsing the whole policy containing 300 000 signatures takes approximately 13
+seconds inside the virtual machine. The loading time inside the kernel depends
+on the algorithm used for the dynamic policy storage.
+
+\bigskip
 
 In this example, we used the statistics flag to dispaly some information about
 the policy loaded. First, PPP tells us that 4 out of 4 signatures have been
@@ -1298,6 +1493,8 @@ quickly load the policy:
 syscall(__NR_sys_piga_add_sequence, s_len, l_len, s, l);
 \end{lstlisting}
 
+\medskip
+
 And an other one needed to retieve the corresponding SID for each SELinux
 security context.This was designed in order to do as much parsing as possible in
 userspace:
@@ -1317,10 +1514,14 @@ userspace:
 syscall(__NR_sys_piga_add_sequence, scontext, len, sid);
 \end{lstlisting}
 
+\medskip
+
 As I'm going to improve the kernel storage of policy, I'll probably change this
 interface to make it more compliant with current kernel design policy (we should
 not create any new system call, but use ioctl, or other interfaces like
 sockets...).
+
+\bigskip
 
 PIGA control from userspace is also a work in progress, but is correctly
 implemented. In order to be consistent with the recent move of the SELinux
@@ -1349,7 +1550,7 @@ lists.
 	\begin{lstlisting}
 	$ cat /sys/fs/piga/stats
 	PIGA statistics:
-		4 signatres available
+		4 signatures available
 		12 links available
 
 		4 signatures stored in lists
@@ -1375,13 +1576,25 @@ longer to complete syscalls (4 seconds for a simple ``ls -alh'' in a folder with
 ten files) but the system is still working. The audit only mode might also
 improve performance a lot.
 
-The focus an performance improvements was not successfully as of today due to
+\bigskip
+
+Further work was attempted to increase runtime performance and it should be
+noted that it involves preprocessing of sequences and thus adds delay to the
+policy loading step.
+
+\bigskip
+
+The focus on performance improvements was not successfully as of today due to
 the difficulty of debuging kernel space algorithm. Towards the end, I found
 how to debug a kernel running inside QEMU, which proved to be useful.
+
+\bigskip
 
 Performance improvements are a key task in the success of this project, and
 could be achieved by implementing and testing algorithms in userspace before
 porting it to the kernel.
+
+\bigskip
 
 Once it will have reach acceptable speed, we should compare it to vanilla,
 SELinux, PaX and grsecurity kernels, probably using the the Phoronix Test Suite.
@@ -1391,13 +1604,12 @@ SELinux, PaX and grsecurity kernels, probably using the the Phoronix Test Suite.
 \subsubsection{Implementing PIGA interactions}
 
 The Linux Security Model is based on hooks implemented as function pointers
-\cite{lsm2002linux}.
-These hooks are sometimes considered as being arbitrary placed in the kernel
-code \cite{grsecuritylsm} but they also ensure that the structure, which
-will be used
-in the security functions, are correctly locked down and concurrency safe. They
-should provide just enough information in order to make an access control
-decision. Finally, their design is fondamentaly ponctual.
+\cite{lsm2002linux}. These hooks are sometimes considered as being arbitrary
+placed in the kernel code \cite{grsecuritylsm} but they also ensure that the
+structure, which will be used in the security functions, are correctly locked
+down and concurrency safe. They should provide just enough information in order
+to make an access control decision. Finally, their design is fondamentaly
+ponctual.
 
 \bigskip
 
@@ -1409,7 +1621,7 @@ written into the pipe.
 
 \bigskip
 
-% FIXME
+% TODO Diagram
 There should be a diagram detailling the problem here.
 
 \bigskip
@@ -1417,12 +1629,18 @@ There should be a diagram detailling the problem here.
 We need to modify the PIGA design to include new LSM hooks, which should be
 placed right after the portion of code that deals with blocking state in the
 kernel if this is possible (this will require a deep knowledge of the kernel
-subsystems). ``exit'' hooks might be needed if we would like to ensure full
-detections (but not full prevention) of malicious interactions.
+subsystems and might just be impossible as it could require hardware specific
+modifications). ``exit'' hooks might be needed if we would like to ensure full
+detections (but not full prevention) of malicious interactions. Those hooks
+would ensure time based detection which is as close as possible to the PIGA
+definition, but they won't be able to undo what a syscall just did and thus will
+be limited to detection. A carefully crafted succession of system calls could be
+able to evade the test and would not be blocked, but only detected. Any further
+attempt will be denied.
 
 \bigskip
 
-% FIXME
+% TODO Diagram
 There should be another diagram detailling the ``solution'' here.
 
 \subsubsection{/sys/fs/piga pseudo filesystem}
@@ -1472,6 +1690,9 @@ userspace first, using only limited functionnality from the glibc and to
 optimise it, before porting it to the kernel.
 
 \bigskip
+
+I'm thankful to Jérémy Briffaut for letting me work on this topic under his
+supervision. I will probably keep working on this project.
 
 % TODO Conclusion on research stuff
 

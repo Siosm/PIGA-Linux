@@ -67,11 +67,11 @@
 }
 
 %%% TITRE DE PAGE
-\title{Intégration de PIGA dans le noyau Linux}
-\subtitle{Projet recherche 2011 -- 2012}
-\author{Timothée~Ravier}
+\title{\huge Intégration de PIGA dans le noyau Linux}
+\subtitle{\Large Projet recherche 2011 -- 2012}
+\author{\Large Timothée~Ravier}
 \institute{ENSI de Bourges}
-\date{16 décembre 2011}
+\date{10 février 2012}
 
 %%% POUR AVOIR UN PLAN QUI S'AFFICHE QUAND ON CHANGE DE SOUS-SECTION
 \AtBeginSection[ ]
@@ -95,7 +95,7 @@
 	\end{frame}
 }
 
-\section{SELinux et PIGA}
+\section{Architecture}
 \begin{frame}{SELinux et PIGA}
 	Principe d'une protection système avancée
 	\begin{itemize}
@@ -108,17 +108,59 @@
 		\includegraphics[scale=0.22]{modele_generale_en.pdf}
 \end{frame}
 
-\section{Intégration dans le noyau}
-\begin{frame}{Intégration dans le noyau}
+\begin{frame}{De PIGA-IDS/IPS à PIGA-Linux}
 	\begin{center}
 		\includegraphics[scale=0.8]{piga_evol.pdf}
 	\end{center}
 	\vspace{-0.5cm}
 	\begin{itemize}
 		\item meilleures performances
-		\item robustesse (attaques sur le moniteur de référence plus difficile)
+		\item robustesse (attaques sur le moniteur de référence plus
+difficile)
 	\end{itemize}
 \end{frame}
+
+\section{Intégration dans le noyau}
+\begin{frame}{Dissocier le stockage et la progression}
+	\begin{itemize}
+		\item Architecture générique
+		\item Simplification de la communication avec l'espace utilisateur
+		\item Possibilité d'implémentations multiples
+		\item Travail encore en cours (non fonctionnel)
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Implémentation générique}
+	Complexité linaire en fonction de la taille des données entrées :
+	\begin{itemize}
+		\item le tri et l'efficacité reposent sur l'organisation et l'algorithme
+de recherche dans le moyen de stockage
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Verrous et accès concurrent}
+	\begin{itemize}
+		\item 
+		\item 
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Difficultés liées au crochets LSM}
+	\begin{itemize}
+		\item Définition ponctuelle des crochets LSM
+		\item Pas de prise en compte ni la durée ni de la date de fin d'une
+intéraction
+		\item Ne correspond pas au modèle théorique de PIGA
+	\end{itemize}
+\end{frame}
+
+% \begin{frame}{}
+% 	\begin{itemize}
+% 		\item 
+% 		\item 
+% 		\item 
+% 	\end{itemize}
+% \end{frame}
 
 \section{Démonstration}
 \begin{frame}

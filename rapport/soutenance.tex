@@ -121,6 +121,14 @@ difficile)
 \end{frame}
 
 \section{Intégration dans le noyau}
+\begin{frame}{A la suite de SELinux}
+	\begin{itemize}
+		\item Inspiré du patch PIGA-Kernel
+		\item Mise en place d'un sysfs
+		\item Plusieurs appels système
+	\end{itemize}
+\end{frame}
+
 \begin{frame}{Dissocier le stockage et la progression}
 	\begin{itemize}
 		\item Architecture générique
@@ -135,32 +143,51 @@ difficile)
 	\begin{itemize}
 		\item le tri et l'efficacité reposent sur l'organisation et l'algorithme
 de recherche dans le moyen de stockage
+		\item permet le traitement de toute les séquences affectées par
+l'interaction en un seul bloc
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Verrous et accès concurrent}
 	\begin{itemize}
-		\item 
-		\item 
+		\item Premiers pas pour assurer la consistance des prises de décision
+		\item Potentiel support futur du multi-coeur/multi-processeur
 	\end{itemize}
 \end{frame}
 
+\section{Outils userspace}
+\begin{frame}{Piga Policy Parser}
+	\begin{itemize}
+		\item Parse les politiques PIGA
+		\item Propose quelques petites modifications par rapport à la version
+courante des politiques
+		\item Nécessité de formaliser le stockage des états
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Piga Policy Parser}
+	\begin{itemize}
+		\item Utilise les canaux de communication introduits par le patch noyau
+		\item Pour l'instant aucun contrôle de ces appels système
+	\end{itemize}
+\end{frame}
+
+\section{Difficultés et propositions}
 \begin{frame}{Difficultés liées au crochets LSM}
 	\begin{itemize}
 		\item Définition ponctuelle des crochets LSM
-		\item Pas de prise en compte ni la durée ni de la date de fin d'une
+		\item Pas de prise en compte ni de la durée ni de la date de fin d'une
 intéraction
 		\item Ne correspond pas au modèle théorique de PIGA
 	\end{itemize}
 \end{frame}
 
-% \begin{frame}{}
-% 	\begin{itemize}
-% 		\item 
-% 		\item 
-% 		\item 
-% 	\end{itemize}
-% \end{frame}
+\begin{frame}{Difficultés liées au développement noyau}
+	\begin{itemize}
+		\item Débuguer le noyau reste une procédure fastidieuse
+		\item Première implémentation en espace utilisateur ?
+	\end{itemize}
+\end{frame}
 
 \section{Démonstration}
 \begin{frame}
